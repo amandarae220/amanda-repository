@@ -1,0 +1,40 @@
+#hero {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  
+    .hero-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 3rem;
+      max-width: 1200px;
+      padding: 2rem;
+  
+      @media (max-width: 900px) {
+        flex-direction: column;
+        text-align: center;
+      }
+  
+      .hero-image img {
+        max-height: 500px;
+        width: auto;
+        height: auto;
+      }
+  
+      .hero-text {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+  
+        h1 {
+          margin-bottom: 1rem;
+        }
+  
+        p {
+          margin-bottom: 2rem;
+        }
+      }
+    }
+  }
+  

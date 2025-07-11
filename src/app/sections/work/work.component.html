@@ -1,0 +1,15 @@
+<section id="work">
+    <div class="work-wrapper">
+      <h1>Portfolio Work</h1>
+  
+      <div class="card-grid">
+        <div class="card" *ngFor="let project of projects">
+          <h3>{{ project.title }}</h3>
+          <p class="subtitle">{{ project.subtitle }}</p>
+          <p class="description">{{ project.description }}</p>
+          <button>{{ project.buttonText }}</button>
+        </div>
+      </div>
+    </div>
+  </section>
+  
