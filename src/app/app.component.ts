@@ -3,6 +3,7 @@ import { HeroComponent } from './sections/hero/hero.component';
 import { WorkComponent } from './sections/work/work.component';
 import { AboutComponent } from './sections/about/about.component';
 import { ContactComponent } from './sections/contact/contact.component';
+import { SafeUrlPipe } from './pipes/safe-url.pipe'; 
 
 @Component({
   selector: 'app-root',

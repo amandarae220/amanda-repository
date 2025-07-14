@@ -1,15 +1,16 @@
 <section id="work">
-    <div class="work-wrapper">
-      <h1>Portfolio Work</h1>
-  
-      <div class="card-grid">
-        <div class="card" *ngFor="let project of projects">
-          <h3>{{ project.title }}</h3>
-          <p class="subtitle">{{ project.subtitle }}</p>
-          <p class="description">{{ project.description }}</p>
-          <button>{{ project.buttonText }}</button>
-        </div>
+  <div class="work-wrapper">
+    <h2 class="heading">Portfolio Work</h2>
+
+    <div class="card-grid">
+      <div class="card" *ngFor="let project of projects">
+        <h3>{{ project.title }}</h3>
+        <p class="subtitle">{{ project.subtitle }}</p>
+        <p class="description">{{ project.description }}</p>
+        <button class="secondary-button-no-left-padding-copy" (click)="goToProject(project.id)">
+          {{ project.buttonText }}
+        </button>
       </div>
     </div>
-  </section>
-  
+  </div>
+</section>

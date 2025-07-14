@@ -8,4 +8,11 @@ import { Component } from '@angular/core';
 })
 export class HeroComponent {
 
+  scrollToWork(): void {
+    const workSection = document.getElementById('work');
+    if (workSection) {
+      workSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+
 }
