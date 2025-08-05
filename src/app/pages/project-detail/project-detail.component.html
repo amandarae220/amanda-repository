@@ -1,3 +1,13 @@
+<nav class="navbar">
+  <ul class="nav-links">
+    <li><a href="/" class="nav-link">Home</a></li>
+    <li><a href="/#work" class="nav-link active">Work</a></li>
+    <li><a href="/#about" class="nav-link">About</a></li>
+    <li><a href="/#contact" class="nav-link">Contact</a></li>
+  </ul>
+</nav>
+
+
 <section class="project-detail" *ngIf="projectData">
     <a (click)="goBack()" class="back-button">&#10094;&nbsp; Back</a>
   
@@ -7,14 +17,19 @@
       </div>
   
       <div class="project-content">
-        <h2 class="heading">{{ projectData.title }}</h2>
+        <h1 class="heading">{{ projectData.title }}</h1>
         <p class="subtitle">{{ projectData.subtitle }}</p>
         <p class="paragraph">{{ projectData.description }}</p>
 
-        <button class="secondary-button-no-left-padding-copy">
-          <a [href]="projectData.url" target="_blank" rel="noopener noreferrer">
-          View {{ projectData.title }}</a>
-        </button>
+        <div class="project-buttons" *ngIf="projectData.buttons">
+          <button 
+            *ngFor="let btn of projectData.buttons"
+            class="secondary-button-no-left-padding-copy">
+            <a [href]="btn.url" target="_blank" rel="noopener noreferrer">
+              {{ btn.label }}
+            </a>
+          </button>
+        </div>
       </div>
     </div>
   </section>  

@@ -20,37 +20,48 @@ export class ProjectDetailComponent implements OnInit {
       title: 'Saux Component Library',
       subtitle: 'React, Typescript, Storybook, Git, Npm',
       description: `Showingcasing both my technical and collaborative skillsets, this component library is built with React and Typescript. It features Storybook for documentation and is published to Npm.`,
-      image: 'assets/saux-preview.png',
-      url: 'https://yourusername.github.io/sudoku' 
+      image: 'assets/SAUX STORYBOOK.png',
+      buttons: [
+      { label: 'View Storybook', url: 'https://tassyguy.github.io/saux-component-library/' },
+      { label: 'View GitHub Repo', url: 'https://github.com/tassyguy/saux-component-library' }
+    ]
     },
     sudoku: {
       title: 'Sudoku Puzzle',
       subtitle: 'React & Typescript',
       description: `Sudoku is a puzzle that I've long enjoyed so I wanted to re-create an interactive version.
                     This version utilizes React, Typescript, and is hosted using GitHub Pages.`,
-      image: 'assets/sudoku.png',
-      url: 'https://amandarae220.github.io/sudoku/' 
+      image: 'assets/sudoku.png', 
+      buttons: [
+        { label: 'View Storybook', url: 'https://amandarae220.github.io/sudoku/' },
+      ]
     },
     resume: {
       title: 'Interactive Resume',
       subtitle: 'D3.js & GitHub Pages',
 description: `This resume visualization reimagines what a data driven, interactive resume could look like. It uses D3.js to turn timelines and skills into interactive data art.`,
       image: 'assets/interactiveResume.png',
-      url: 'https://amandarae220.github.io/interactiveResume/'
+      buttons: [
+        { label: 'View Resume', url: 'https://amandarae220.github.io/interactiveResume/' },
+      ]
     },
     calculator: {
       title: 'Retirement Calculator',
       subtitle: 'D3.js & GitHub Pages',
       description: 'An interactive calculator that visualizes compound interest over time. Users can adjust savings, timeline, and returns to see how your money could grow. No spreadsheets required.',
       image: 'assets/retirementCalculator.png',
-      url: 'https://amandarae220.github.io/Calculator2.0/'
+      buttons: [
+        { label: 'View Calculator', url: 'https://amandarae220.github.io/Calculator2.0/' },
+      ]
     },
     website: {
       title: 'This website... duh',
       subtitle: 'Angular, Typescript, GitHub Pages',
       description: `This website, in and of itself, showcases my skill set with Angular and Typescript. This portfolio is more than a static site, it’s a full-featured app that showcases my approach to user experience, accessibility, and a sprinkle of personality.`,
-      image: 'assets/portfolio-preview.png',
-      url: 'https://www.amandarae.dev'
+      image: 'assets/PORTFOLIO IMAGE.png',
+      buttons: [
+        { label: 'Go to homepage', url: 'https://www.amandarae.dev' },
+      ]
     }
   };
 

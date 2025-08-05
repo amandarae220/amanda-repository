@@ -6,8 +6,7 @@ html, body {
   }
   
   .scroll-container {
-    scroll-snap-type: y proximity;
-    overflow-y: scroll;
+    scroll-snap-type: none;x
     height: 100vh;
   }
   
@@ -18,7 +17,7 @@ html, body {
     align-items: center;
     justify-content: center;
     min-height: 100vh;
-    padding: 10vh;
+    padding: 2vh 8vh;
   }
   
   :root {
@@ -91,3 +90,65 @@ html, body {
   .margin-bottom-xlarge {
     margin-bottom: 40px !important;
   }
+
+  .navbar {
+    width: calc(100% - 14rem);
+    margin-left: 5rem;
+    margin-right: 5rem;
+    margin-top: 2rem;
+    padding: 1rem 2rem;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0);
+  
+    .nav-links {
+      display: flex;               // Makes items horizontal
+      justify-content: flex-end;  // Aligns items to the right
+      gap: 2rem;                   // Adds space between links
+      list-style: none;           // Removes bullets
+      margin: 0;
+      padding: 0;
+  
+      li {
+        margin: 0;
+      }
+
+      .nav-links a {
+        color: #666;
+        text-decoration: none;
+        padding: 0.5rem 1rem;
+        transition: color 0.3s ease, font-weight 0.3s;
+      
+        &:hover,
+        &.active {
+          color: var(--accent-color); // e.g., #bb7fab
+          font-weight: 700;
+        }
+      }
+
+      a.nav-link.active {
+        color: #bb7fab; 
+        font-weight: 700; 
+      }
+      
+  
+      a {
+        text-decoration: none;
+        font-weight: 600;
+        color: #000;
+        font-family: 'Merriweather', serif;
+        transition: color 0.3s;
+  
+        &:hover {
+          color: #bb7fab;
+        }
+      }
+  
+      .active-link {
+        color: #bb7fab;
+      }
+    }
+  }
+  

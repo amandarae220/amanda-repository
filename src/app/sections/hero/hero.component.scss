@@ -48,15 +48,12 @@
   }
   
   .view-work-link {
-    cursor: pointer;
     margin-bottom: 0.5rem;
-    text-decoration: underline;
     color: var(--black);
     transition: color 0.3s ease;
-  }
-  
-  .view-work-link:hover {
-    color: #bb7fab;
+    white-space: nowrap;
+    width: fit-content;
+    padding-right: 0px;
   }
   
   .down-arrow {
@@ -95,4 +92,20 @@
       margin-top: 0;
     }
   }
+
+  @keyframes slideInFromLeft {
+    0% {
+      opacity: 0;
+      transform: translateX(-400px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  
+  .slide-in-left {
+    animation: slideInFromLeft 1s ease-out forwards;
+  }
+  
   
