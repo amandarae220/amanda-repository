@@ -1,6 +1,16 @@
+.wrapper, .hero-wrapper, .about-wrapper, .work-wrapper, .contact-wrapper {
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+
 #work {
   scroll-snap-align: start;
-  height: 85vh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -21,9 +31,17 @@
     .card-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 1rem;
-      align-items: stretch;
+      gap: 2rem;
+    
+      @media (max-width: 900px) {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    
+      @media (max-width: 600px) {
+        grid-template-columns: 1fr;
+      }
     }
+    
 
 
 @media (max-width: 900px) {
@@ -33,6 +51,9 @@
 }
 
 @media (max-width: 600px) {
+  section#work {
+    height: fit-content;
+  }
   .card-grid {
     grid-template-columns: 1fr;
   }

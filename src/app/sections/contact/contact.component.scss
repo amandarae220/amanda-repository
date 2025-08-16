@@ -1,0 +1,34 @@
+.wrapper, .hero-wrapper, .about-wrapper, .work-wrapper, .contact-wrapper {
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .contact-wrapper {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+    text-align: center;
+  
+    h1 {
+      margin-bottom: 1rem;
+    }
+  
+    p {
+      font-size: 1rem;
+    }
+  
+    a {
+      color: #b678a5;
+      text-decoration: none;
+  
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+  

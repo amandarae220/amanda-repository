@@ -1,3 +1,4 @@
+
 #hero {
     height: 100vh;
     display: flex;
@@ -17,9 +18,11 @@
       }
   
       .hero-image img {
-        max-height: 500px;
-        width: auto;
-        height: auto;
+        max-width: 100%;  /* allow image to shrink to fit container width */
+        height: auto;   
+        max-height: 500px;  /* maintain aspect ratio */
+        display: block;   /* remove inline gap */
+        margin: 0 auto;   /* center image if container shrinks */
       }
   
       .hero-text {
@@ -107,5 +110,49 @@
   .slide-in-left {
     animation: slideInFromLeft 1s ease-out forwards;
   }
+
+  @media (max-width: 600px) {
+  #hero .hero-wrapper {
+    flex-direction: row;  /* keep horizontal */
+    align-items: center;  /* vertically center content */
+    gap: 1rem;            /* smaller gap between image and text */
+    padding: 1rem;
+    justify-content: flex-start; /* align left */
+  }
+
+  #hero .hero-image {
+    flex: 0 0 40%;        /* fix image container to 40% width */
+    max-width: 150px;     /* cap max width so it shrinks nicely */
+  }
+
+  #hero .hero-image img {
+    width: 100%;          /* make image fill container width */
+    height: auto;         /* keep aspect ratio */
+    display: block;
+  }
+
+  #hero .hero-text {
+    flex: 1;              /* take remaining space */
+    text-align: left;     /* align text left */
+  }
+
+  #hero .hero-text h1 {
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+  }
+
+  #hero .hero-text p {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  /* Optional: center the #CENTERTHIS div under the text */
+  #CENTERTHIS {
+    align-items: flex-start;
+    margin-top: 0.5rem;
+  }
+}
+
+  
   
   
