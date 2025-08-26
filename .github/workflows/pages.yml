@@ -24,7 +24,7 @@ jobs:
           node-version: '20'
           cache: 'npm'
       - run: npm ci
-      - run: npx ng build --configuration=production --base-href "/<your-repo-name>/"
+      - run: npx ng build --configuration=production --base-href "/<amanda-repository>/"
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist/**   # adjust if your dist subfolder has an app name
