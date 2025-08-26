@@ -18,27 +18,21 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
 
-      - name: Install
+      - name: Install deps
         run: npm ci
 
-      - name: Ensure Angular CLI
-        run: npx -y @angular/cli@^17 ng version
-
+      # Build using Angular CLI provided by npx (-p installs it temporarily)
       - name: Build Angular (Project Page)
-        run: npx ng build --configuration=production --base-href "/<amanda-repository>/"
-
-      - name: List build output
-        run: |
-          echo "PWD=$(pwd)"
-          ls -la dist || true
-          ls -laR dist || true
+        run: npx -p @angular/cli@^17 ng build --configuration=production --base-href "/<amanda-repository>/"
 
       - name: Resolve dist path
         id: dist
