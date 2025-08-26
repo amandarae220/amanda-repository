@@ -32,7 +32,7 @@ jobs:
 
       # Build using Angular CLI provided by npx (-p installs it temporarily)
       - name: Build Angular (Project Page)
-        run: npx -p @angular/cli@^17 ng build --configuration=production --base-href "/<amanda-repository>/"
+        run: npx -p @angular/cli@^17 ng build --configuration=production --base-href "/<amanda-repository>/" --output-path dist
 
       - name: Resolve dist path
         id: dist
@@ -53,7 +53,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ${{ steps.dist.outputs.dist_path }}
+          path: dist
 
   deploy:
     runs-on: ubuntu-latest
