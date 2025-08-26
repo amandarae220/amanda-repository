@@ -1,19 +1,18 @@
 <section id="hero">
   <div class="hero-wrapper slide-in-left">
-      <div class="hero-image">
-        <img src="assets/amanda-illustration.png" alt="Amanda Illustration" />
-      </div>
-      <div class="hero-text">
-        <h1 class="heading">Hello!</h1>
-        <p class="paragraph margin-top-no margin-bottom-large">
-          My name is Amanda.<br />
-          I build things on the world wide web.
-        </p>
-        <div id="CENTERTHIS">
-          <p class="view-work-link">View my work</p>
-          <div class="down-arrow" aria-label="Scroll to work section"></div>
-        </div>        
+    <div class="hero-image">
+      <img src="assets/amanda-illustration.png" alt="Amanda Illustration" />
+    </div>
+    <div class="hero-text">
+      <h1 class="heading">Hello!</h1>
+      <p class="paragraph margin-top-no margin-bottom-large">
+        My name is Amanda.<br />
+        I build things on the world wide web.
+      </p>
+      <div id="CENTERTHIS">
+        <a class="view-work-link" href="#work" (click)="scrollTo('work', $event)">View my work</a>
+        <div class="down-arrow" aria-label="Scroll to work section"></div>
       </div>
     </div>
-  </section>
-  
+  </div>
+</section>

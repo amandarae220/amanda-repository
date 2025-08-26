@@ -8,6 +8,12 @@
     flex-direction: column;
   }
 
+  section.project-detail {
+        @media (max-width: 600px) {
+      display: unset;
+    }
+  }
+
   .image-preview {
     flex: 1;
     width: 60%;
@@ -15,11 +21,20 @@
     justify-content: flex-end; 
     align-items: center;
 
+    @media (max-width: 600px) {
+      width: unset;
+    }
+
     img {
       max-width: 100%;
       max-height: 70vh;
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
       object-fit: contain;
+
+          @media (max-width: 600px) {
+      margin-top: 5rem;
+      margin-bottom: 0rem;
+    }
     }
   }
 
@@ -31,6 +46,10 @@
     justify-content: center;
     text-align: left; // ⬅️ Make sure text aligns left
     gap: 1rem;
+
+    @media (max-width: 600px) {
+      width: unset;
+    }
   }
 }
 

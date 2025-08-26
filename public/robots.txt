@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://amandarae220.github.io/amanda-repository/sitemap.xml

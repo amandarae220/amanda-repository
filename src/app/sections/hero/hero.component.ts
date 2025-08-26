@@ -8,10 +8,11 @@ import { Component } from '@angular/core';
 })
 export class HeroComponent {
 
-  scrollToWork(): void {
-    const workSection = document.getElementById('work');
-    if (workSection) {
-      workSection.scrollIntoView({ behavior: 'smooth' });
+scrollTo(id: string, event: Event): void {
+    event.preventDefault(); // stop default anchor jump
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }
 

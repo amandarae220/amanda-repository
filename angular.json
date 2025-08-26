@@ -114,9 +114,8 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": false
   }
 }
-
-https://amandarae220.github.io/amanda-repository
-
-https://<your-username>.github.io/<repo-name>/

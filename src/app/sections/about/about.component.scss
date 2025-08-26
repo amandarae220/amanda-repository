@@ -1,11 +1,10 @@
-.wrapper, .hero-wrapper, .about-wrapper, .work-wrapper, .contact-wrapper {
-  max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: 1rem;
-  padding-right: 1rem;
-  width: 100%;
-  box-sizing: border-box;
+.wrapper, .about-wrapper, .work-wrapper, .contact-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3rem;
+  max-width: 1100px;
+  margin: 0 auto;
 }
 
 @media (max-width: 600px) {
@@ -14,18 +13,12 @@
   }
 }
 
-
 #about {
-    height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 2rem;
   
-  
-
-
-
     .about-wrapper {
         display: flex;
         flex-direction: row;
@@ -33,11 +26,19 @@
         width: 100%;
         gap: 3rem;
         align-items: flex-start;
+        padding-left: 3rem;
+
+        blockquote {
+          margin-top: auto;
+          margin-bottom: auto;
+        }
 
         @media (max-width: 900px) {
           flex-direction: column;
           align-items: center;
           text-align: center;
+          gap: 8rem;
+          padding-left: 0rem;
         }
 
         blockquote {
@@ -53,7 +54,6 @@
           font-weight: 400;
           letter-spacing: -.04em;
           border-left: 5px solid #e2e2e2;
-          margin: 0 0 10px;
           padding: 10px 20px;
           font-family: Palatino Linotype, Book Antiqua, Palatino, serif;
           line-height: 2.8rem;
@@ -67,7 +67,7 @@
         }
       
         .about-content {
-          max-width: 700px;
+          max-width: 500px;
     
           h2 {
             font-size: 2.25rem;

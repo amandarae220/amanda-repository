@@ -1,158 +1,125 @@
-
+/* ===== Hero (mobile-first: image LEFT, text RIGHT) ===== */
 #hero {
-    height: 100vh;
+  min-height: calc(100vh - var(--nav-h));   /* fallback */
+  min-height: calc(100dvh - var(--nav-h));  /* modern mobile fix */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+   overflow-x: clip;
+
+  /*@media (min-width: 600px) {
+      margin-bottom: 8rem;
+  }*/
+
+  .hero-wrapper {
     display: flex;
+    flex-direction: row;       /* always side-by-side */
     align-items: center;
     justify-content: center;
-  
-    .hero-wrapper {
-      display: flex;
-      align-items: center;
-      gap: 3rem;
-      max-width: 1200px;
-      padding: 2rem;
-  
-      @media (max-width: 900px) {
-        flex-direction: column;
-        text-align: center;
-      }
-  
-      .hero-image img {
-        max-width: 100%;  /* allow image to shrink to fit container width */
-        height: auto;   
-        max-height: 500px;  /* maintain aspect ratio */
-        display: block;   /* remove inline gap */
-        margin: 0 auto;   /* center image if container shrinks */
-      }
-  
-      .hero-text {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-  
-        h1 {
-          margin-bottom: 1rem;
-        }
-  
-        p {
-          margin-bottom: 2rem;
-        }
-      }
-    }
+    gap: 2rem;                 /* tighter on small screens */
+    max-width: 1200px;
+    padding: 1.5rem;
+    text-align: left;
   }
 
-  #CENTERTHIS {
+  /* On small screens, size image by container % so it’s not huge */
+  .hero-image {
+    flex: 0 0 40%;             /* ~40% of wrapper width */
+    max-width: 42%;            /* soft cap */
+  }
+
+  .hero-image img { 
+    width: auto; 
+    height: clamp(200px, 60vh, 500px);
+    display: block; }
+
+  .hero-text {
+    flex: 1;                   /* take remaining space */
     display: flex;
     flex-direction: column;
-    align-items: center;
-    width: fit-content;
-    margin-top: 1.5rem;
-    position: relative; 
-  }
-  
-  .view-work-link {
-    margin-bottom: 0.5rem;
-    color: var(--black);
-    transition: color 0.3s ease;
-    white-space: nowrap;
-    width: fit-content;
-    padding-right: 0px;
-  }
-  
-  .down-arrow {
-    position: absolute;
-    top: 100%; // places it just below the link
-    left: 50%;
-    transform: translateX(-50%);
-    width: 0;
-    height: 18px;
-    border: 1px solid;
-    border-radius: 2px;
-    animation: jumpInfinite 2s infinite;
-  }
-  
-  .down-arrow::after {
-    content: "";
-    position: absolute;
-    top: 8px;
-    left: -5px;
-    width: 8px;
-    height: 8px;
-    border-bottom: 2px solid;
-    border-right: 2px solid;
-    border-radius: 2px;
-    transform: rotateZ(45deg);
-  }
-  
-  @keyframes jumpInfinite {
-    0% {
-      margin-top: 0;
-    }
-    50% {
-      margin-top: 20px;
-    }
-    100% {
-      margin-top: 0;
-    }
-  }
+    justify-content: center;
 
-  @keyframes slideInFromLeft {
-    0% {
-      opacity: 0;
-      transform: translateX(-400px);
-    }
-    100% {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
-  
-  .slide-in-left {
-    animation: slideInFromLeft 1s ease-out forwards;
-  }
-
-  @media (max-width: 600px) {
-  #hero .hero-wrapper {
-    flex-direction: row;  /* keep horizontal */
-    align-items: center;  /* vertically center content */
-    gap: 1rem;            /* smaller gap between image and text */
-    padding: 1rem;
-    justify-content: flex-start; /* align left */
-  }
-
-  #hero .hero-image {
-    flex: 0 0 40%;        /* fix image container to 40% width */
-    max-width: 150px;     /* cap max width so it shrinks nicely */
-  }
-
-  #hero .hero-image img {
-    width: 100%;          /* make image fill container width */
-    height: auto;         /* keep aspect ratio */
-    display: block;
-  }
-
-  #hero .hero-text {
-    flex: 1;              /* take remaining space */
-    text-align: left;     /* align text left */
-  }
-
-  #hero .hero-text h1 {
-    font-size: 1.8rem;
-    margin-bottom: 0.5rem;
-  }
-
-  #hero .hero-text p {
-    font-size: 1rem;
-    margin-bottom: 1rem;
-  }
-
-  /* Optional: center the #CENTERTHIS div under the text */
-  #CENTERTHIS {
-    align-items: flex-start;
-    margin-top: 0.5rem;
+    h1 { margin-bottom: 0.75rem; }
+    p  { margin-bottom: 1.25rem; }
   }
 }
 
-  
-  
-  
+/* Ultra-narrow phones: make image a touch smaller to prevent crowding */
+@media (max-width: 360px) {
+  #hero .hero-image { flex-basis: 36%; max-width: 38%; }
+}
+
+/* Tablet / desktop: allow larger, nicely clamped image size */
+@media (min-width: 820px) {
+  #hero .hero-wrapper { gap: 3rem; padding: 2rem; }
+
+  /* Switch from % sizing to intrinsic clamp on bigger screens */
+  #hero .hero-image {
+    flex: 0 0 auto;            /* free image from the 40% basis */
+    max-width: none;
+  }
+/*
+  #hero .hero-image img {
+    width: clamp(160px, 28vw, 391px); 
+  }
+  */
+}
+
+/* ===== Keep these as-is ===== */
+#CENTERTHIS {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: fit-content;
+  margin-top: 1.5rem;
+  position: relative;
+}
+
+.view-work-link {
+  margin-bottom: 0.5rem;
+  color: var(--black);
+  transition: color 0.3s ease;
+  white-space: nowrap;
+  width: fit-content;
+  padding-right: 0px;
+}
+
+.down-arrow {
+  position: absolute;
+  top: 100%; /* places it just below the link */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 18px;
+  border: 1px solid;
+  border-radius: 2px;
+  animation: jumpInfinite 2s infinite;
+}
+
+.down-arrow::after {
+  content: "";
+  position: absolute;
+  top: 8px;
+  left: -5px;
+  width: 8px;
+  height: 8px;
+  border-bottom: 2px solid;
+  border-right: 2px solid;
+  border-radius: 2px;
+  transform: rotateZ(45deg);
+}
+
+@keyframes jumpInfinite {
+  0%   { margin-top: 0; }
+  50%  { margin-top: 20px; }
+  100% { margin-top: 0; }
+}
+
+@keyframes slideInFromLeft {
+  0%   { opacity: 0; transform: translateX(-400px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+
+.slide-in-left {
+  animation: slideInFromLeft 1s ease-out forwards;
+}
