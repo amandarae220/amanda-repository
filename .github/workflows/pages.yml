@@ -30,26 +30,22 @@ jobs:
       - name: Install deps
         run: npm ci
 
-      # Build using Angular CLI provided by npx (-p installs it temporarily)
-      - name: Build Angular (Project Page)
+      # Configure Pages (creates/updates the github-pages environment behind the scenes)
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      # Build Angular (Project Page). For a user/organization page repo (username.github.io), set --base-href "/"
+      - name: Build Angular
         run: npx -p @angular/cli@^17 ng build --configuration=production --base-href "/<amanda-repository>/" --output-path dist
 
-      - name: Resolve dist path
-        id: dist
-        shell: bash
+      # (Optional) Inspect build output in the logs
+      - name: List build output
         run: |
-          set -e
-          if compgen -G "dist/*/index.html" > /dev/null; then
-            DIST_DIR="$(dirname "$(ls dist/*/index.html | head -n1)")"
-          elif [ -f dist/index.html ]; then
-            DIST_DIR="dist"
-          else
-            echo "No build output found in dist/"
-            exit 1
-          fi
-          echo "dist_path=$DIST_DIR" >> "$GITHUB_OUTPUT"
-          echo "Resolved dist path: $DIST_DIR"
+          echo "PWD=$(pwd)"
+          ls -la dist || true
+          ls -laR dist || true
 
+      # Upload the built site as the Pages artifact
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
@@ -62,5 +58,6 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - id: deployment
+      - name: Deploy to GitHub Pages
+        id: deployment
         uses: actions/deploy-pages@v4
