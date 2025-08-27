@@ -30,9 +30,9 @@ jobs:
       - name: Install deps
         run: npm ci
 
-      # Build using Angular CLI provided by npx (-p installs it temporarily)
-      - name: Build Angular (Project Page)
-        run: npx -p @angular/cli@^17 ng build --configuration=production --base-href "/<amanda-repository>/" --output-path dist
+      # Build with correct base-href (project page) and keep Angular’s browser output
+      - name: Build Angular
+        run: npx -p @angular/cli@^17 ng build --configuration=production --base-href "/amanda-repository/"
 
       - name: Resolve dist path
         id: dist
@@ -50,10 +50,11 @@ jobs:
           echo "dist_path=$DIST_DIR" >> "$GITHUB_OUTPUT"
           echo "Resolved dist path: $DIST_DIR"
 
+      # Upload the *browser* folder (this is where index.html is)
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: dist/browser
 
   deploy:
     runs-on: ubuntu-latest

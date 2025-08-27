@@ -3,8 +3,7 @@
   <head><meta charset="utf-8"><title>Redirecting…</title></head>
   <body>
     <script>
-      // Send users back to the app root (respects <base href>)
-      var base = '/amanda-repository/'; // <-- set to your repo path
+      var base = '/amanda-repository/';
       var el = document.querySelector('base');
       if (el && el.getAttribute('href')) base = el.getAttribute('href');
       sessionStorage.redirect = location.href;
