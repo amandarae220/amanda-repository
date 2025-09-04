@@ -22,28 +22,30 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          # Angular 19 supports Node 20/22; pick one and use it everywhere
           node-version: 22
           cache: npm
           cache-dependency-path: package-lock.json
-      
+
+      # Ensure Angular 19 peer deps line up in CI
       - run: npm pkg set "overrides.zone.js=~0.15.1"
       - run: npm ci
 
-      # For a project page use "/<repo-name>/".
-      # For a user/org page (username.github.io), use "/".
+      # Build with the repo-name base href
       - name: Build Angular
-        run: npx ng build --configuration production --base-href "/amanda-repository/"
+        run: |
+          npx ng build --configuration production --base-href "/amanda-repository/"
+          echo "Dist tree:" && ls -la dist || true
+          echo "Index files:" && find dist -maxdepth 3 -type f -name "index.html" -print
 
-      # ---------- PICK ONE PATH BELOW ----------
-      # SPA (most apps): dist/<project-name>
-      # SSR (if you used "ng add @angular/ssr" or "ng new --ssr"):
-      #   dist/<project-name>/browser
+      # SPA fallback so GH Pages routes to your app on refresh/deep links
+      - name: Add SPA fallback (copy index.html to 404.html)
+        run: cp dist/amanda-portfolio/index.html dist/amanda-portfolio/404.html
+
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist/amanda-portfolio
-          # If SSR: path: dist/<project-name>/browser
-          # If you override outputPath below, set that same folder here
+          # If using SSR, use: path: dist/amanda-portfolio/browser
+          # and copy 404.html in that browser/ folder instead
 
   deploy:
     runs-on: ubuntu-latest
