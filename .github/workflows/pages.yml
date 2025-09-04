@@ -25,7 +25,9 @@ jobs:
           # Angular 19 supports Node 20/22; pick one and use it everywhere
           node-version: 22
           cache: npm
-
+          cache-dependency-path: package-lock.json
+      
+      - run: npm pkg set "overrides.zone.js=~0.15.1"
       - run: npm ci
 
       # For a project page use "/<repo-name>/".
