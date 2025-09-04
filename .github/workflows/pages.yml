@@ -30,29 +30,29 @@ jobs:
       - run: npm pkg set "overrides.zone.js=~0.15.1"
       - run: npm ci
 
-- name: Build Angular
-  run: npx ng build --configuration production --base-href "/amanda-repository/"
+      - name: Build Angular
+        run: npx ng build --configuration production --base-href "/amanda-repository/"
 
-- name: Find dist folder
-  id: find_dist
-  run: |
-    set -e
-    echo "Searching for index.html under dist/..."
-    FILE=$(find dist -type f -name index.html | head -n 1)
-    if [ -z "$FILE" ]; then
-      echo "No index.html found under dist/. Build likely failed."
-      exit 1
-    fi
-    DIR=$(dirname "$FILE")
-    echo "dir=$DIR" >> "$GITHUB_OUTPUT"
-    echo "Using dist dir: $DIR"
+      - name: Find dist folder
+        id: find_dist
+        run: |
+          set -e
+          echo "Searching for index.html under dist/..."
+          FILE=$(find dist -type f -name index.html | head -n 1)
+          if [ -z "$FILE" ]; then
+            echo "No index.html found under dist/. Build likely failed."
+            exit 1
+          fi
+          DIR=$(dirname "$FILE")
+          echo "dir=$DIR" >> "$GITHUB_OUTPUT"
+          echo "Using dist dir: $DIR"
 
-- name: Add SPA fallback (copy index.html to 404.html)
-  run: cp "${{ steps.find_dist.outputs.dir }}/index.html" "${{ steps.find_dist.outputs.dir }}/404.html"
+      - name: Add SPA fallback (copy index.html to 404.html)
+        run: cp "${{ steps.find_dist.outputs.dir }}/index.html" "${{ steps.find_dist.outputs.dir }}/404.html"
 
-- uses: actions/upload-pages-artifact@v3
-  with:
-    path: ${{ steps.find_dist.outputs.dir }}
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ${{ steps.find_dist.outputs.dir }}
 
   deploy:
     runs-on: ubuntu-latest
