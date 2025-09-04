@@ -6,6 +6,11 @@ html, body {
   overscroll-behavior-x: none;
 }
 
+main {
+  margin-left: auto;
+  margin-right: auto;
+}
+
 *, *::before, *::after { box-sizing: border-box; }
 img, svg, video { height: auto; display: block; }
 
