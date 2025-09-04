@@ -1,4 +1,4 @@
-name: Deploy to GitHub Pages (Angular)
+name: Deploy to GitHub Pages (Angular 19)
 
 on:
   push:
@@ -11,50 +11,40 @@ permissions:
   id-token: write
 
 concurrency:
-  group: "pages"
+  group: pages
   cancel-in-progress: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          # Angular 19 supports Node 20/22; pick one and use it everywhere
+          node-version: 22
+          cache: npm
 
-      - name: Install deps
-        run: npm ci
+      - run: npm ci
 
-      # Build with correct base-href (project page) and keep Angular’s browser output
-      - name: Build Angular
-        run: npx -p @angular/cli@^17 ng build --configuration=production --base-href "/amanda-repository/"
-
-      - name: Resolve dist path
-        id: dist
-        shell: bash
+      # For a project page use "/<repo-name>/".
+      # For a user/org page (username.github.io), use "/".
+      - name: Build Angular (SPA)
         run: |
-          set -e
-          if compgen -G "dist/*/index.html" > /dev/null; then
-            DIST_DIR="$(dirname "$(ls dist/*/index.html | head -n1)")"
-          elif [ -f dist/index.html ]; then
-            DIST_DIR="dist"
-          else
-            echo "No build output found in dist/"
-            exit 1
-          fi
-          echo "dist_path=$DIST_DIR" >> "$GITHUB_OUTPUT"
-          echo "Resolved dist path: $DIST_DIR"
+          npx ng build --configuration production --base-href "/<repo-name>/"
+          echo "Built to:"
+          ls -la dist
 
-      # Upload the *browser* folder (this is where index.html is)
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      # ---------- PICK ONE PATH BELOW ----------
+      # SPA (most apps): dist/<project-name>
+      # SSR (if you used "ng add @angular/ssr" or "ng new --ssr"):
+      #   dist/<project-name>/browser
+      - uses: actions/upload-pages-artifact@v3
         with:
-          path: dist/browser
+          path: dist/<project-name>
+          # If SSR: path: dist/<project-name>/browser
+          # If you override outputPath below, set that same folder here
 
   deploy:
     runs-on: ubuntu-latest
