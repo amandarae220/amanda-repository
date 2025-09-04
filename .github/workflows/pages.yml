@@ -32,7 +32,7 @@ jobs:
       # For a user/org page (username.github.io), use "/".
       - name: Build Angular (SPA)
         run: |
-          npx ng build --configuration production --base-href "/<repo-name>/"
+          npx ng build --configuration production --base-href "/<amanda-repository>/"
           echo "Built to:"
           ls -la dist
 
@@ -42,7 +42,7 @@ jobs:
       #   dist/<project-name>/browser
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: dist/<project-name>
+          path: dist/<amanda-repository>
           # If SSR: path: dist/<project-name>/browser
           # If you override outputPath below, set that same folder here
 
