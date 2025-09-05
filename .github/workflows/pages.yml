@@ -29,37 +29,43 @@ jobs:
       - run: npm pkg set "overrides.zone.js=~0.15.1"
       - run: npm ci
 
-      # ⬇️ Build for custom domain (root path)
+      # Build for custom domain (served from root)
       - name: Build Angular
         run: npx ng build --configuration production --base-href "/"
 
-      - name: Find dist folder
-        id: find_dist
+      # Find the browser output folder (SSR -> /browser, SPA -> root)
+      - name: Locate Angular output
+        id: out
         run: |
           set -e
-          echo "Searching for index.html under dist/..."
-          FILE=$(find dist -type f -name index.html | head -n 1)
-          if [ -z "$FILE" ]; then
-            echo "No index.html found under dist/. Build likely failed."
-            exit 1
+          if [ -d "dist/amanda-portfolio/browser" ]; then
+            echo "dir=dist/amanda-portfolio/browser" >> $GITHUB_OUTPUT
+          elif [ -d "dist/amanda-portfolio" ]; then
+            echo "dir=dist/amanda-portfolio" >> $GITHUB_OUTPUT
+          else
+            FILE=$(find dist -type f -name index.html | head -n 1 || true)
+            if [ -z "$FILE" ]; then
+              echo "No index.html found under dist/"; exit 1
+            fi
+            echo "dir=$(dirname "$FILE")" >> $GITHUB_OUTPUT
           fi
-          DIR=$(dirname "$FILE")
-          echo "dir=$DIR" >> "$GITHUB_OUTPUT"
-          echo "Using dist dir: $DIR"
-          echo "Base tag in index.html:"
-          grep -n 'base href' "$FILE" || true
+          echo "Using output dir: $(cat $GITHUB_OUTPUT)"
 
-      # SPA fallback so refresh/deep links work
-      - name: Add SPA fallback (copy index.html to 404.html)
-        run: cp "${{ steps.find_dist.outputs.dir }}/index.html" "${{ steps.find_dist.outputs.dir }}/404.html"
+      # Stage everything we want to publish
+      - name: Prepare publish folder
+        run: |
+          rm -rf publish
+          mkdir -p publish
+          rsync -av --delete "${{ steps.out.outputs.dir }}/" publish/
+          cp publish/index.html publish/404.html
+          echo "www.amandarae.dev" > publish/CNAME
+          echo "Publish file count: $(find publish -type f | wc -l)"
+          echo "Top-level files:"; find publish -maxdepth 1 -type f -print
 
-      # ⬇️ Bind the custom domain at deploy time
-      - name: Add CNAME
-        run: echo "www.amandarae.dev" > "${{ steps.find_dist.outputs.dir }}/CNAME"
-
-      - uses: actions/upload-pages-artifact@v3
+      - name: Upload to GitHub Pages
+        uses: actions/upload-pages-artifact@v3
         with:
-          path: ${{ steps.find_dist.outputs.dir }}
+          path: publish
 
   deploy:
     runs-on: ubuntu-latest
