@@ -5,55 +5,70 @@
 /* NEW: make the section stack children so Back sits above the content */
 section.project-detail {
   position: relative;
-  /* no gap needed */
+  padding: 6rem 5rem 4rem 5rem;
+}
+
+@media (max-width: 900px) {
+  section.project-detail {
+    padding: 4rem 2rem 2rem 2rem;;
+  }
 }
 
 /* Your existing wrapper layout */
 .project-wrapper {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  gap: 3rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5rem;
+    align-items: start;
+    align-self: start;
+    margin-top: 2rem;
+    row-gap: 5rem;
 
   @media (max-width: 900px) {
-    flex-direction: column;
+    grid-template-columns: 1fr;
+    row-gap: 2rem;
   }
 
   /* ⛔️ Removed the nested `section.project-detail` block
      (it never matched because section is not inside .project-wrapper) */
 
   .image-preview {
-    flex: 1;
-    width: 60%;
-    display: flex;
-    justify-content: flex-end;
+    width: 100%;
     align-items: center;
+    margin-left: auto;
 
     @media (max-width: 600px) {
       width: unset;
+      margin-left: unset;
     }
 
     img {
       max-width: 100%;
-      max-height: 70vh;
+      max-height: 450px;
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
       object-fit: contain;
+      margin-left: auto;
 
       @media (max-width: 600px) {
-        margin-top: 5rem;
+        margin-top: 3rem;
         margin-bottom: 0rem;
+        max-height: 250px;
+        margin-left: auto;
+        margin-right: auto;
       }
     }
   }
 
   .project-content {
     flex: 1;
-    width: 40%;
+    width: 100%;
     display: flex;
     flex-direction: column;
     justify-content: center;
     text-align: left;
     gap: 1rem;
+    margin-top: auto;
+    margin-bottom: auto;
 
     @media (max-width: 600px) {
       width: unset;
@@ -68,14 +83,13 @@ a {
 }
 
 a.back-button {
-  position: sticky;
-  top: calc(var(--nav-height) + 12px);  /* always same distance from top */
-  z-index: 2;
-  margin: 0 0 16px 0;                   /* consistent spacing below */
+  grid-column: 1 / -1;      /* full width row */
+  justify-self: start;      /* align with left gutter */
+  margin: 0 0 16px 0;
   display: inline-flex;
   align-items: center;
   gap: .5rem;
-  color: #000 !important;
+  color: #000;
 }
 
 p.subtitle { margin-top: 0; }

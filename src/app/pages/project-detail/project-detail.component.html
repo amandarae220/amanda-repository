@@ -9,9 +9,9 @@
 
 
 <section class="project-detail" *ngIf="projectData">
-    <a (click)="goBack()" class="back-button">&#10094;&nbsp; Back</a>
   
     <div class="project-wrapper">
+      <a (click)="goBack()" class="back-button">&#10094;&nbsp; Back</a>
       <div class="image-preview">
         <img [src]="projectData.image" [alt]="projectData.title + ' preview'" />
       </div>
