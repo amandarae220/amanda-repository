@@ -1,9 +1,11 @@
+:root {
+  --nav-height: 64px;
+}
+
 /* NEW: make the section stack children so Back sits above the content */
 section.project-detail {
-  display: flex;
-  flex-direction: column;     /* Back link on its own row */
-  align-items: stretch;       /* wrapper spans full width */
-  gap: 16px;                  /* space below Back */
+  position: relative;
+  /* no gap needed */
 }
 
 /* Your existing wrapper layout */
@@ -65,14 +67,14 @@ a {
   text-decoration: none;
 }
 
-/* Back link: full-width row at top of the section */
 a.back-button {
-  color: #000;
-  display: inline-flex;       /* keep icon + text nicely aligned */
+  position: sticky;
+  top: calc(var(--nav-height) + 12px);  /* always same distance from top */
+  z-index: 2;
+  margin: 0 0 16px 0;                   /* consistent spacing below */
+  display: inline-flex;
   align-items: center;
   gap: .5rem;
-  align-self: flex-start;     /* align with content edge */
-  margin: 0;                  /* remove stray left/top offset */
 }
 
 p.subtitle { margin-top: 0; }
