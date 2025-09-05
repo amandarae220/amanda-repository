@@ -26,12 +26,12 @@ jobs:
           cache: npm
           cache-dependency-path: package-lock.json
 
-      # Ensure Angular 19 peer deps line up in CI
       - run: npm pkg set "overrides.zone.js=~0.15.1"
       - run: npm ci
 
+      # ⬇️ Build for custom domain (root path)
       - name: Build Angular
-        run: npx ng build --configuration production --base-href "/amanda-repository/"
+        run: npx ng build --configuration production --base-href "/"
 
       - name: Find dist folder
         id: find_dist
@@ -46,9 +46,16 @@ jobs:
           DIR=$(dirname "$FILE")
           echo "dir=$DIR" >> "$GITHUB_OUTPUT"
           echo "Using dist dir: $DIR"
+          echo "Base tag in index.html:"
+          grep -n 'base href' "$FILE" || true
 
+      # SPA fallback so refresh/deep links work
       - name: Add SPA fallback (copy index.html to 404.html)
         run: cp "${{ steps.find_dist.outputs.dir }}/index.html" "${{ steps.find_dist.outputs.dir }}/404.html"
+
+      # ⬇️ Bind the custom domain at deploy time
+      - name: Add CNAME
+        run: echo "www.amandarae.dev" > "${{ steps.find_dist.outputs.dir }}/CNAME"
 
       - uses: actions/upload-pages-artifact@v3
         with:
