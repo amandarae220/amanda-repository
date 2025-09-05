@@ -1,3 +1,12 @@
+/* NEW: make the section stack children so Back sits above the content */
+section.project-detail {
+  display: flex;
+  flex-direction: column;     /* Back link on its own row */
+  align-items: stretch;       /* wrapper spans full width */
+  gap: 16px;                  /* space below Back */
+}
+
+/* Your existing wrapper layout */
 .project-wrapper {
   display: flex;
   flex-direction: row;
@@ -8,17 +17,14 @@
     flex-direction: column;
   }
 
-  section.project-detail {
-        @media (max-width: 600px) {
-      display: unset;
-    }
-  }
+  /* ⛔️ Removed the nested `section.project-detail` block
+     (it never matched because section is not inside .project-wrapper) */
 
   .image-preview {
     flex: 1;
     width: 60%;
     display: flex;
-    justify-content: flex-end; 
+    justify-content: flex-end;
     align-items: center;
 
     @media (max-width: 600px) {
@@ -31,10 +37,10 @@
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
       object-fit: contain;
 
-          @media (max-width: 600px) {
-      margin-top: 5rem;
-      margin-bottom: 0rem;
-    }
+      @media (max-width: 600px) {
+        margin-top: 5rem;
+        margin-bottom: 0rem;
+      }
     }
   }
 
@@ -44,7 +50,7 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    text-align: left; // ⬅️ Make sure text aligns left
+    text-align: left;
     gap: 1rem;
 
     @media (max-width: 600px) {
@@ -53,26 +59,29 @@
   }
 }
 
+/* Links */
 a {
   color: #FFF;
   text-decoration: none;
 }
 
+/* Back link: full-width row at top of the section */
 a.back-button {
   color: #000;
-  white-space: nowrap;
-  align-self: start;
-  margin-top: 2rem;
+  display: inline-flex;       /* keep icon + text nicely aligned */
+  align-items: center;
+  gap: .5rem;
+  align-self: flex-start;     /* align with content edge */
+  margin: 0;                  /* remove stray left/top offset */
 }
 
-p.subtitle {
-  margin-top: 0px;
-}
+p.subtitle { margin-top: 0; }
 
 h1 {
-  margin-top: 0px;
-  margin-bottom: 0px;
+  margin-top: 0;
+  margin-bottom: 0;
 }
+
 button {
   align-self: start;
   background-color: #bb7fab;
