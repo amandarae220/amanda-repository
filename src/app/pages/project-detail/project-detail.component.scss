@@ -75,7 +75,7 @@ a.back-button {
   display: inline-flex;
   align-items: center;
   gap: .5rem;
-  color: #000;
+  color: #000 !important;
 }
 
 p.subtitle { margin-top: 0; }
