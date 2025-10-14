@@ -26,6 +26,15 @@ export class ProjectDetailComponent implements OnInit {
       { label: 'View GitHub Repo', url: 'https://github.com/tassyguy/saux-component-library' }
     ]
     },
+    dnd: {
+      title: 'Dungeons & Dragons Mini Game',
+      subtitle: 'HTML, CSS, JavaScript, GitHub Pages',
+      description: `I'd rather be playing Dungeons & Dragons, but since I can't always be doing that, I built a mini-game that simulates a D&D encounter. This project showcases my skills in HTML, CSS, and JavaScript, and is hosted on GitHub Pages.`,
+      image: 'assets/D&D.png',
+      buttons: [
+      { label: 'Play Game', url: 'https://amandarae220.github.io/DungeonsAndDragons/' }, 
+    ]
+    },
     sudoku: {
       title: 'Sudoku Puzzle',
       subtitle: 'React & Typescript',

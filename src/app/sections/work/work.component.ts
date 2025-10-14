@@ -14,6 +14,13 @@ export class WorkComponent {
 
   projects = [
     {
+      id: 'dnd',
+      title: 'D&D Mini Game',
+      subtitle: 'HTML, CSS, JavaScript, GitHub Pages',
+      description: 'A fun little mini-game that simulates the basics of Dungeons & Dragons, showcasing skills in HTML, CSS, and JavaScript.',
+      buttonText: 'VIEW GAME'
+    },
+    {
       id: 'saux',
       title: 'Saux Component Library',
       subtitle: 'React, Typescript, Storybook, Git, Npm',
