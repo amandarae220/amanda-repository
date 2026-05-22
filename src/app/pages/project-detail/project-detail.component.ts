@@ -47,11 +47,64 @@ export class ProjectDetailComponent implements OnInit {
     },
     resume: {
       title: 'Interactive Resume',
-      subtitle: 'D3.js & GitHub Pages',
-description: `This resume visualization reimagines what a data driven, interactive resume could look like. It uses D3.js to turn timelines and skills into interactive data art.`,
+      subtitle: 'Tableau → D3.js → Angular',
+      description: `A resume that IS the portfolio piece. Three iterations — from Tableau to D3.js to pure Angular — documenting both a career and an evolving approach to data visualization.`,
       image: 'assets/interactiveResume.png',
       buttons: [
-        { label: 'View Resume', url: 'https://amandarae220.github.io/interactiveResume/' },
+        { label: 'View v2 Resume', url: 'https://amandarae220.github.io/interactiveResume/' },
+      ],
+      versions: [
+        {
+          version: 'v1',
+          label: 'The Tableau Era',
+          year: '2020',
+          image: 'assets/resume-v1-tableau.png',
+          url: 'https://public.tableau.com/app/profile/amanda.lloyd/viz/ResumeViz-2ndDraft/Dashboard12',
+          highlights: [
+            'Proved the concept: a resume can be a data visualization',
+            'No-code BI tooling — explored the idea before writing a single line of code',
+            'Gantt-style career timeline paired with a hexagonal skills map'
+          ]
+        },
+        {
+          version: 'v2',
+          label: 'Going Web Native',
+          year: '2022',
+          image: 'assets/interactiveResume.png',
+          url: 'https://amandarae220.github.io/interactiveResume/',
+          highlights: [
+            'Rebuilt in D3.js + Angular — full developer control over rendering',
+            'Deployed as a real web app, no BI tooling required',
+            'Clickable timeline with role detail panels and skill hexagons'
+          ]
+        },
+        {
+          version: 'v3',
+          label: 'Architecture Over Tooling',
+          year: '2025',
+          image: null,
+          url: null,
+          comingSoon: true,
+          highlights: [
+            'Dropped D3.js — pure Angular/CSS timeline positioning math',
+            'Nested engagement drill-down within parent roles',
+            'Skill-chip filtering highlights matching roles across the full timeline'
+          ]
+        }
+      ],
+      lessonsLearned: [
+        {
+          heading: 'A data background makes you a better engineer',
+          body: 'Coming from Tableau and data science first means understanding what I\'m visualizing before writing a component. When a chart looks "off," I know whether it\'s a rendering bug or a data modeling decision. That domain fluency — knowing the problem, not just the stack — is what turns a UI developer into a product engineer.'
+        },
+        {
+          heading: 'Proving a concept in the wrong tool is still proof',
+          body: 'v1 in Tableau wasn\'t the lazy path — it was the right one. Validating that an interactive, data-driven resume is legible and useful before writing a single component is the same instinct senior engineers show when they prototype in a spreadsheet before spinning up a service. The tool doesn\'t matter; the hypothesis does.'
+        },
+        {
+          heading: 'The best architecture is one you can delete',
+          body: 'v3 dropped D3.js — not because D3 isn\'t powerful, but because Angular and CSS already handle positioning and state without the SVG overhead. Removing a well-known library takes more confidence than adding one. Knowing when a dependency becomes a liability is the kind of judgment you can\'t learn from a tutorial.'
+        }
       ]
     },
     calculator: {
