@@ -47,11 +47,67 @@ export class ProjectDetailComponent implements OnInit {
     },
     resume: {
       title: 'Interactive Resume',
-      subtitle: 'D3.js & GitHub Pages',
-description: `This resume visualization reimagines what a data driven, interactive resume could look like. It uses D3.js to turn timelines and skills into interactive data art.`,
-      image: 'assets/interactiveResume.png',
+      subtitle: 'Tableau → D3.js → Angular',
+      description: `A resume that IS the portfolio piece. Three iterations, from Tableau to D3.js to pure Angular, each one more purposefully built than the last. v3 is fully dynamic, accessibility tested, and designed for every screen from the start.`,
+      image: 'assets/resume-hero-img.png',
       buttons: [
-        { label: 'View Resume', url: 'https://amandarae220.github.io/interactiveResume/' },
+        { label: 'View v3 Resume', url: 'https://amandarae-web-resume.dev/' },
+      ],
+      versions: [
+        {
+          version: 'v1',
+          label: 'The Tableau Era',
+          year: '2020',
+          image: 'assets/resume-v1.png',
+          url: 'https://public.tableau.com/app/profile/amanda.lloyd/viz/ResumeViz-2ndDraft/Dashboard12',
+          highlights: [
+            'Proved the concept: a resume can be a data visualization',
+            'No-code BI tooling, explored the idea for the sake of the idea, not the final product',
+            'Gantt-style career timeline paired with a hexagonal skills map',
+            'Desktop-only, no mobile consideration'
+          ]
+        },
+        {
+          version: 'v2',
+          label: 'Going Web Native',
+          year: '2022',
+          image: 'assets/interactiveResume.png',
+          url: 'https://amandarae220.github.io/interactiveResume/',
+          highlights: [
+            'Rebuilt with open source tooling (D3.js + Angular) for full developer control',
+            'Deployed as a real web app, no BI tooling required',
+            'Slight visual updates breaking out the role details from a hover tooltip to a dedicated panel to accommodate mobile users',
+            'Mobile users prompted to rotate their screen, functional but not a real solution'
+          ]
+        },
+        {
+          version: 'v3',
+          label: 'Architecture Over Tooling',
+          year: '2026',
+          image: 'assets/resume-v3.png',
+          url: 'https://amandarae-web-resume.dev/',
+          highlights: [
+            'Dropped D3.js in favor of pure Angular/CSS timeline positioning math',
+            'Nested project-based role descriptions within parent roles to better showcase the work and skills within each project',
+            'Skill-chip filtering highlights matching roles across the full timeline',
+            'Custom mobile layout built from the ground up, no rotation prompt needed',
+            'Fully dynamic across all viewports; accessibility tested to WCAG 2.1 AA'
+          ]
+        }
+      ],
+      lessonsLearned: [
+        {
+          heading: 'Data science background meets frontend engineering. A dynamic duo.',
+          body: 'Most frontend engineers debug a bad chart at the component level. A data science background means knowing to check the data model first. When something looks off, the question isn\'t just whether it\'s a rendering bug, it\'s whether the underlying data makes sense to begin with. That dual-discipline instinct catches problems earlier and shapes better decisions about what to build.'
+        },
+        {
+          heading: 'Prototyping in the wrong tool actually saved time',
+          body: 'v1 in Tableau wasn\'t the lazy path. It was the right one. Steve Jobs said "If you correctly define the problem you almost have the answer". Being pragmatic, efficient, and cost effective isn\'t always sexy, but the prototyping tool doesn\'t matter; the hypothesis does.'
+        },
+        {
+          heading: 'The best architecture is one you can delete',
+          body: 'v3 dropped D3.js, not because D3 isn\'t powerful, but because Angular and CSS already handle positioning and state without the SVG overhead. Removing a well-known library takes more confidence than adding one. Knowing when a dependency becomes a liability is invaluable.'
+        }
       ]
     },
     calculator: {
