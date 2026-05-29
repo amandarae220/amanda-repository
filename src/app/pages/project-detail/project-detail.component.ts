@@ -52,7 +52,6 @@ export class ProjectDetailComponent implements OnInit {
       image: 'assets/resume-hero-img.png',
       buttons: [
         { label: 'View v3 Resume', url: 'https://amandarae-web-resume.dev/' },
-        { label: 'View v2 Resume', url: 'https://amandarae220.github.io/interactiveResume/' },
       ],
       versions: [
         {
