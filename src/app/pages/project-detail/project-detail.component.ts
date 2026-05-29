@@ -49,7 +49,7 @@ export class ProjectDetailComponent implements OnInit {
       title: 'Interactive Resume',
       subtitle: 'Tableau → D3.js → Angular',
       description: `A resume that IS the portfolio piece. Three iterations — from Tableau to D3.js to pure Angular — each one more purposefully built than the last. v3 is fully dynamic, accessibility tested, and designed for every screen from the start.`,
-      image: 'assets/interactiveResume.png',
+      image: 'assets/resume-hero-img.png',
       buttons: [
         { label: 'View v3 Resume', url: 'https://amandarae-web-resume.dev/' },
         { label: 'View v2 Resume', url: 'https://amandarae220.github.io/interactiveResume/' },
