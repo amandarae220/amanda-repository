@@ -181,7 +181,8 @@ button {
 
   .version-thumb {
     width: 100%;
-    aspect-ratio: 16 / 9;
+    aspect-ratio: 4 / 3;
+    max-height: 220px;
     border-radius: 4px;
     overflow: hidden;
     background: #f5f5f5;
@@ -190,7 +191,7 @@ button {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      object-position: top;
+      object-position: top center;
       display: block;
     }
   }
@@ -241,6 +242,15 @@ button {
         left: 0;
         color: #bb7fab;
       }
+    }
+  }
+
+  &:nth-child(2) .version-thumb {
+    max-height: 200px;
+    margin-top: 1vh;
+
+    img {
+      object-position: bottom center;
     }
   }
 
