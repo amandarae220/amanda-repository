@@ -47,7 +47,7 @@
           <div class="version-thumb">
             <img *ngIf="v.image" [src]="v.image" [alt]="v.label + ' screenshot'" />
             <div *ngIf="!v.image" class="version-thumb-placeholder">
-              <span>In Development</span>
+              <span>{{ v.url ? 'Screenshot Coming' : 'In Development' }}</span>
             </div>
           </div>
 

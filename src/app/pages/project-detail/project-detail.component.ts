@@ -48,9 +48,10 @@ export class ProjectDetailComponent implements OnInit {
     resume: {
       title: 'Interactive Resume',
       subtitle: 'Tableau → D3.js → Angular',
-      description: `A resume that IS the portfolio piece. Three iterations — from Tableau to D3.js to pure Angular — documenting both a career and an evolving approach to data visualization.`,
+      description: `A resume that IS the portfolio piece. Three iterations — from Tableau to D3.js to pure Angular — each one more purposefully built than the last. v3 is fully dynamic, accessibility tested, and designed for every screen from the start.`,
       image: 'assets/interactiveResume.png',
       buttons: [
+        { label: 'View v3 Resume', url: 'https://amandarae-web-resume.dev/' },
         { label: 'View v2 Resume', url: 'https://amandarae220.github.io/interactiveResume/' },
       ],
       versions: [
@@ -58,12 +59,13 @@ export class ProjectDetailComponent implements OnInit {
           version: 'v1',
           label: 'The Tableau Era',
           year: '2020',
-          image: 'assets/resume-v1-tableau.png',
+          image: 'assets/resume-v1.png',
           url: 'https://public.tableau.com/app/profile/amanda.lloyd/viz/ResumeViz-2ndDraft/Dashboard12',
           highlights: [
             'Proved the concept: a resume can be a data visualization',
             'No-code BI tooling — explored the idea before writing a single line of code',
-            'Gantt-style career timeline paired with a hexagonal skills map'
+            'Gantt-style career timeline paired with a hexagonal skills map',
+            'Desktop-only — no mobile consideration'
           ]
         },
         {
@@ -75,20 +77,22 @@ export class ProjectDetailComponent implements OnInit {
           highlights: [
             'Rebuilt in D3.js + Angular — full developer control over rendering',
             'Deployed as a real web app, no BI tooling required',
-            'Clickable timeline with role detail panels and skill hexagons'
+            'Clickable timeline with role detail panels and skill hexagons',
+            'Mobile users prompted to rotate their screen — functional, but not a solution'
           ]
         },
         {
           version: 'v3',
           label: 'Architecture Over Tooling',
-          year: '2025',
-          image: null,
-          url: null,
-          comingSoon: true,
+          year: '2026',
+          image: 'assets/resume-v3.png',
+          url: 'https://amandarae-web-resume.dev/',
           highlights: [
             'Dropped D3.js — pure Angular/CSS timeline positioning math',
             'Nested engagement drill-down within parent roles',
-            'Skill-chip filtering highlights matching roles across the full timeline'
+            'Skill-chip filtering highlights matching roles across the full timeline',
+            'Custom mobile layout built from the ground up — no rotation prompt, no compromises',
+            'Fully dynamic across all viewports; accessibility tested to WCAG 2.1 AA'
           ]
         }
       ],
