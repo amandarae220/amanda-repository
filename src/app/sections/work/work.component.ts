@@ -14,27 +14,6 @@ export class WorkComponent {
 
   projects = [
     {
-      id: 'dnd',
-      title: 'D&D Mini Game',
-      subtitle: 'HTML, CSS, JavaScript, GitHub Pages',
-      description: 'A fun little mini-game that simulates the basics of Dungeons & Dragons, showcasing skills in HTML, CSS, and JavaScript.',
-      buttonText: 'VIEW GAME'
-    },
-    {
-      id: 'saux',
-      title: 'Saux Component Library',
-      subtitle: 'React, Typescript, Storybook, Git, Npm',
-      description: 'A modular React component library built from scratch with TypeScript, featuring Storybook for documentation, and published to Npm.',
-      buttonText: 'VIEW STORYBOOK'
-    },
-    {
-      id: 'sudoku',
-      title: 'Sudoku Puzzle',
-      subtitle: 'React & Typescript',
-      description: 'An interactive sudoku puzzle built with React and Typescript, hosted with GitHub Pages.',
-      buttonText: 'VIEW PUZZLE'
-    },
-    {
       id: 'resume',
       title: 'Interactive Resume',
       subtitle: 'Tableau → D3.js → Angular',
@@ -45,8 +24,29 @@ export class WorkComponent {
       id: 'calculator',
       title: 'Retirement Calculator',
       subtitle: 'D3.js & GitHub Pages',
-      description: 'A D3-powered, interactive calculator that visualizes the power of compounding interest over time.',
+      description: 'A retirement calculator built to replace the overwhelming, question-heavy tools that make you want to close the tab. Clean inputs, a chart that means something, and insights that surface the milestones your money is quietly working toward.',
       buttonText: 'VIEW CALCULATOR'
+    },
+    {
+      id: 'saux',
+      title: 'Saux Component Library',
+      subtitle: 'React, Typescript, Storybook, Git, Npm',
+      description: 'A modular React component library built from scratch with TypeScript, featuring Storybook for documentation, and published to Npm.',
+      buttonText: 'VIEW STORYBOOK'
+    },
+    {
+      id: 'dnd',
+      title: 'D&D Mini Game',
+      subtitle: 'HTML, CSS, JavaScript, GitHub Pages',
+      description: 'A fun little mini-game that simulates the basics of Dungeons & Dragons, showcasing skills in HTML, CSS, and JavaScript.',
+      buttonText: 'VIEW GAME'
+    },
+    {
+      id: 'sudoku',
+      title: 'Sudoku Puzzle',
+      subtitle: 'React & Typescript',
+      description: 'An interactive sudoku puzzle built with React and Typescript, hosted with GitHub Pages.',
+      buttonText: 'VIEW PUZZLE'
     },
     {
       id: 'website',
