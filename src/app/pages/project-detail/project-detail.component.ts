@@ -113,10 +113,52 @@ export class ProjectDetailComponent implements OnInit {
     calculator: {
       title: 'Retirement Calculator',
       subtitle: 'D3.js & GitHub Pages',
-      description: 'An interactive calculator that visualizes compound interest over time. Users can adjust savings, timeline, and returns to see how your money could grow. No spreadsheets required.',
-      image: 'assets/retirementCalculator.png',
+      description: 'A retirement calculator built to replace the overwhelming, question-heavy tools that make you want to close the tab. Clean inputs, a chart that means something, and insights that surface the milestones your money is quietly working toward.',
+      image: 'assets/calculator-v2.png',
       buttons: [
-        { label: 'View Calculator', url: 'https://amandarae220.github.io/Calculator2.0/' },
+        { label: 'View v2 Calculator', url: 'https://amandarae220.github.io/Calculator2.0/' },
+      ],
+      versions: [
+        {
+          version: 'v1',
+          label: 'Proving the Concept',
+          year: '2023',
+          image: 'assets/retirementCalculator.png',
+          url: 'https://amandarae220.github.io/Calculator2.0/v1/',
+          highlights: [
+            'Compound interest visualization with a D3.js stacked bar chart',
+            'Simple input set: starting amount, rate, years, and contribution',
+            'Showed that a chart alone can make retirement math feel approachable'
+          ]
+        },
+        {
+          version: 'v2',
+          label: 'A Tool Worth Using',
+          year: '2026',
+          image: 'assets/calculator-v2.png',
+          url: 'https://amandarae220.github.io/Calculator2.0/',
+          highlights: [
+            'Key Insights panel automatically surfaces financial milestones from the data',
+            'Coast FI, Die with Zero, and Skim the Top withdrawal modeling built in',
+            'Chart annotations mark the exact year interest overtakes contributions',
+            'Scenario naming and saving for side-by-side comparison',
+            'Employer contribution and Coast FI spend inputs added'
+          ]
+        }
+      ],
+      lessonsLearned: [
+        {
+          heading: 'Insights over output',
+          body: 'A typical calculator returns a number. The Key Insights panel in v2 derives what that number means at different life stages — when interest lifts off, when it hits the tipping point, what you can safely spend in retirement. That\'s the data science instinct applied to UI: the tool should interpret the data, not just display it.'
+        },
+        {
+          heading: 'Build the tool you wish existed',
+          body: 'Austin Kleon writes about making the art you want to see in the world. The same logic applies here. Most retirement calculators online are visually overwhelming, front-loading a wall of questions that make you want to close the tab before you even get to the chart. This one was built because that tool didn\'t exist yet — clean inputs, a chart that tells you something meaningful, and insights that do the math so you don\'t have to.'
+        },
+        {
+          heading: 'Annotations make the invisible visible',
+          body: 'The Year 7 and Year 17 markers on the chart show the exact moments interest overtakes your contributions. That inflection point exists in every retirement projection but most tools never surface it. Good data visualization doesn\'t just show the numbers, it points to what matters.'
+        }
       ]
     },
     website: {
