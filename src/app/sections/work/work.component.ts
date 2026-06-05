@@ -37,8 +37,8 @@ export class WorkComponent {
     {
       id: 'resume',
       title: 'Interactive Resume',
-      subtitle: 'D3.js & GitHub Pages',
-      description: 'The resume reimagined. This D3 visualization turns timelines and skills into interactive data art.',
+      subtitle: 'Tableau → D3.js → Angular',
+      description: 'The resume reimagined. Three iterations of turning career data into interactive art, each one more purposefully built than the last.',
       buttonText: 'VIEW RESUME VIZ'
     },
     {
