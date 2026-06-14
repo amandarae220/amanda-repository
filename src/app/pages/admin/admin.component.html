@@ -1,0 +1,224 @@
+<!-- ── Password Gate ───────────────────────────────────────────────────────── -->
+<div class="admin-gate" *ngIf="!authenticated">
+  <div class="gate-card">
+    <p class="gate-label">PORTFOLIO · ADMIN</p>
+    <h1 class="gate-title">Access Required</h1>
+    <div class="gate-form">
+      <input
+        class="gate-input"
+        type="password"
+        placeholder="Enter password"
+        [(ngModel)]="passwordInput"
+        (keydown.enter)="submitPassword()"
+        aria-label="Admin password"
+      />
+      <button class="gate-btn" (click)="submitPassword()">ENTER</button>
+    </div>
+    <p class="gate-error" *ngIf="authError">Incorrect password</p>
+  </div>
+</div>
+
+<!-- ── Dashboard ──────────────────────────────────────────────────────────── -->
+<div class="admin-shell" *ngIf="authenticated">
+
+  <header class="admin-header">
+    <div>
+      <p class="admin-breadcrumb">PORTFOLIO · ADMIN</p>
+      <h1 class="admin-title">Visitor Analytics</h1>
+      <p class="admin-meta" *ngIf="lastUpdated">
+        {{ uniqueVisitors }} unique visitors &nbsp;·&nbsp;
+        {{ totalPageViews }} page views &nbsp;·&nbsp;
+        Updated {{ lastUpdated | date:'M/d/yyyy h:mm:ss a' }}
+      </p>
+    </div>
+    <button class="admin-refresh-btn" (click)="load()" [disabled]="loading">
+      ↺ {{ loading ? 'LOADING…' : 'REFRESH' }}
+    </button>
+  </header>
+
+  <!-- ── Filters ─────────────────────────────────────────────────────────── -->
+  <div class="admin-filters">
+    <div class="filter-group">
+      <label class="filter-label">TIMEFRAME</label>
+      <select class="filter-select" [(ngModel)]="filters.timeframe">
+        <option value="all">All Time</option>
+        <option value="24h">Last 24h</option>
+        <option value="7d">Last 7 Days</option>
+        <option value="30d">Last 30 Days</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label class="filter-label">DEVICE</label>
+      <select class="filter-select" [(ngModel)]="filters.device">
+        <option value="all">All Devices</option>
+        <option *ngFor="let d of uniqueDevices" [value]="d">{{ d }}</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label class="filter-label">BROWSER</label>
+      <select class="filter-select" [(ngModel)]="filters.browser">
+        <option value="all">All Browsers</option>
+        <option *ngFor="let b of uniqueBrowsers" [value]="b">{{ b }}</option>
+      </select>
+    </div>
+    <button class="filter-clear" *ngIf="filtersActive" (click)="clearFilters()">CLEAR FILTERS</button>
+  </div>
+
+  <!-- ── KPI Tiles ───────────────────────────────────────────────────────── -->
+  <div class="admin-kpis">
+    <div class="kpi-card">
+      <p class="kpi-label">UNIQUE VISITORS</p>
+      <p class="kpi-value cyan">{{ uniqueVisitors }}</p>
+    </div>
+    <div class="kpi-card">
+      <p class="kpi-label">PAGE VIEWS</p>
+      <p class="kpi-value green">{{ totalPageViews }}</p>
+    </div>
+    <div class="kpi-card">
+      <p class="kpi-label">LINK CLICKS</p>
+      <p class="kpi-value amber">{{ totalLinkClicks }}</p>
+    </div>
+    <div class="kpi-card">
+      <p class="kpi-label">AVG TIME ON PAGE</p>
+      <p class="kpi-value pink">{{ avgTimeOnPage }}</p>
+    </div>
+  </div>
+
+  <!-- ── Charts Row ──────────────────────────────────────────────────────── -->
+  <div class="admin-charts">
+
+    <!-- Project Views -->
+    <div class="admin-card">
+      <p class="card-title">PROJECT VIEWS</p>
+      <div class="bar-chart" *ngIf="projectViews.length; else noData">
+        <div class="bar-row" *ngFor="let item of projectViews">
+          <span class="bar-label">{{ item.label }}</span>
+          <div class="bar-track">
+            <div class="bar-fill cyan" [style.width]="barWidth(item.count, projectViews[0].count)"></div>
+          </div>
+          <span class="bar-count">{{ item.count }}</span>
+        </div>
+      </div>
+      <ng-template #noData><p class="no-data">No data yet</p></ng-template>
+    </div>
+
+    <!-- Top Link Clicks (conversions) -->
+    <div class="admin-card">
+      <p class="card-title">LINK CLICKS <span class="card-subtitle">— conversion events</span></p>
+      <div class="bar-chart" *ngIf="topLinkClicks.length; else noData2">
+        <div class="bar-row" *ngFor="let item of topLinkClicks">
+          <span class="bar-label">{{ item.label }}</span>
+          <div class="bar-track">
+            <div class="bar-fill green" [style.width]="barWidth(item.count, topLinkClicks[0].count)"></div>
+          </div>
+          <span class="bar-count">{{ item.count }}</span>
+        </div>
+      </div>
+      <ng-template #noData2><p class="no-data">No data yet</p></ng-template>
+    </div>
+
+    <!-- Traffic Sources -->
+    <div class="admin-card">
+      <p class="card-title">TRAFFIC SOURCES</p>
+      <div class="bar-chart" *ngIf="trafficSources.length; else noData3">
+        <div class="bar-row" *ngFor="let item of trafficSources">
+          <span class="bar-label">{{ item.label }}</span>
+          <div class="bar-track">
+            <div class="bar-fill amber" [style.width]="barWidth(item.count, trafficSources[0].count)"></div>
+          </div>
+          <span class="bar-count">{{ item.count }}</span>
+        </div>
+      </div>
+      <ng-template #noData3><p class="no-data">No data yet</p></ng-template>
+    </div>
+
+  </div>
+
+  <!-- ── Bottom Row ──────────────────────────────────────────────────────── -->
+  <div class="admin-charts admin-charts--three">
+
+    <!-- Daily Activity -->
+    <div class="admin-card">
+      <p class="card-title">VIEWS — LAST 30 DAYS</p>
+      <div class="spark-chart" *ngIf="dailyActivity.length; else noData4">
+        <div class="spark-col" *ngFor="let d of dailyActivity">
+          <div class="spark-bar cyan" [style.height]="barWidth(d.count, maxDailyCount)"></div>
+          <span class="spark-label">{{ d.date }}</span>
+        </div>
+      </div>
+      <ng-template #noData4><p class="no-data">No data yet</p></ng-template>
+    </div>
+
+    <!-- Device -->
+    <div class="admin-card">
+      <p class="card-title">DEVICE</p>
+      <div class="bar-chart" *ngIf="deviceBreakdown.length; else noData5">
+        <div class="bar-row" *ngFor="let item of deviceBreakdown">
+          <span class="bar-label">{{ item.label }}</span>
+          <div class="bar-track">
+            <div class="bar-fill cyan" [style.width]="barWidth(item.count, deviceBreakdown[0].count)">
+              <span class="bar-inline-count">{{ item.count }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <ng-template #noData5><p class="no-data">No data yet</p></ng-template>
+    </div>
+
+    <!-- Browser -->
+    <div class="admin-card">
+      <p class="card-title">BROWSER</p>
+      <div class="bar-chart" *ngIf="browserBreakdown.length; else noData6">
+        <div class="bar-row" *ngFor="let item of browserBreakdown">
+          <span class="bar-label">{{ item.label }}</span>
+          <div class="bar-track">
+            <div class="bar-fill green" [style.width]="barWidth(item.count, browserBreakdown[0].count)">
+              <span class="bar-inline-count">{{ item.count }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <ng-template #noData6><p class="no-data">No data yet</p></ng-template>
+    </div>
+
+  </div>
+
+  <!-- ── Recent Events Table ─────────────────────────────────────────────── -->
+  <div class="admin-card admin-card--full">
+    <p class="card-title">RECENT EVENTS</p>
+    <div class="admin-table-wrap">
+      <table class="admin-table" *ngIf="recentEvents.length; else noData7">
+        <thead>
+          <tr>
+            <th>DATE</th>
+            <th>TIME</th>
+            <th>TYPE</th>
+            <th>PAGE</th>
+            <th>LABEL</th>
+            <th>DEVICE</th>
+            <th>BROWSER</th>
+            <th>REFERRER</th>
+            <th>DURATION</th>
+            <th>VISITOR</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let e of recentEvents">
+            <td>{{ e.created_at ? fmtDate(e.created_at) : '—' }}</td>
+            <td>{{ e.created_at ? fmtTime(e.created_at) : '—' }}</td>
+            <td><span class="event-badge" [ngClass]="e.event_type">{{ e.event_type }}</span></td>
+            <td>{{ e.page || '—' }}</td>
+            <td>{{ e.label || '—' }}</td>
+            <td>{{ e.device || '—' }}</td>
+            <td>{{ e.browser || '—' }}</td>
+            <td>{{ e.referrer || '—' }}</td>
+            <td>{{ e.duration_seconds != null ? fmtDuration(e.duration_seconds) : '—' }}</td>
+            <td class="visitor-id">{{ e.visitor_id.slice(0, 8) }}…</td>
+          </tr>
+        </tbody>
+      </table>
+      <ng-template #noData7><p class="no-data">No events yet</p></ng-template>
+    </div>
+  </div>
+
+</div>
