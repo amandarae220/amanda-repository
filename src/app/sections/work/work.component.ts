@@ -17,14 +17,14 @@ export class WorkComponent {
       id: 'resume',
       title: 'Interactive Resume',
       subtitle: 'Tableau → D3.js → Angular',
-      description: 'The resume reimagined. Three iterations of turning career data into interactive art, each one more purposefully built than the last.',
+      description: 'The resume reimagined. This aims to intuitively answer the most common resume questions that result from gaps in the traditional resume.',
       buttonText: 'VIEW RESUME VIZ'
     },
     {
       id: 'calculator',
       title: 'Retirement Calculator',
       subtitle: 'D3.js & GitHub Pages',
-      description: 'A retirement calculator built to replace the overwhelming, question-heavy tools that make you want to close the tab. Clean inputs, a chart that means something, and insights that surface the milestones your money is quietly working toward.',
+      description: 'A retirement calculator built to replace the overwhelming, question-heavy tools that make you want to close the tab. Clean inputs, a chart that means something, and insights that show what your money is quietly working toward.',
       buttonText: 'VIEW CALCULATOR'
     },
     {
