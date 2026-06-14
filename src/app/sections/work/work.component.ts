@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { AnalyticsService } from '../../services/analytics.service';
 
 @Component({
   selector: 'app-work',
@@ -10,6 +11,7 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./work.component.scss']
 })
 export class WorkComponent {
+  private analytics = inject(AnalyticsService);
   constructor(private router: Router) {}
 
   projects = [
@@ -58,6 +60,7 @@ export class WorkComponent {
   ];
 
   goToProject(id: string) {
+    this.analytics.trackProjectClick(id);
     this.router.navigate(['/project', id]);
   }
 }

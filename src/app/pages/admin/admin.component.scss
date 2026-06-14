@@ -1,0 +1,402 @@
+:host {
+  --cyan:   #00e5ff;
+  --green:  #66f2a5;
+  --amber:  #f5c542;
+  --pink:   #ff5fa0;
+  --muted:  #666;
+  --bg:     #0a0a0a;
+  --card:   #111;
+  --border: #222;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+// ── Gate ────────────────────────────────────────────────────────────────────
+
+.admin-gate {
+  min-height: 100vh;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gate-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  width: 100%;
+  max-width: 360px;
+  padding: 2.5rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+}
+
+.gate-label {
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  color: var(--muted);
+  margin: 0;
+}
+
+.gate-title {
+  font-size: 1.75rem;
+  font-weight: 400;
+  color: #fff;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.gate-form {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.gate-input {
+  flex: 1;
+  background: #000;
+  border: 1px solid var(--border);
+  color: #fff;
+  padding: 0.6rem 0.85rem;
+  font-family: inherit;
+  font-size: 0.9rem;
+  outline: none;
+  &:focus { border-color: var(--cyan); }
+}
+
+.gate-btn {
+  background: var(--cyan);
+  color: #000;
+  border: none;
+  padding: 0.6rem 1.1rem;
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+}
+
+.gate-error {
+  font-size: 0.8rem;
+  color: var(--pink);
+  margin: 0;
+  letter-spacing: 0.06em;
+}
+
+// ── Shell ───────────────────────────────────────────────────────────────────
+
+.admin-shell {
+  min-height: 100vh;
+  background: var(--bg);
+  color: #fff;
+  padding: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+
+  @media (max-width: 768px) { padding: 1.25rem; }
+}
+
+// ── Header ──────────────────────────────────────────────────────────────────
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.admin-breadcrumb {
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  color: var(--muted);
+  margin: 0 0 0.4rem;
+}
+
+.admin-title {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin: 0 0 0.4rem;
+  color: #fff;
+}
+
+.admin-meta {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin: 0;
+  letter-spacing: 0.04em;
+}
+
+.admin-refresh-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  font-family: inherit;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.15s;
+  &:hover { border-color: var(--cyan); color: var(--cyan); }
+  &:disabled { opacity: 0.4; cursor: default; }
+}
+
+// ── Filters ─────────────────────────────────────────────────────────────────
+
+.admin-filters {
+  display: flex;
+  gap: 1.25rem;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  padding: 1rem 1.25rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.filter-label {
+  font-size: 0.65rem;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+}
+
+.filter-select {
+  background: #000;
+  border: 1px solid var(--border);
+  color: #fff;
+  padding: 0.4rem 0.7rem;
+  font-family: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+  outline: none;
+  &:focus { border-color: var(--cyan); }
+}
+
+.filter-clear {
+  background: transparent;
+  border: 1px solid var(--pink);
+  color: var(--pink);
+  padding: 0.4rem 0.8rem;
+  font-family: inherit;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  align-self: flex-end;
+}
+
+// ── KPI Tiles ───────────────────────────────────────────────────────────────
+
+.admin-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+
+  @media (max-width: 900px) { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: 480px) { grid-template-columns: 1fr; }
+}
+
+.kpi-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 1.25rem 1.5rem;
+}
+
+.kpi-label {
+  font-size: 0.65rem;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+  margin: 0 0 0.5rem;
+}
+
+.kpi-value {
+  font-size: 2.25rem;
+  font-weight: 700;
+  margin: 0;
+  &.cyan  { color: var(--cyan); }
+  &.green { color: var(--green); }
+  &.amber { color: var(--amber); }
+  &.pink  { color: var(--pink); }
+}
+
+// ── Charts ──────────────────────────────────────────────────────────────────
+
+.admin-charts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+
+  &--three { grid-template-columns: repeat(3, 1fr); }
+
+  @media (max-width: 900px) { grid-template-columns: 1fr; }
+}
+
+.admin-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 1.25rem 1.5rem;
+
+  &--full { width: 100%; }
+}
+
+.card-title {
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+  margin: 0 0 1rem;
+}
+
+.card-subtitle {
+  color: #444;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.no-data {
+  font-size: 0.8rem;
+  color: var(--muted);
+  text-align: center;
+  padding: 1.5rem 0;
+  letter-spacing: 0.08em;
+  font-style: italic;
+}
+
+// ── Bar Chart ───────────────────────────────────────────────────────────────
+
+.bar-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.bar-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.bar-label {
+  font-size: 0.75rem;
+  color: #aaa;
+  width: 110px;
+  flex-shrink: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bar-track {
+  flex: 1;
+  height: 20px;
+  background: #1a1a1a;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  transition: width 0.4s ease;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 4px;
+  &.cyan  { background: var(--cyan);  opacity: 0.85; }
+  &.green { background: var(--green); opacity: 0.85; }
+  &.amber { background: var(--amber); opacity: 0.85; }
+}
+
+.bar-count {
+  font-size: 0.75rem;
+  color: #888;
+  width: 24px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.bar-inline-count {
+  font-size: 0.7rem;
+  color: #000;
+  font-weight: 700;
+}
+
+// ── Spark Chart ─────────────────────────────────────────────────────────────
+
+.spark-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 80px;
+}
+
+.spark-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 1;
+  height: 100%;
+  gap: 3px;
+}
+
+.spark-bar {
+  width: 100%;
+  min-height: 2px;
+  transition: height 0.4s ease;
+  &.cyan { background: var(--cyan); opacity: 0.8; }
+}
+
+.spark-label {
+  font-size: 0.55rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+// ── Table ───────────────────────────────────────────────────────────────────
+
+.admin-table-wrap {
+  overflow-x: auto;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.75rem;
+
+  th {
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    text-align: left;
+    padding: 0.4rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 0.45rem 0.75rem;
+    border-bottom: 1px solid #161616;
+    color: #ccc;
+    white-space: nowrap;
+  }
+
+  tr:hover td { background: #161616; }
+}
+
+.event-badge {
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  padding: 0.15rem 0.4rem;
+  border-radius: 2px;
+  &.page_view    { background: rgba(0, 229, 255, 0.15); color: var(--cyan); }
+  &.project_click { background: rgba(102, 242, 165, 0.15); color: var(--green); }
+  &.link_click   { background: rgba(245, 197, 66, 0.15); color: var(--amber); }
+  &.page_exit    { background: rgba(255, 95, 160, 0.15); color: var(--pink); }
+}
+
+.visitor-id {
+  font-size: 0.68rem;
+  color: var(--muted);
+}

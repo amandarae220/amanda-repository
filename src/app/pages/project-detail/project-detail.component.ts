@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { SafeUrlPipe } from '../../pipes/safe-url.pipe';
 import { Location } from '@angular/common';
+import { AnalyticsService } from '../../services/analytics.service';
 
 @Component({
   selector: 'app-project-detail',
@@ -11,7 +12,9 @@ import { Location } from '@angular/common';
   templateUrl: './project-detail.component.html',
   styleUrls: ['./project-detail.component.scss']
 })
-export class ProjectDetailComponent implements OnInit {
+export class ProjectDetailComponent implements OnInit, OnDestroy {
+  private analytics = inject(AnalyticsService);
+  private pageEnteredAt = 0;
   projectId: string | null = null;
   projectData: any;
 
@@ -185,9 +188,19 @@ export class ProjectDetailComponent implements OnInit {
     this.projectId = this.route.snapshot.paramMap.get('id');
     if (this.projectId && this.projectMap[this.projectId]) {
       this.projectData = this.projectMap[this.projectId];
-      console.log('Resolved projectData:', this.projectData); // ✅ now correct
     } else {
       console.warn('No matching project found for ID:', this.projectId);
     }
+    this.pageEnteredAt = Date.now();
+    this.analytics.trackPageView(`/project/${this.projectId}`);
+  }
+
+  ngOnDestroy(): void {
+    const duration = Math.round((Date.now() - this.pageEnteredAt) / 1000);
+    this.analytics.trackPageExit(`/project/${this.projectId}`, duration);
+  }
+
+  trackLinkClick(label: string): void {
+    this.analytics.trackLinkClick(label, `/project/${this.projectId}`);
   }
 }

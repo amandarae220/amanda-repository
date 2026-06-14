@@ -1,6 +1,5 @@
 import { Routes } from '@angular/router';
 import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
-import { ProjectDetailComponent } from './pages/project-detail/project-detail.component';
 
 export const routes: Routes = [
   {
@@ -10,5 +9,9 @@ export const routes: Routes = [
   {
     path: 'project/:id',
     loadComponent: () => import('./pages/project-detail/project-detail.component').then(m => m.ProjectDetailComponent),
+  },
+  {
+    path: 'admin',
+    loadComponent: () => import('./pages/admin/admin.component').then(m => m.AdminComponent),
   }
 ];

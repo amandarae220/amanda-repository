@@ -25,7 +25,7 @@
           <button
             *ngFor="let btn of projectData.buttons"
             class="secondary-button-no-left-padding-copy">
-            <a [href]="btn.url" target="_blank" rel="noopener noreferrer">
+            <a [href]="btn.url" target="_blank" rel="noopener noreferrer" (click)="trackLinkClick(btn.label)">
               {{ btn.label }}
             </a>
           </button>
@@ -57,7 +57,7 @@
           </ul>
 
           <div class="version-cta">
-            <a *ngIf="v.url" [href]="v.url" target="_blank" rel="noopener noreferrer" class="version-link">View ↗</a>
+            <a *ngIf="v.url" [href]="v.url" target="_blank" rel="noopener noreferrer" class="version-link" (click)="trackLinkClick(v.version + ' - ' + projectData.title)">View ↗</a>
             <span *ngIf="v.comingSoon" class="coming-soon-badge">Coming Soon</span>
           </div>
         </div>
