@@ -22,7 +22,8 @@ export class AnalyticsService {
   private client: SupabaseClient | null = null;
 
   constructor() {
-    const { supabaseUrl, supabaseAnonKey } = environment;
+    const { supabaseAnonKey } = environment;
+    const supabaseUrl = environment.supabaseUrl.replace(/\/rest\/v1\/?$/, '');
     if (supabaseUrl && !supabaseUrl.startsWith('PLACEHOLDER') && supabaseAnonKey && !supabaseAnonKey.startsWith('PLACEHOLDER')) {
       this.client = createClient(supabaseUrl, supabaseAnonKey);
     }
