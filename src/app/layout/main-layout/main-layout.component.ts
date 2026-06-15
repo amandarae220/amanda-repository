@@ -1,9 +1,14 @@
-import { Component, AfterViewInit, Renderer2 } from '@angular/core';
+import { Component, AfterViewInit, OnInit, Renderer2, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { Title, Meta } from '@angular/platform-browser';
+import { DOCUMENT } from '@angular/common';
 import { HeroComponent } from '../../sections/hero/hero.component';
 import { WorkComponent } from '../../sections/work/work.component';
 import { AboutComponent } from '../../sections/about/about.component';
 import { ContactComponent } from '../../sections/contact/contact.component';
+
+const BASE_TITLE = 'Amanda Lloyd — Frontend Engineer & Data Visualization Specialist';
+const BASE_DESC  = 'Portfolio of Amanda Lloyd — Frontend Engineer and Data Visualization Specialist. Angular, React, D3.js, and a data science background that makes the difference.';
 
 @Component({
   selector: 'app-main-layout',
@@ -12,11 +17,34 @@ import { ContactComponent } from '../../sections/contact/contact.component';
   templateUrl: './main-layout.component.html',
   styleUrls: ['./main-layout.component.scss']
 })
-export class MainLayoutComponent implements AfterViewInit {
+export class MainLayoutComponent implements OnInit, AfterViewInit {
+  private titleSvc  = inject(Title);
+  private metaSvc   = inject(Meta);
+  private document  = inject(DOCUMENT);
+  private renderer  = inject(Renderer2);
   private sections!: HTMLElement[];
   private navLinks!: HTMLAnchorElement[];
   private ticking = false;
-  private activationY = 0; // px from top
+  private activationY = 0;
+
+  ngOnInit(): void {
+    this.titleSvc.setTitle(BASE_TITLE);
+    this.metaSvc.updateTag({ name: 'description', content: BASE_DESC });
+    this.metaSvc.updateTag({ property: 'og:title', content: BASE_TITLE });
+    this.metaSvc.updateTag({ property: 'og:description', content: BASE_DESC });
+    this.metaSvc.updateTag({ property: 'og:url', content: 'https://www.amandarae.dev/' });
+    this.metaSvc.updateTag({ name: 'twitter:title', content: BASE_TITLE });
+    this.metaSvc.updateTag({ name: 'twitter:description', content: BASE_DESC });
+    this.injectJsonLd({
+      '@context': 'https://schema.org',
+      '@type': 'Person',
+      name: 'Amanda Lloyd',
+      jobTitle: 'Frontend Engineer & Data Visualization Specialist',
+      url: 'https://www.amandarae.dev',
+      sameAs: ['https://github.com/amandarae220', 'https://www.linkedin.com/in/amandaraedev/'],
+      knowsAbout: ['Angular', 'React', 'D3.js', 'TypeScript', 'Data Visualization', 'WCAG Accessibility'],
+    });
+  }
 
   ngAfterViewInit() {
     this.sections = Array.from(document.querySelectorAll<HTMLElement>('section[id]'));
@@ -62,6 +90,13 @@ export class MainLayoutComponent implements AfterViewInit {
 
   scrollTo(id: string, e: Event) {
     e.preventDefault();
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    this.document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  private injectJsonLd(schema: object): void {
+    const script = this.renderer.createElement('script');
+    script.type = 'application/ld+json';
+    script.text = JSON.stringify(schema);
+    this.renderer.appendChild(this.document.head, script);
   }
 }

@@ -4,13 +4,14 @@
     <p class="gate-label">PORTFOLIO · ADMIN</p>
     <h1 class="gate-title">Access Required</h1>
     <div class="gate-form">
+      <label for="admin-password" class="sr-only">Admin password</label>
       <input
+        id="admin-password"
         class="gate-input"
         type="password"
         placeholder="Enter password"
         [(ngModel)]="passwordInput"
         (keydown.enter)="submitPassword()"
-        aria-label="Admin password"
       />
       <button class="gate-btn" (click)="submitPassword()">ENTER</button>
     </div>
@@ -19,7 +20,7 @@
 </div>
 
 <!-- ── Dashboard ──────────────────────────────────────────────────────────── -->
-<div class="admin-shell" *ngIf="authenticated">
+<main class="admin-shell" *ngIf="authenticated">
 
   <header class="admin-header">
     <div>
@@ -32,15 +33,15 @@
       </p>
     </div>
     <button class="admin-refresh-btn" (click)="load()" [disabled]="loading">
-      ↺ {{ loading ? 'LOADING…' : 'REFRESH' }}
+      <span aria-hidden="true">↺</span> {{ loading ? 'LOADING…' : 'REFRESH' }}
     </button>
   </header>
 
   <!-- ── Filters ─────────────────────────────────────────────────────────── -->
   <div class="admin-filters">
     <div class="filter-group">
-      <label class="filter-label">TIMEFRAME</label>
-      <select class="filter-select" [(ngModel)]="filters.timeframe">
+      <label for="filter-timeframe" class="filter-label">TIMEFRAME</label>
+      <select id="filter-timeframe" class="filter-select" [(ngModel)]="filters.timeframe">
         <option value="all">All Time</option>
         <option value="24h">Last 24h</option>
         <option value="7d">Last 7 Days</option>
@@ -48,15 +49,15 @@
       </select>
     </div>
     <div class="filter-group">
-      <label class="filter-label">DEVICE</label>
-      <select class="filter-select" [(ngModel)]="filters.device">
+      <label for="filter-device" class="filter-label">DEVICE</label>
+      <select id="filter-device" class="filter-select" [(ngModel)]="filters.device">
         <option value="all">All Devices</option>
         <option *ngFor="let d of uniqueDevices" [value]="d">{{ d }}</option>
       </select>
     </div>
     <div class="filter-group">
-      <label class="filter-label">BROWSER</label>
-      <select class="filter-select" [(ngModel)]="filters.browser">
+      <label for="filter-browser" class="filter-label">BROWSER</label>
+      <select id="filter-browser" class="filter-select" [(ngModel)]="filters.browser">
         <option value="all">All Browsers</option>
         <option *ngFor="let b of uniqueBrowsers" [value]="b">{{ b }}</option>
       </select>
@@ -187,7 +188,8 @@
   <div class="admin-card admin-card--full">
     <p class="card-title">RECENT EVENTS</p>
     <div class="admin-table-wrap">
-      <table class="admin-table" *ngIf="recentEvents.length; else noData7">
+      <table class="admin-table" *ngIf="recentEvents.length; else noData7" aria-label="Recent visitor events">
+        <caption class="sr-only">Recent visitor events</caption>
         <thead>
           <tr>
             <th>DATE</th>
@@ -221,4 +223,4 @@
     </div>
   </div>
 
-</div>
+</main>

@@ -1,59 +1,54 @@
-# AmandaPortfolio
+# Amanda Lloyd — Portfolio
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.0.4.
+Personal portfolio and playground — an Angular app that's also a project in its own right, with a custom analytics dashboard and a resume that doubles as the portfolio centerpiece.
 
-## Development server
+Live: https://www.amandarae.dev
 
-To start a local development server, run:
+---
+
+## Overview
+
+This portfolio showcases frontend engineering and data visualization work through a set of evolving projects. It's built with Angular 19 with SSR, deployed on Vercel, and backed by a Supabase analytics pipeline that tracks page views, project clicks, and conversion events through a password-protected `/admin` dashboard. Accessibility tested to WCAG 2.1 AA.
+
+---
+
+## Tech Stack
+
+| Technology | Why I chose it |
+|------------|----------------|
+| Angular 19 + SSR | Component architecture I know well; SSR gives crawlers rendered HTML for SEO |
+| Supabase | Anonymous event ingestion with RLS — no backend required for analytics |
+| Vercel | Auto-deploys on push to main; CDN and Speed Insights out of the box |
+| SCSS | Scoped component styles with variables; no utility-class framework needed |
+
+---
+
+## Getting Started
+
+**Prerequisites:** Node 18+, Angular CLI 19
 
 ```bash
+git clone https://github.com/amandarae220/amanda-repository.git
+cd amanda-repository
+npm install
 ng serve
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+App runs at `http://localhost:4200`.
 
-## Code scaffolding
+For analytics to work locally, copy `src/environments/environment.example.ts` to `src/environments/environment.prod.ts` and fill in your Supabase credentials. The file is gitignored.
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+---
 
-```bash
-ng generate component component-name
-```
+## Deployment
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Deployed on Vercel. Pushes to `main` trigger automatic production builds.
 
-```bash
-ng generate --help
-```
+---
 
-## Building
+## Latest Updates
 
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+- **Jun 2026** — Custom analytics dashboard at `/admin` tracking page views, project clicks, and link conversions via Supabase
+- **Jun 2026** — Interactive Resume v3 live — replaced D3.js with pure Angular/CSS, custom mobile layout, WCAG 2.1 AA
+- **Jun 2026** — Retirement Calculator v2 — Key Insights panel, Coast FI and Die with Zero modeling, annotated inflection points
+- **Jun 2026** — Migrated from GitHub Pages to Vercel for CDN, preview deployments, and analytics

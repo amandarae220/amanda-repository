@@ -1,6 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Meta } from '@angular/platform-browser';
 import { AnalyticsService, PortfolioEvent } from '../../services/analytics.service';
 import { environment } from '../../../environments/environment';
 
@@ -15,6 +16,7 @@ type Filters = { timeframe: 'all' | '24h' | '7d' | '30d'; device: string; browse
 })
 export class AdminComponent implements OnInit {
   private analytics = inject(AnalyticsService);
+  private metaSvc   = inject(Meta);
 
   // ── auth ──────────────────────────────────────────────────────────────────
   authenticated = false;
@@ -103,7 +105,9 @@ export class AdminComponent implements OnInit {
   get uniqueDevices(): string[] { return [...new Set(this.allEvents.map(e => e.device).filter(Boolean))] as string[]; }
   get uniqueBrowsers(): string[] { return [...new Set(this.allEvents.map(e => e.browser).filter(Boolean))] as string[]; }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.metaSvc.updateTag({ name: 'robots', content: 'noindex, nofollow' });
+  }
 
   submitPassword(): void {
     if (this.passwordInput === environment.adminPassword) {
