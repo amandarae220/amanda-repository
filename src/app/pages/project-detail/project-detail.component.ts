@@ -1,9 +1,15 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { Title, Meta } from '@angular/platform-browser';
 import { SafeUrlPipe } from '../../pipes/safe-url.pipe';
 import { Location } from '@angular/common';
 import { AnalyticsService } from '../../services/analytics.service';
+
+const BASE_TITLE = 'Amanda Lloyd — Frontend Engineer & Data Visualization Specialist';
+const BASE_DESC  = 'Portfolio of Amanda Lloyd — Frontend Engineer and Data Visualization Specialist. Angular, React, D3.js, and a data science background that makes the difference.';
+const BASE_URL   = 'https://www.amandarae.dev';
+const BASE_IMAGE = `${BASE_URL}/assets/white-background-hero-img.png`;
 
 @Component({
   selector: 'app-project-detail',
@@ -14,6 +20,8 @@ import { AnalyticsService } from '../../services/analytics.service';
 })
 export class ProjectDetailComponent implements OnInit, OnDestroy {
   private analytics = inject(AnalyticsService);
+  private titleSvc  = inject(Title);
+  private metaSvc   = inject(Meta);
   private pageEnteredAt = 0;
   projectId: string | null = null;
   projectData: any;
@@ -189,6 +197,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     if (this.projectId && this.projectMap[this.projectId]) {
       this.projectData = this.projectMap[this.projectId];
     }
+    this.setMeta();
     this.pageEnteredAt = Date.now();
     this.analytics.trackPageView(`/project/${this.projectId}`);
   }
@@ -196,6 +205,36 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     const duration = Math.round((Date.now() - this.pageEnteredAt) / 1000);
     this.analytics.trackPageExit(`/project/${this.projectId}`, duration);
+    this.titleSvc.setTitle(BASE_TITLE);
+    this.metaSvc.updateTag({ name: 'description', content: BASE_DESC });
+    this.metaSvc.updateTag({ property: 'og:title', content: BASE_TITLE });
+    this.metaSvc.updateTag({ property: 'og:description', content: BASE_DESC });
+    this.metaSvc.updateTag({ property: 'og:url', content: BASE_URL });
+    this.metaSvc.updateTag({ property: 'og:image', content: BASE_IMAGE });
+    this.metaSvc.updateTag({ name: 'twitter:title', content: BASE_TITLE });
+    this.metaSvc.updateTag({ name: 'twitter:description', content: BASE_DESC });
+    this.metaSvc.updateTag({ name: 'twitter:image', content: BASE_IMAGE });
+  }
+
+  private setMeta(): void {
+    if (!this.projectData) return;
+    const title = `${this.projectData.title} | Amanda Lloyd`;
+    const desc  = this.projectData.description.slice(0, 155);
+    const image = this.projectData.image
+      ? `${BASE_URL}/${this.projectData.image}`
+      : BASE_IMAGE;
+    const url   = `${BASE_URL}/project/${this.projectId}`;
+
+    this.titleSvc.setTitle(title);
+    this.metaSvc.updateTag({ name: 'description', content: desc });
+    this.metaSvc.updateTag({ property: 'og:title', content: title });
+    this.metaSvc.updateTag({ property: 'og:description', content: desc });
+    this.metaSvc.updateTag({ property: 'og:url', content: url });
+    this.metaSvc.updateTag({ property: 'og:image', content: image });
+    this.metaSvc.updateTag({ name: 'twitter:title', content: title });
+    this.metaSvc.updateTag({ name: 'twitter:description', content: desc });
+    this.metaSvc.updateTag({ name: 'twitter:image', content: image });
+    this.metaSvc.updateTag({ name: 'robots', content: 'index, follow' });
   }
 
   trackLinkClick(label: string): void {
