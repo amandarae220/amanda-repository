@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 
 @Component({
   selector: 'app-hero',
@@ -7,13 +8,10 @@ import { Component } from '@angular/core';
   styleUrl: './hero.component.scss'
 })
 export class HeroComponent {
+  private document = inject(DOCUMENT);
 
-scrollTo(id: string, event: Event): void {
-    event.preventDefault(); // stop default anchor jump
-    const el = document.getElementById(id);
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+  scrollTo(id: string, event: Event): void {
+    event.preventDefault();
+    this.document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
-
 }
