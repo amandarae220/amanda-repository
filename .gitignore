@@ -40,3 +40,6 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# Environment — real credentials stay local, use environment.example.ts as reference
+src/environments/environment.prod.ts
