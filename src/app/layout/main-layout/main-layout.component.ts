@@ -41,7 +41,7 @@ export class MainLayoutComponent implements OnInit, AfterViewInit {
       name: 'Amanda Lloyd',
       jobTitle: 'Frontend Engineer & Data Visualization Specialist',
       url: 'https://www.amandarae.dev',
-      sameAs: ['https://github.com/amandarae220'],
+      sameAs: ['https://github.com/amandarae220', 'https://www.linkedin.com/in/amandaraedev/'],
       knowsAbout: ['Angular', 'React', 'D3.js', 'TypeScript', 'Data Visualization', 'WCAG Accessibility'],
     });
   }
