@@ -188,8 +188,6 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     this.projectId = this.route.snapshot.paramMap.get('id');
     if (this.projectId && this.projectMap[this.projectId]) {
       this.projectData = this.projectMap[this.projectId];
-    } else {
-      console.warn('No matching project found for ID:', this.projectId);
     }
     this.pageEnteredAt = Date.now();
     this.analytics.trackPageView(`/project/${this.projectId}`);
