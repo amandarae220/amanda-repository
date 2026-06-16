@@ -1,12 +1,12 @@
 import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router } from '@angular/router';
 import { AnalyticsService } from '../../services/analytics.service';
 
 @Component({
   selector: 'app-about',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './about.component.html',
   styleUrls: ['./about.component.scss']
 })

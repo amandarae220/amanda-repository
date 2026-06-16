@@ -1,12 +1,12 @@
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
+
 import { AnalyticsService } from '../../services/analytics.service';
 
 @Component({
   selector: 'app-work',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './work.component.html',
   styleUrls: ['./work.component.scss']
 })

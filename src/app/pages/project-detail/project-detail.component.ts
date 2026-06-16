@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { CommonModule, Location } from '@angular/common';
+import { Location } from '@angular/common';
 import { Title, Meta } from '@angular/platform-browser';
 import { SafeUrlPipe } from '../../pipes/safe-url.pipe';
 import { AnalyticsService } from '../../services/analytics.service';
@@ -14,7 +14,7 @@ const BASE_IMAGE = `${BASE_URL}/assets/white-background-hero-img.png`;
 @Component({
   selector: 'app-project-detail',
   standalone: true,
-  imports: [CommonModule, SafeUrlPipe],
+  imports: [SafeUrlPipe],
   templateUrl: './project-detail.component.html',
   styleUrls: ['./project-detail.component.scss']
 })
