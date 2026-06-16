@@ -39,7 +39,7 @@ export class WorkComponent {
     {
       id: 'dnd',
       title: 'D&D Mini Game',
-      subtitle: 'HTML, CSS, JavaScript, GitHub Pages',
+      subtitle: 'HTML, CSS, JavaScript',
       description: 'A fun little mini-game that simulates the basics of Dungeons & Dragons, showcasing skills in HTML, CSS, and JavaScript.',
       buttonText: 'VIEW GAME'
     },
@@ -47,7 +47,7 @@ export class WorkComponent {
       id: 'sudoku',
       title: 'Sudoku Puzzle',
       subtitle: 'React & Typescript',
-      description: 'An interactive sudoku puzzle built with React and Typescript, hosted with GitHub Pages.',
+      description: 'An interactive sudoku puzzle built with React and Typescript.',
       buttonText: 'VIEW PUZZLE'
     },
     {

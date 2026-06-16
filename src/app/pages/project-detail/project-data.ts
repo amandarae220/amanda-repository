@@ -35,8 +35,8 @@ export const PROJECT_MAP: Record<string, Project> = {
   },
   dnd: {
     title: 'Dungeons & Dragons Mini Game',
-    subtitle: 'HTML, CSS, JavaScript, GitHub Pages',
-    description: `I'd rather be playing Dungeons & Dragons, but since I can't always be doing that, I built a mini-game that simulates a D&D encounter. This project showcases my skills in HTML, CSS, and JavaScript, and is hosted on GitHub Pages.`,
+    subtitle: 'HTML, CSS, JavaScript',
+    description: `I'd rather be playing Dungeons & Dragons, but since I can't always be doing that, I built a mini-game that simulates a D&D encounter. This project showcases my skills in HTML, CSS, and JavaScript.`,
     image: 'assets/D&D.png',
     buttons: [
       { label: 'Play Game', url: 'https://amandarae220.github.io/DungeonsAndDragons/' },
@@ -46,7 +46,7 @@ export const PROJECT_MAP: Record<string, Project> = {
     title: 'Sudoku Puzzle',
     subtitle: 'React & Typescript',
     description: `Sudoku is a puzzle that I've long enjoyed so I wanted to re-create an interactive version.
-                  This version utilizes React, Typescript, and is hosted using GitHub Pages.`,
+                  This version utilizes React and Typescript.`,
     image: 'assets/sudoku.png',
     buttons: [
       { label: 'View Storybook', url: 'https://amandarae220.github.io/sudoku/' },
