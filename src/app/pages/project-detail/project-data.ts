@@ -119,7 +119,7 @@ export const PROJECT_MAP: Record<string, Project> = {
   },
   calculator: {
     title: 'Retirement Calculator',
-    subtitle: 'D3.js & GitHub Pages',
+    subtitle: 'D3.js & Vanilla JS',
     description: 'A retirement calculator built to replace the overwhelming, question-heavy tools that make you want to close the tab. Clean inputs, a chart that means something, and insights that surface the milestones your money is quietly working toward.',
     image: 'assets/calculator-v2.png',
     buttons: [
@@ -170,7 +170,7 @@ export const PROJECT_MAP: Record<string, Project> = {
   },
   website: {
     title: 'This website... duh',
-    subtitle: 'Angular, Typescript, GitHub Pages',
+    subtitle: 'Angular, Typescript, Vercel',
     description: `This website, in and of itself, showcases my skill set with Angular and Typescript. This portfolio is more than a static site, it's a full-featured app that showcases my approach to user experience, accessibility, and a sprinkle of personality.`,
     image: 'assets/PORTFOLIO IMAGE.png',
     buttons: [
