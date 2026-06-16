@@ -3,7 +3,6 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Meta } from '@angular/platform-browser';
 import { AnalyticsService, PortfolioEvent } from '../../services/analytics.service';
-import { environment } from '../../../environments/environment';
 
 type Filters = { timeframe: 'all' | '24h' | '7d' | '30d'; device: string; browser: string };
 
@@ -21,8 +20,10 @@ export class AdminComponent implements OnInit {
 
   // ── auth ──────────────────────────────────────────────────────────────────
   authenticated = false;
+  emailInput = '';
   passwordInput = '';
-  authError = false;
+  authError: string | null = null;
+  authLoading = false;
 
   // ── data ──────────────────────────────────────────────────────────────────
   allEvents: PortfolioEvent[] = [];
@@ -106,27 +107,36 @@ export class AdminComponent implements OnInit {
   get uniqueDevices(): string[] { return [...new Set(this.allEvents.map(e => e.device).filter(Boolean))] as string[]; }
   get uniqueBrowsers(): string[] { return [...new Set(this.allEvents.map(e => e.browser).filter(Boolean))] as string[]; }
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.metaSvc.updateTag({ name: 'robots', content: 'noindex, nofollow' });
-  }
-
-  async submitPassword(): Promise<void> {
     if (!isPlatformBrowser(this.platformId)) return;
-    const hash = await this.sha256(this.passwordInput);
-    if (hash === environment.adminPasswordHash) {
+    const session = await this.analytics.getSession();
+    if (session) {
       this.authenticated = true;
-      this.authError = false;
       this.load();
-    } else {
-      this.authError = true;
     }
   }
 
-  private async sha256(input: string): Promise<string> {
-    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(input));
-    return Array.from(new Uint8Array(buf))
-      .map(b => b.toString(16).padStart(2, '0'))
-      .join('');
+  async submitLogin(): Promise<void> {
+    if (!isPlatformBrowser(this.platformId)) return;
+    this.authLoading = true;
+    this.authError = null;
+    const { error } = await this.analytics.signIn(this.emailInput, this.passwordInput);
+    this.authLoading = false;
+    if (error) {
+      this.authError = error;
+      return;
+    }
+    this.authenticated = true;
+    this.passwordInput = '';
+    this.load();
+  }
+
+  async signOut(): Promise<void> {
+    await this.analytics.signOut();
+    this.authenticated = false;
+    this.allEvents = [];
+    this.emailInput = '';
   }
 
   async load(): Promise<void> {

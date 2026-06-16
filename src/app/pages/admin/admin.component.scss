@@ -60,8 +60,9 @@
   letter-spacing: -0.02em;
 }
 
-.gate-form {
+.gate-fields {
   display: flex;
+  flex-direction: column;
   gap: 0.5rem;
 }
 
@@ -138,6 +139,11 @@
   color: var(--muted);
   margin: 0;
   letter-spacing: 0.04em;
+}
+
+.admin-actions {
+  display: flex;
+  gap: 0.5rem;
 }
 
 .admin-refresh-btn {

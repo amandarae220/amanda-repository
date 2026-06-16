@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient, Session } from '@supabase/supabase-js';
 import { environment } from '../../environments/environment';
 import { VisitorService } from './visitor.service';
 
@@ -25,8 +25,26 @@ export class AnalyticsService {
     const { supabaseAnonKey } = environment;
     const supabaseUrl = environment.supabaseUrl.replace(/\/rest\/v1\/?$/, '');
     if (supabaseUrl && !supabaseUrl.startsWith('PLACEHOLDER') && supabaseAnonKey && !supabaseAnonKey.startsWith('PLACEHOLDER')) {
-      this.client = createClient(supabaseUrl, supabaseAnonKey);
+      this.client = createClient(supabaseUrl, supabaseAnonKey, {
+        auth: { persistSession: this.visitor.isBrowser, autoRefreshToken: this.visitor.isBrowser },
+      });
     }
+  }
+
+  async signIn(email: string, password: string): Promise<{ error: string | null }> {
+    if (!this.client) return { error: 'No database connection' };
+    const { error } = await this.client.auth.signInWithPassword({ email, password });
+    return { error: error?.message ?? null };
+  }
+
+  async signOut(): Promise<void> {
+    await this.client?.auth.signOut();
+  }
+
+  async getSession(): Promise<Session | null> {
+    if (!this.client) return null;
+    const { data } = await this.client.auth.getSession();
+    return data.session;
   }
 
   private base(): Omit<PortfolioEvent, 'event_type'> {

@@ -1,25 +1,40 @@
-<!-- ── Password Gate ───────────────────────────────────────────────────────── -->
+<!-- ── Login Gate ──────────────────────────────────────────────────────────── -->
 @if (!authenticated) {
   <div class="admin-gate">
-    <div class="gate-card">
+    <form class="gate-card" (ngSubmit)="submitLogin()">
       <p class="gate-label">PORTFOLIO · ADMIN</p>
-      <h1 class="gate-title">Access Required</h1>
-      <div class="gate-form">
-        <label for="admin-password" class="sr-only">Admin password</label>
+      <h1 class="gate-title">Sign In</h1>
+      <div class="gate-fields">
+        <label for="admin-email" class="sr-only">Email</label>
+        <input
+          id="admin-email"
+          class="gate-input"
+          type="email"
+          autocomplete="username"
+          placeholder="Email"
+          [(ngModel)]="emailInput"
+          name="email"
+          required
+        />
+        <label for="admin-password" class="sr-only">Password</label>
         <input
           id="admin-password"
           class="gate-input"
           type="password"
-          placeholder="Enter password"
+          autocomplete="current-password"
+          placeholder="Password"
           [(ngModel)]="passwordInput"
-          (keydown.enter)="submitPassword()"
-          />
-        <button class="gate-btn" (click)="submitPassword()">ENTER</button>
+          name="password"
+          required
+        />
+        <button type="submit" class="gate-btn" [disabled]="authLoading">
+          {{ authLoading ? 'SIGNING IN…' : 'ENTER' }}
+        </button>
       </div>
       @if (authError) {
-        <p class="gate-error">Incorrect password</p>
+        <p class="gate-error">{{ authError }}</p>
       }
-    </div>
+    </form>
   </div>
 }
 
@@ -38,9 +53,12 @@
           </p>
         }
       </div>
-      <button class="admin-refresh-btn" (click)="load()" [disabled]="loading">
-        <span aria-hidden="true">↺</span> {{ loading ? 'LOADING…' : 'REFRESH' }}
-      </button>
+      <div class="admin-actions">
+        <button class="admin-refresh-btn" (click)="load()" [disabled]="loading">
+          <span aria-hidden="true">↺</span> {{ loading ? 'LOADING…' : 'REFRESH' }}
+        </button>
+        <button class="admin-refresh-btn" (click)="signOut()">SIGN OUT</button>
+      </div>
     </header>
     <!-- ── Filters ─────────────────────────────────────────────────────────── -->
     <div class="admin-filters">
