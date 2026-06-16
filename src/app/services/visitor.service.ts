@@ -2,6 +2,9 @@ import { Injectable, PLATFORM_ID, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 
 const VISITOR_ID_KEY = 'portfolio_visitor_id';
+const VISITOR_ID_ISSUED_AT_KEY = 'portfolio_visitor_id_issued_at';
+const VISITOR_ID_TTL_DAYS = 30;
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
 @Injectable({ providedIn: 'root' })
 export class VisitorService {
@@ -13,11 +16,14 @@ export class VisitorService {
 
   getVisitorId(): string {
     if (!this.isBrowser) return 'ssr';
-    let id = localStorage.getItem(VISITOR_ID_KEY);
-    if (!id) {
-      id = crypto.randomUUID();
-      localStorage.setItem(VISITOR_ID_KEY, id);
-    }
+    const existingId = localStorage.getItem(VISITOR_ID_KEY);
+    const issuedAtRaw = localStorage.getItem(VISITOR_ID_ISSUED_AT_KEY);
+    const issuedAt = issuedAtRaw ? parseInt(issuedAtRaw, 10) : 0;
+    const expired = !issuedAt || Date.now() - issuedAt > VISITOR_ID_TTL_DAYS * MS_PER_DAY;
+    if (existingId && !expired) return existingId;
+    const id = crypto.randomUUID();
+    localStorage.setItem(VISITOR_ID_KEY, id);
+    localStorage.setItem(VISITOR_ID_ISSUED_AT_KEY, String(Date.now()));
     return id;
   }
 
