@@ -1,7 +1,7 @@
-import { Component, AfterViewInit, OnInit, Renderer2, inject } from '@angular/core';
+import { Component, AfterViewInit, OnInit, Renderer2, inject, DOCUMENT } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { Title, Meta } from '@angular/platform-browser';
-import { DOCUMENT } from '@angular/common';
+
 import { HeroComponent } from '../../sections/hero/hero.component';
 import { WorkComponent } from '../../sections/work/work.component';
 import { AboutComponent } from '../../sections/about/about.component';

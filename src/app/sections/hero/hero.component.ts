@@ -1,5 +1,5 @@
-import { Component, inject } from '@angular/core';
-import { DOCUMENT } from '@angular/common';
+import { Component, inject, DOCUMENT } from '@angular/core';
+
 
 @Component({
   selector: 'app-hero',

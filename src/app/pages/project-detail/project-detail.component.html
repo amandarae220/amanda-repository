@@ -8,72 +8,84 @@
 </nav>
 
 
-<main class="project-detail" *ngIf="projectData">
-
+@if (projectData) {
+  <main class="project-detail">
     <div class="project-wrapper">
       <button type="button" (click)="goBack()" class="back-button">&#10094;&nbsp; Back</button>
       <div class="image-preview">
         <img [src]="projectData.image" [alt]="projectData.title + ' preview'" />
       </div>
-
       <div class="project-content">
         <h1 class="heading">{{ projectData.title }}</h1>
         <p class="subtitle">{{ projectData.subtitle }}</p>
         <p class="paragraph">{{ projectData.description }}</p>
-
-        <div class="project-buttons" *ngIf="projectData.buttons">
-          <a
-            *ngFor="let btn of projectData.buttons"
-            class="secondary-button-no-left-padding-copy"
-            [href]="btn.url"
-            target="_blank"
-            rel="noopener noreferrer"
-            (click)="trackLinkClick(btn.label)">
-            {{ btn.label }}
-          </a>
-        </div>
+        @if (projectData.buttons) {
+          <div class="project-buttons">
+            @for (btn of projectData.buttons; track btn) {
+              <a
+                class="secondary-button-no-left-padding-copy"
+                [href]="btn.url"
+                target="_blank"
+                rel="noopener noreferrer"
+                (click)="trackLinkClick(btn.label)">
+                {{ btn.label }}
+              </a>
+            }
+          </div>
+        }
       </div>
     </div>
-
-    <div class="evolution-section" *ngIf="projectData.versions">
-      <h2 class="evolution-heading">How It Evolved</h2>
-
-      <div class="version-row">
-        <div class="version-card" *ngFor="let v of projectData.versions">
-          <div class="version-top">
-            <span class="version-badge">{{ v.version }}</span>
-            <span class="version-year">{{ v.year }}</span>
-          </div>
-
-          <div class="version-thumb">
-            <img *ngIf="v.image" [src]="v.image" [alt]="v.label + ' screenshot'" />
-            <div *ngIf="!v.image" class="version-thumb-placeholder">
-              <span>{{ v.url ? 'Screenshot Coming' : 'In Development' }}</span>
+    @if (projectData.versions) {
+      <div class="evolution-section">
+        <h2 class="evolution-heading">How It Evolved</h2>
+        <div class="version-row">
+          @for (v of projectData.versions; track v) {
+            <div class="version-card">
+              <div class="version-top">
+                <span class="version-badge">{{ v.version }}</span>
+                <span class="version-year">{{ v.year }}</span>
+              </div>
+              <div class="version-thumb">
+                @if (v.image) {
+                  <img [src]="v.image" [alt]="v.label + ' screenshot'" />
+                }
+                @if (!v.image) {
+                  <div class="version-thumb-placeholder">
+                    <span>{{ v.url ? 'Screenshot Coming' : 'In Development' }}</span>
+                  </div>
+                }
+              </div>
+              <h3 class="version-label">{{ v.label }}</h3>
+              <ul class="version-highlights">
+                @for (h of v.highlights; track h) {
+                  <li>{{ h }}</li>
+                }
+              </ul>
+              <div class="version-cta">
+                @if (v.url) {
+                  <a [href]="v.url" target="_blank" rel="noopener noreferrer" class="version-link" (click)="trackLinkClick(v.version + ' - ' + projectData.title)">View ↗</a>
+                }
+                @if (v.comingSoon) {
+                  <span class="coming-soon-badge">Coming Soon</span>
+                }
+              </div>
             </div>
-          </div>
-
-          <h3 class="version-label">{{ v.label }}</h3>
-
-          <ul class="version-highlights">
-            <li *ngFor="let h of v.highlights">{{ h }}</li>
-          </ul>
-
-          <div class="version-cta">
-            <a *ngIf="v.url" [href]="v.url" target="_blank" rel="noopener noreferrer" class="version-link" (click)="trackLinkClick(v.version + ' - ' + projectData.title)">View ↗</a>
-            <span *ngIf="v.comingSoon" class="coming-soon-badge">Coming Soon</span>
-          </div>
+          }
         </div>
       </div>
-    </div>
-
-    <div class="lessons-section" *ngIf="projectData.lessonsLearned">
-      <h2 class="lessons-heading">Lessons Learned</h2>
-      <div class="lessons-row">
-        <div class="lesson" *ngFor="let l of projectData.lessonsLearned">
-          <h4 class="lesson-heading">{{ l.heading }}</h4>
-          <p class="lesson-body">{{ l.body }}</p>
+    }
+    @if (projectData.lessonsLearned) {
+      <div class="lessons-section">
+        <h2 class="lessons-heading">Lessons Learned</h2>
+        <div class="lessons-row">
+          @for (l of projectData.lessonsLearned; track l) {
+            <div class="lesson">
+              <h4 class="lesson-heading">{{ l.heading }}</h4>
+              <p class="lesson-body">{{ l.body }}</p>
+            </div>
+          }
         </div>
       </div>
-    </div>
-
+    }
   </main>
+}
