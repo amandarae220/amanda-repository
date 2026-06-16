@@ -14,6 +14,8 @@
           placeholder="Email"
           [(ngModel)]="emailInput"
           name="email"
+          [attr.aria-invalid]="authError ? 'true' : null"
+          [attr.aria-describedby]="authError ? 'admin-auth-error' : null"
           required
         />
         <label for="admin-password" class="sr-only">Password</label>
@@ -25,6 +27,8 @@
           placeholder="Password"
           [(ngModel)]="passwordInput"
           name="password"
+          [attr.aria-invalid]="authError ? 'true' : null"
+          [attr.aria-describedby]="authError ? 'admin-auth-error' : null"
           required
         />
         <button type="submit" class="gate-btn" [disabled]="authLoading">
@@ -32,7 +36,7 @@
         </button>
       </div>
       @if (authError) {
-        <p class="gate-error">{{ authError }}</p>
+        <p id="admin-auth-error" class="gate-error" role="alert">{{ authError }}</p>
       }
     </form>
   </div>
@@ -119,7 +123,7 @@
         <p class="card-title">PROJECT VIEWS</p>
         @if (projectViews.length) {
           <div class="bar-chart">
-            @for (item of projectViews; track item) {
+            @for (item of projectViews; track item.label) {
               <div class="bar-row">
                 <span class="bar-label">{{ item.label }}</span>
                 <div class="bar-track">
@@ -138,7 +142,7 @@
         <p class="card-title">LINK CLICKS <span class="card-subtitle">— conversion events</span></p>
         @if (topLinkClicks.length) {
           <div class="bar-chart">
-            @for (item of topLinkClicks; track item) {
+            @for (item of topLinkClicks; track item.label) {
               <div class="bar-row">
                 <span class="bar-label">{{ item.label }}</span>
                 <div class="bar-track">
@@ -157,7 +161,7 @@
         <p class="card-title">TRAFFIC SOURCES</p>
         @if (trafficSources.length) {
           <div class="bar-chart">
-            @for (item of trafficSources; track item) {
+            @for (item of trafficSources; track item.label) {
               <div class="bar-row">
                 <span class="bar-label">{{ item.label }}</span>
                 <div class="bar-track">
@@ -179,7 +183,7 @@
         <p class="card-title">VIEWS — LAST 30 DAYS</p>
         @if (dailyActivity.length) {
           <div class="spark-chart">
-            @for (d of dailyActivity; track d) {
+            @for (d of dailyActivity; track d.date) {
               <div class="spark-col">
                 <div class="spark-bar cyan" [style.height]="barWidth(d.count, maxDailyCount)"></div>
                 <span class="spark-label">{{ d.date }}</span>
@@ -195,7 +199,7 @@
         <p class="card-title">DEVICE</p>
         @if (deviceBreakdown.length) {
           <div class="bar-chart">
-            @for (item of deviceBreakdown; track item) {
+            @for (item of deviceBreakdown; track item.label) {
               <div class="bar-row">
                 <span class="bar-label">{{ item.label }}</span>
                 <div class="bar-track">
@@ -215,7 +219,7 @@
         <p class="card-title">BROWSER</p>
         @if (browserBreakdown.length) {
           <div class="bar-chart">
-            @for (item of browserBreakdown; track item) {
+            @for (item of browserBreakdown; track item.label) {
               <div class="bar-row">
                 <span class="bar-label">{{ item.label }}</span>
                 <div class="bar-track">
@@ -253,7 +257,7 @@
               </tr>
             </thead>
             <tbody>
-              @for (e of recentEvents; track e) {
+              @for (e of recentEvents; track e.id || $index) {
                 <tr>
                   <td>{{ e.created_at ? fmtDate(e.created_at) : '—' }}</td>
                   <td>{{ e.created_at ? fmtTime(e.created_at) : '—' }}</td>

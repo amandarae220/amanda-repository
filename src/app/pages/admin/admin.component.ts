@@ -6,6 +6,13 @@ import { AnalyticsService, PortfolioEvent } from '../../services/analytics.servi
 
 type Filters = { timeframe: 'all' | '24h' | '7d' | '30d'; device: string; browser: string };
 
+const HOURS_PER_DAY = 24;
+const DAYS_PER_WEEK = 7;
+const DAYS_PER_MONTH = 30;
+const DAILY_ACTIVITY_WINDOW_DAYS = 30;
+const MAX_TOP_LINKS = 8;
+const MAX_RECENT_EVENTS = 50;
+
 @Component({
   selector: 'app-admin',
   standalone: true,
@@ -67,7 +74,7 @@ export class AdminComponent implements OnInit {
     return Object.entries(counts)
       .map(([label, count]) => ({ label, count }))
       .sort((a, b) => b.count - a.count)
-      .slice(0, 8);
+      .slice(0, MAX_TOP_LINKS);
   }
 
   get trafficSources(): { label: string; count: number }[] {
@@ -90,7 +97,7 @@ export class AdminComponent implements OnInit {
   get dailyActivity(): { date: string; count: number }[] {
     const days: Record<string, number> = {};
     const cutoff = new Date();
-    cutoff.setDate(cutoff.getDate() - 29);
+    cutoff.setDate(cutoff.getDate() - (DAILY_ACTIVITY_WINDOW_DAYS - 1));
     for (const e of this.filtered) {
       if (e.event_type !== 'page_view' || !e.created_at) continue;
       const d = new Date(e.created_at);
@@ -101,7 +108,7 @@ export class AdminComponent implements OnInit {
     return Object.entries(days).map(([date, count]) => ({ date, count }));
   }
 
-  get recentEvents(): PortfolioEvent[] { return this.filtered.slice(0, 50); }
+  get recentEvents(): PortfolioEvent[] { return this.filtered.slice(0, MAX_RECENT_EVENTS); }
   get maxDailyCount(): number { return Math.max(...this.dailyActivity.map(d => d.count), 1); }
 
   get uniqueDevices(): string[] { return [...new Set(this.allEvents.map(e => e.device).filter(Boolean))] as string[]; }
@@ -172,8 +179,13 @@ export class AdminComponent implements OnInit {
   private applyFilters(events: PortfolioEvent[]): PortfolioEvent[] {
     let result = [...events];
     if (this.filters.timeframe !== 'all') {
-      const hours = this.filters.timeframe === '24h' ? 24 : this.filters.timeframe === '7d' ? 168 : 720;
-      const cutoff = new Date(Date.now() - hours * 60 * 60 * 1000);
+      const hours = this.filters.timeframe === '24h'
+        ? HOURS_PER_DAY
+        : this.filters.timeframe === '7d'
+          ? HOURS_PER_DAY * DAYS_PER_WEEK
+          : HOURS_PER_DAY * DAYS_PER_MONTH;
+      const msPerHour = 60 * 60 * 1000;
+      const cutoff = new Date(Date.now() - hours * msPerHour);
       result = result.filter(e => e.created_at && new Date(e.created_at) >= cutoff);
     }
     if (this.filters.device !== 'all') result = result.filter(e => e.device === this.filters.device);

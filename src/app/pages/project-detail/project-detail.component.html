@@ -1,7 +1,7 @@
-<nav class="navbar">
+<nav class="navbar" aria-label="Primary">
   <ul class="nav-links">
     <li><a href="/" class="nav-link">Home</a></li>
-    <li><a href="/#work" class="nav-link active">Work</a></li>
+    <li><a href="/#work" class="nav-link">Work</a></li>
     <li><a href="/#about" class="nav-link">About</a></li>
     <li><a href="/#contact" class="nav-link">Contact</a></li>
   </ul>
@@ -21,7 +21,7 @@
         <p class="paragraph">{{ projectData.description }}</p>
         @if (projectData.buttons) {
           <div class="project-buttons">
-            @for (btn of projectData.buttons; track btn) {
+            @for (btn of projectData.buttons; track btn.label) {
               <a
                 class="secondary-button-no-left-padding-copy"
                 [href]="btn.url"
@@ -39,7 +39,7 @@
       <div class="evolution-section">
         <h2 class="evolution-heading">How It Evolved</h2>
         <div class="version-row">
-          @for (v of projectData.versions; track v) {
+          @for (v of projectData.versions; track v.version) {
             <div class="version-card">
               <div class="version-top">
                 <span class="version-badge">{{ v.version }}</span>
@@ -78,7 +78,7 @@
       <div class="lessons-section">
         <h2 class="lessons-heading">Lessons Learned</h2>
         <div class="lessons-row">
-          @for (l of projectData.lessonsLearned; track l) {
+          @for (l of projectData.lessonsLearned; track l.heading) {
             <div class="lesson">
               <h4 class="lesson-heading">{{ l.heading }}</h4>
               <p class="lesson-body">{{ l.body }}</p>

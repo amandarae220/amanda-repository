@@ -7,10 +7,6 @@
   justify-content: center;
    overflow-x: clip;
 
-  /*@media (min-width: 600px) {
-      margin-bottom: 8rem;
-  }*/
-
   .hero-wrapper {
     display: flex;
     flex-direction: row;       /* always side-by-side */
@@ -58,11 +54,6 @@
     flex: 0 0 auto;            /* free image from the 40% basis */
     max-width: none;
   }
-/*
-  #hero .hero-image img {
-    width: clamp(160px, 28vw, 391px); 
-  }
-  */
 }
 
 /* ===== Keep these as-is ===== */

@@ -74,8 +74,12 @@
   padding: 0.6rem 0.85rem;
   font-family: inherit;
   font-size: 0.9rem;
-  outline: none;
-  &:focus { border-color: var(--cyan); }
+  &:focus-visible {
+    outline: 2px solid var(--cyan);
+    outline-offset: 2px;
+    border-color: var(--cyan);
+  }
+  &[aria-invalid="true"] { border-color: var(--pink); }
 }
 
 .gate-btn {
@@ -193,8 +197,11 @@
   font-family: inherit;
   font-size: 0.8rem;
   cursor: pointer;
-  outline: none;
-  &:focus { border-color: var(--cyan); }
+  &:focus-visible {
+    outline: 2px solid var(--cyan);
+    outline-offset: 2px;
+    border-color: var(--cyan);
+  }
 }
 
 .filter-clear {

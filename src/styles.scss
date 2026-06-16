@@ -14,8 +14,12 @@ main {
 *, *::before, *::after { box-sizing: border-box; }
 img, svg, video { height: auto; display: block; }
 
-/* If your top nav has a known height, set it here */
-:root { --nav-h: 56px; } /* adjust to your nav’s real height */
+/* Design tokens */
+:root {
+  --nav-h: 56px;
+  --brand-purple: #bb7fab;
+  --brand-purple-dark: #9a628d;
+}
 section[id] { scroll-margin-top: var(--nav-h); }
 
 html, body {
@@ -95,7 +99,7 @@ html, body {
     color: var(--white);
     letter-spacing: 0.05em;
     text-transform: uppercase;
-    background-color: #bb7fab;
+    background-color: var(--brand-purple);
     border-radius: 10px;
     margin-top: 30px;
     margin-left: 0%;
@@ -107,7 +111,7 @@ html, body {
     position: relative;
   
     &:hover {
-      background-color: #9a628d;
+      background-color: var(--brand-purple-dark);
     }
   }
 
@@ -160,8 +164,8 @@ html, body {
     transition: color 200ms ease;
     color: var(--black);
 
-    &:hover { color: #9a628d; }
-    &.active { color: #b678a5; }  /* <-- will now override */
+    &:hover { color: var(--brand-purple-dark); }
+    &.active { color: var(--brand-purple); }
   }
 }
 

@@ -9,6 +9,7 @@ const BASE_TITLE = 'Amanda Lloyd — Frontend Engineer & Data Visualization Spec
 const BASE_DESC  = 'Portfolio of Amanda Lloyd — Frontend Engineer and Data Visualization Specialist. Angular, React, D3.js, and a data science background that makes the difference.';
 const BASE_URL   = 'https://www.amandarae.dev';
 const BASE_IMAGE = `${BASE_URL}/assets/white-background-hero-img.png`;
+const META_DESCRIPTION_MAX_CHARS = 155;
 
 @Component({
   selector: 'app-project-detail',
@@ -55,7 +56,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
   private setMeta(): void {
     if (!this.projectData) return;
     const title = `${this.projectData.title} | Amanda Lloyd`;
-    const desc  = this.projectData.description.slice(0, 155);
+    const desc  = this.projectData.description.slice(0, META_DESCRIPTION_MAX_CHARS);
     const image = `${BASE_URL}/${this.projectData.image}`;
     const url   = `${BASE_URL}/project/${this.projectId}`;
 

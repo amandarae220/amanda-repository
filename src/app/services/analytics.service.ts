@@ -3,6 +3,8 @@ import { createClient, SupabaseClient, Session } from '@supabase/supabase-js';
 import { environment } from '../../environments/environment';
 import { VisitorService } from './visitor.service';
 
+const FETCH_EVENTS_LIMIT = 2000;
+
 export type PortfolioEvent = {
   id?: string;
   visitor_id: string;
@@ -83,7 +85,7 @@ export class AnalyticsService {
       .from('portfolio_events')
       .select('*')
       .order('created_at', { ascending: false })
-      .limit(2000);
+      .limit(FETCH_EVENTS_LIMIT);
     return {
       events: (data ?? []) as PortfolioEvent[],
       error: error?.message ?? null,

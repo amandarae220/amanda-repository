@@ -43,3 +43,6 @@ Thumbs.db
 
 # Environment — real credentials stay local, use environment.example.ts as reference
 src/environments/environment.prod.ts
+
+# Local source backups — these belong in git history, not as zip archives
+*.zip
