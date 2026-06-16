@@ -1,5 +1,5 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, PLATFORM_ID, inject } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Meta } from '@angular/platform-browser';
 import { AnalyticsService, PortfolioEvent } from '../../services/analytics.service';
@@ -15,8 +15,9 @@ type Filters = { timeframe: 'all' | '24h' | '7d' | '30d'; device: string; browse
   styleUrls: ['./admin.component.scss'],
 })
 export class AdminComponent implements OnInit {
-  private analytics = inject(AnalyticsService);
-  private metaSvc   = inject(Meta);
+  private analytics  = inject(AnalyticsService);
+  private metaSvc    = inject(Meta);
+  private platformId = inject(PLATFORM_ID);
 
   // ── auth ──────────────────────────────────────────────────────────────────
   authenticated = false;
@@ -109,14 +110,23 @@ export class AdminComponent implements OnInit {
     this.metaSvc.updateTag({ name: 'robots', content: 'noindex, nofollow' });
   }
 
-  submitPassword(): void {
-    if (this.passwordInput === environment.adminPassword) {
+  async submitPassword(): Promise<void> {
+    if (!isPlatformBrowser(this.platformId)) return;
+    const hash = await this.sha256(this.passwordInput);
+    if (hash === environment.adminPasswordHash) {
       this.authenticated = true;
       this.authError = false;
       this.load();
     } else {
       this.authError = true;
     }
+  }
+
+  private async sha256(input: string): Promise<string> {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(input));
+    return Array.from(new Uint8Array(buf))
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('');
   }
 
   async load(): Promise<void> {

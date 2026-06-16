@@ -8,27 +8,29 @@
 </nav>
 
 
-<section class="project-detail" *ngIf="projectData">
-  
+<main class="project-detail" *ngIf="projectData">
+
     <div class="project-wrapper">
-      <a (click)="goBack()" class="back-button">&#10094;&nbsp; Back</a>
+      <button type="button" (click)="goBack()" class="back-button">&#10094;&nbsp; Back</button>
       <div class="image-preview">
         <img [src]="projectData.image" [alt]="projectData.title + ' preview'" />
       </div>
-  
+
       <div class="project-content">
         <h1 class="heading">{{ projectData.title }}</h1>
         <p class="subtitle">{{ projectData.subtitle }}</p>
         <p class="paragraph">{{ projectData.description }}</p>
 
         <div class="project-buttons" *ngIf="projectData.buttons">
-          <button
+          <a
             *ngFor="let btn of projectData.buttons"
-            class="secondary-button-no-left-padding-copy">
-            <a [href]="btn.url" target="_blank" rel="noopener noreferrer" (click)="trackLinkClick(btn.label)">
-              {{ btn.label }}
-            </a>
-          </button>
+            class="secondary-button-no-left-padding-copy"
+            [href]="btn.url"
+            target="_blank"
+            rel="noopener noreferrer"
+            (click)="trackLinkClick(btn.label)">
+            {{ btn.label }}
+          </a>
         </div>
       </div>
     </div>
@@ -74,5 +76,4 @@
       </div>
     </div>
 
-  </section>  
-  
+  </main>
