@@ -170,7 +170,7 @@ export const PROJECT_MAP: Record<string, Project> = {
   },
   website: {
     title: 'This website... duh',
-    subtitle: 'Angular, Typescript, Vercel',
+    subtitle: 'Angular, Typescript',
     description: `This website, in and of itself, showcases my skill set with Angular and Typescript. This portfolio is more than a static site, it's a full-featured app that showcases my approach to user experience, accessibility, and a sprinkle of personality.`,
     image: 'assets/PORTFOLIO IMAGE.png',
     buttons: [

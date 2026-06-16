@@ -53,7 +53,7 @@ export class WorkComponent {
     {
       id: 'website',
       title: 'This website... duh',
-      subtitle: 'Angular, Typescript, Vercel',
+      subtitle: 'Angular, Typescript',
       description: 'This Angular-built portfolio site showcases my skill set with Angular and Typescript, while showcasing my other projects.',
       buttonText: 'YOU ARE HERE'
     }
