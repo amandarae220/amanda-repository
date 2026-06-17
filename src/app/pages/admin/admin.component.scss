@@ -204,6 +204,42 @@
   }
 }
 
+.filter-group--segmented {
+  flex: 1 1 auto;
+  min-width: 220px;
+}
+
+.segmented {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  background: #000;
+  padding: 2px;
+  gap: 2px;
+
+  button {
+    background: transparent;
+    border: 0;
+    color: #aaa;
+    font-family: inherit;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    padding: 0.35rem 0.75rem;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+
+    &:hover { color: #fff; }
+    &.active {
+      background: var(--cyan);
+      color: #000;
+      font-weight: 700;
+    }
+    &:focus-visible {
+      outline: 2px solid var(--cyan);
+      outline-offset: 2px;
+    }
+  }
+}
+
 .filter-clear {
   background: transparent;
   border: 1px solid var(--pink);
@@ -216,65 +252,253 @@
   align-self: flex-end;
 }
 
-// ── KPI Tiles ───────────────────────────────────────────────────────────────
+// ── Skeleton loader (shown on first load before events stream in) ──────────
 
-.admin-kpis {
+@keyframes skeleton-shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg,
+    var(--card) 0%,
+    rgba(255, 255, 255, 0.04) 50%,
+    var(--card) 100%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.6s ease-in-out infinite;
+  border: 1px solid var(--border);
+  border-radius: 0;
+}
+
+.skeleton-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.skeleton-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1rem;
 
-  @media (max-width: 900px) { grid-template-columns: repeat(2, 1fr); }
-  @media (max-width: 480px) { grid-template-columns: 1fr; }
+  @media (max-width: 1024px) { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: 600px)  { grid-template-columns: 1fr; }
+}
+
+.skeleton-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+// ── Hero strip ─────────────────────────────────────────────────────────────
+
+.hero-strip {
+  position: relative;
+  background: var(--card);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  padding: 1.75rem 2rem;
+  display: flex;
+  align-items: flex-end;
+  min-height: 180px;
+
+  // top accent bar in cyan (matches the visits family)
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--cyan);
+  }
+}
+
+.hero-chart {
+  position: absolute;
+  inset: auto 0 0 0;  // pin to bottom edge — keep chart at its own height even when content grows
+  height: 180px;
+  color: var(--cyan);
+  pointer-events: none;
+  // No opacity here — fading is per-element inside AreaSeries so annotation labels stay legible
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-label {
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  color: var(--muted);
+  margin: 0 0 0.4rem;
+  font-weight: 700;
+}
+
+.hero-value {
+  font-size: clamp(3rem, 7vw, 5rem);
+  font-weight: 700;
+  color: var(--cyan);
+  margin: 0;
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  text-shadow: 0 0 24px rgba(0, 229, 255, 0.25);
+}
+
+.hero-delta {
+  margin: 0.5rem 0 0;
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+
+  .up   { color: #66f2a5; font-weight: 700; }
+  .down { color: #ff5fa0; font-weight: 700; }
+}
+
+.hero-delta-context {
+  color: var(--muted);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+}
+
+// ── KPI row: 4 color groups in a single horizontal strip ──────────────────
+
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+
+  @media (max-width: 1024px) { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: 600px)  { grid-template-columns: 1fr; }
+}
+
+.kpi-pair {
+  display: flex;
+  gap: 0.5rem;
+
+  > * {
+    flex: 1;
+    min-width: 0;
+  }
+
+  // The solo pair (Avg Time on Site) fills its grid column — visually 2x the width of a paired card.
+  &--solo > * { flex: 1; }
+}
+
+// ── Color-coded column layout ──────────────────────────────────────────────
+
+.admin-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  align-items: start;  // don't stretch shorter columns to match the tallest
+  margin-top: 1rem;
+
+  @media (max-width: 1024px) { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: 600px)  { grid-template-columns: 1fr; }
+}
+
+.admin-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 0;  // allow children to shrink in narrow columns
+}
+
+.heatmap-section {
+  margin-top: 1rem;
 }
 
 .kpi-card {
+  position: relative;
   background: var(--card);
   border: 1px solid var(--border);
   padding: 1.25rem 1.5rem;
+  overflow: hidden;
+}
+
+.kpi-header {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0.5rem;
+}
+
+.kpi-icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: var(--muted);
 }
 
 .kpi-label {
   font-size: 0.65rem;
   letter-spacing: 0.14em;
   color: var(--muted);
-  margin: 0 0 0.5rem;
+  margin: 0;
 }
 
 .kpi-value {
   font-size: 2.25rem;
   font-weight: 700;
   margin: 0;
-  &.cyan  { color: var(--cyan); }
-  &.green { color: var(--green); }
-  &.amber { color: var(--amber); }
-  &.pink  { color: var(--pink); }
+  line-height: 1.1;
 }
 
-// ── Charts ──────────────────────────────────────────────────────────────────
-
-.admin-charts {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
-
-  &--three { grid-template-columns: repeat(3, 1fr); }
-
-  @media (max-width: 900px) { grid-template-columns: 1fr; }
+.kpi-trend {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  margin-top: 0.6rem;
+  color: var(--accent-color, var(--muted));
 }
+
+.kpi-delta {
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--muted);
+
+  &.up   { color: #66f2a5; }
+  &.down { color: #ff5fa0; }
+}
+
 
 .admin-card {
+  position: relative;
   background: var(--card);
   border: 1px solid var(--border);
   padding: 1.25rem 1.5rem;
+  overflow: hidden;
 
   &--full { width: 100%; }
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.card-icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: var(--muted);
 }
 
 .card-title {
   font-size: 0.68rem;
   letter-spacing: 0.14em;
   color: var(--muted);
-  margin: 0 0 1rem;
+  margin: 0;
 }
 
 .card-subtitle {
@@ -333,6 +557,7 @@
   &.cyan  { background: var(--cyan);  opacity: 0.85; }
   &.green { background: var(--green); opacity: 0.85; }
   &.amber { background: var(--amber); opacity: 0.85; }
+  &.pink  { background: var(--pink);  opacity: 0.85; }
 }
 
 .bar-count {
@@ -372,7 +597,10 @@
   width: 100%;
   min-height: 2px;
   transition: height 0.4s ease;
-  &.cyan { background: var(--cyan); opacity: 0.8; }
+  &.cyan  { background: var(--cyan);  opacity: 0.8; }
+  &.green { background: var(--green); opacity: 0.8; }
+  &.amber { background: var(--amber); opacity: 0.8; }
+  &.pink  { background: var(--pink);  opacity: 0.8; }
 }
 
 .spark-label {
@@ -426,4 +654,27 @@
 .visitor-id {
   font-size: 0.68rem;
   color: var(--muted);
+}
+
+// ── Color continuity: top bar, icon, and value share the card's accent ─────
+
+.kpi-card, .admin-card {
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--accent-color, transparent);
+  }
+
+  &.cyan  { --accent-color: var(--cyan); }
+  &.green { --accent-color: var(--green); }
+  &.amber { --accent-color: var(--amber); }
+  &.pink  { --accent-color: var(--pink); }
+
+  &.cyan, &.green, &.amber, &.pink {
+    .kpi-icon, .card-icon, .kpi-value, app-area-series, app-sparkline { color: var(--accent-color); }
+  }
 }

@@ -49,197 +49,328 @@
       <div>
         <p class="admin-breadcrumb">PORTFOLIO · ADMIN</p>
         <h1 class="admin-title">Visitor Analytics</h1>
-        @if (lastUpdated) {
+        @if (lastUpdated()) {
           <p class="admin-meta">
-            {{ uniqueVisitors }} unique visitors &nbsp;·&nbsp;
-            {{ totalPageViews }} page views &nbsp;·&nbsp;
-            Updated {{ lastUpdated | date:'M/d/yyyy h:mm:ss a' }}
+            {{ uniqueVisitors() }} unique visitors &nbsp;·&nbsp;
+            {{ totalPageViews() }} page views &nbsp;·&nbsp;
+            Updated {{ lastUpdated() | date:'M/d/yyyy h:mm:ss a' }}
           </p>
         }
       </div>
       <div class="admin-actions">
-        <button class="admin-refresh-btn" (click)="load()" [disabled]="loading">
-          <span aria-hidden="true">↺</span> {{ loading ? 'LOADING…' : 'REFRESH' }}
+        <button class="admin-refresh-btn" (click)="load()" [disabled]="loading()">
+          <span aria-hidden="true">↺</span> {{ loading() ? 'LOADING…' : 'REFRESH' }}
         </button>
         <button class="admin-refresh-btn" (click)="signOut()">SIGN OUT</button>
       </div>
     </header>
     <!-- ── Filters ─────────────────────────────────────────────────────────── -->
     <div class="admin-filters">
-      <div class="filter-group">
-        <label for="filter-timeframe" class="filter-label">TIMEFRAME</label>
-        <select id="filter-timeframe" class="filter-select" [(ngModel)]="filters.timeframe">
-          <option value="all">All Time</option>
-          <option value="24h">Last 24h</option>
-          <option value="7d">Last 7 Days</option>
-          <option value="30d">Last 30 Days</option>
-        </select>
+      <div class="filter-group filter-group--segmented">
+        <span class="filter-label" id="filter-timeframe-label">TIMEFRAME</span>
+        <div class="segmented" role="radiogroup" aria-labelledby="filter-timeframe-label">
+          <button type="button" role="radio" [attr.aria-checked]="filters().timeframe === '24h'" [class.active]="filters().timeframe === '24h'" (click)="setTimeframe('24h')">24h</button>
+          <button type="button" role="radio" [attr.aria-checked]="filters().timeframe === '7d'"  [class.active]="filters().timeframe === '7d'"  (click)="setTimeframe('7d')">7d</button>
+          <button type="button" role="radio" [attr.aria-checked]="filters().timeframe === '30d'" [class.active]="filters().timeframe === '30d'" (click)="setTimeframe('30d')">30d</button>
+          <button type="button" role="radio" [attr.aria-checked]="filters().timeframe === '90d'" [class.active]="filters().timeframe === '90d'" (click)="setTimeframe('90d')">90d</button>
+          <button type="button" role="radio" [attr.aria-checked]="filters().timeframe === 'all'" [class.active]="filters().timeframe === 'all'" (click)="setTimeframe('all')">ALL</button>
+        </div>
       </div>
       <div class="filter-group">
         <label for="filter-device" class="filter-label">DEVICE</label>
-        <select id="filter-device" class="filter-select" [(ngModel)]="filters.device">
+        <select id="filter-device" class="filter-select" [ngModel]="filters().device" (ngModelChange)="setDevice($event)" name="device">
           <option value="all">All Devices</option>
-          @for (d of uniqueDevices; track d) {
+          @for (d of uniqueDevices(); track d) {
             <option [value]="d">{{ d }}</option>
           }
         </select>
       </div>
       <div class="filter-group">
         <label for="filter-browser" class="filter-label">BROWSER</label>
-        <select id="filter-browser" class="filter-select" [(ngModel)]="filters.browser">
+        <select id="filter-browser" class="filter-select" [ngModel]="filters().browser" (ngModelChange)="setBrowser($event)" name="browser">
           <option value="all">All Browsers</option>
-          @for (b of uniqueBrowsers; track b) {
+          @for (b of uniqueBrowsers(); track b) {
             <option [value]="b">{{ b }}</option>
           }
         </select>
       </div>
-      @if (filtersActive) {
+      @if (filtersActive()) {
         <button class="filter-clear" (click)="clearFilters()">CLEAR FILTERS</button>
       }
     </div>
-    <!-- ── KPI Tiles ───────────────────────────────────────────────────────── -->
-    <div class="admin-kpis">
-      <div class="kpi-card">
-        <p class="kpi-label">UNIQUE VISITORS</p>
-        <p class="kpi-value cyan">{{ uniqueVisitors }}</p>
+    <!-- ── First-load skeleton (shown while events fetch) ──────────────────── -->
+    @if (loading() && lastUpdated() === null) {
+      <div class="skeleton-shell" aria-busy="true" aria-label="Loading analytics">
+        <div class="skeleton" style="height: 180px;"></div>
+        <div class="skeleton-grid">
+          @for (_ of [0,1,2,3]; track $index) {
+            <div class="skeleton-col">
+              <div class="skeleton" style="height: 110px;"></div>
+              <div class="skeleton" style="height: 110px;"></div>
+              <div class="skeleton" style="height: 180px;"></div>
+            </div>
+          }
+        </div>
       </div>
-      <div class="kpi-card">
-        <p class="kpi-label">PAGE VIEWS</p>
-        <p class="kpi-value green">{{ totalPageViews }}</p>
+    } @else {
+    <!-- ── Hero strip: headline metric with full-bleed area chart behind ──── -->
+    <section class="hero-strip" aria-labelledby="hero-strip-title">
+      <div class="hero-chart">
+        <app-area-series
+          [data]="seriesVisits()"
+          [annotations]="heroAnnotations"
+          [height]="180"
+          [chartOpacity]="0.45"
+          [showAxis]="false"
+          [showGrid]="false"
+          ariaLabel="Total visits over the last 30 days with key milestones" />
       </div>
-      <div class="kpi-card">
-        <p class="kpi-label">LINK CLICKS</p>
-        <p class="kpi-value amber">{{ totalLinkClicks }}</p>
+      <div class="hero-content">
+        <p class="hero-label">TOTAL VISITS · LAST 30 DAYS</p>
+        <p id="hero-strip-title" class="hero-value">{{ totalVisits() }}</p>
+        <p class="hero-delta">
+          @let dHero = deltaVisits();
+          @if (dHero !== null) {
+            <span [class.up]="dHero > 0" [class.down]="dHero < 0">
+              {{ dHero > 0 ? '▲' : dHero < 0 ? '▼' : '–' }} {{ dHero | number:'1.0-0' }}%
+            </span>
+            <span class="hero-delta-context">vs prior 30 days</span>
+          } @else {
+            <span class="hero-delta-context">collecting baseline data</span>
+          }
+        </p>
       </div>
-      <div class="kpi-card">
-        <p class="kpi-label">AVG TIME ON PAGE</p>
-        <p class="kpi-value pink">{{ avgTimeOnPage }}</p>
+    </section>
+
+    <!-- ── KPI row: 4 color groups, AvgTime fills its own group as a 2-wide tile -->
+    <div class="kpi-row">
+      <div class="kpi-pair">
+        <div class="kpi-card cyan">
+          <div class="kpi-header">
+            <svg class="kpi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            <p class="kpi-label">TOTAL VISITS</p>
+          </div>
+          <p class="kpi-value">{{ totalVisits() }}</p>
+          <div class="kpi-trend">
+            <app-sparkline [data]="sparkVisits()" ariaLabel="Total visits, last 30 days" />
+            <span class="kpi-delta" [class.up]="(deltaVisits() ?? 0) > 0" [class.down]="(deltaVisits() ?? 0) < 0">
+              @let d_deltaVisits = deltaVisits(); @if (d_deltaVisits !== null) { {{ d_deltaVisits > 0 ? '▲' : d_deltaVisits < 0 ? '▼' : '–' }} {{ d_deltaVisits | number:'1.0-0' }}% } @else { — }
+            </span>
+          </div>
+        </div>
+        <div class="kpi-card cyan">
+          <div class="kpi-header">
+            <svg class="kpi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <p class="kpi-label">UNIQUE VISITORS</p>
+          </div>
+          <p class="kpi-value">{{ uniqueVisitors() }}</p>
+          <div class="kpi-trend">
+            <app-sparkline [data]="sparkUniqueVisitors()" ariaLabel="Unique visitors, last 30 days" />
+            <span class="kpi-delta" [class.up]="(deltaUniqueVisitors() ?? 0) > 0" [class.down]="(deltaUniqueVisitors() ?? 0) < 0">
+              @let d_deltaUniqueVisitors = deltaUniqueVisitors(); @if (d_deltaUniqueVisitors !== null) { {{ d_deltaUniqueVisitors > 0 ? '▲' : d_deltaUniqueVisitors < 0 ? '▼' : '–' }} {{ d_deltaUniqueVisitors | number:'1.0-0' }}% } @else { — }
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="kpi-pair">
+        <div class="kpi-card green">
+          <div class="kpi-header">
+            <svg class="kpi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            <p class="kpi-label">PAGE VIEWS</p>
+          </div>
+          <p class="kpi-value">{{ totalPageViews() }}</p>
+          <div class="kpi-trend">
+            <app-sparkline [data]="sparkPageViews()" ariaLabel="Page views, last 30 days" />
+            <span class="kpi-delta" [class.up]="(deltaPageViews() ?? 0) > 0" [class.down]="(deltaPageViews() ?? 0) < 0">
+              @let d_deltaPageViews = deltaPageViews(); @if (d_deltaPageViews !== null) { {{ d_deltaPageViews > 0 ? '▲' : d_deltaPageViews < 0 ? '▼' : '–' }} {{ d_deltaPageViews | number:'1.0-0' }}% } @else { — }
+            </span>
+          </div>
+        </div>
+        <div class="kpi-card green">
+          <div class="kpi-header">
+            <svg class="kpi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+            <p class="kpi-label">AVG PAGES / VISIT</p>
+          </div>
+          <p class="kpi-value">{{ avgPagesPerVisit() }}</p>
+          <div class="kpi-trend">
+            <app-sparkline [data]="sparkAvgPages()" ariaLabel="Avg pages per visit, last 30 days" />
+            <span class="kpi-delta" [class.up]="(deltaAvgPages() ?? 0) > 0" [class.down]="(deltaAvgPages() ?? 0) < 0">
+              @let d_deltaAvgPages = deltaAvgPages(); @if (d_deltaAvgPages !== null) { {{ d_deltaAvgPages > 0 ? '▲' : d_deltaAvgPages < 0 ? '▼' : '–' }} {{ d_deltaAvgPages | number:'1.0-0' }}% } @else { — }
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="kpi-pair">
+        <div class="kpi-card amber">
+          <div class="kpi-header">
+            <svg class="kpi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            <p class="kpi-label">LINK CLICKS</p>
+          </div>
+          <p class="kpi-value">{{ totalLinkClicks() }}</p>
+          <div class="kpi-trend">
+            <app-sparkline [data]="sparkLinkClicks()" ariaLabel="Link clicks, last 30 days" />
+            <span class="kpi-delta" [class.up]="(deltaLinkClicks() ?? 0) > 0" [class.down]="(deltaLinkClicks() ?? 0) < 0">
+              @let d_deltaLinkClicks = deltaLinkClicks(); @if (d_deltaLinkClicks !== null) { {{ d_deltaLinkClicks > 0 ? '▲' : d_deltaLinkClicks < 0 ? '▼' : '–' }} {{ d_deltaLinkClicks | number:'1.0-0' }}% } @else { — }
+            </span>
+          </div>
+        </div>
+        <div class="kpi-card amber">
+          <div class="kpi-header">
+            <svg class="kpi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            <p class="kpi-label">BOUNCE RATE</p>
+          </div>
+          <p class="kpi-value">{{ bounceRate() }}</p>
+          <div class="kpi-trend">
+            <app-sparkline [data]="sparkBounce()" ariaLabel="Bounce rate, last 30 days" />
+            <span class="kpi-delta" [class.up]="(deltaBounce() ?? 0) < 0" [class.down]="(deltaBounce() ?? 0) > 0">
+              @let d_deltaBounce = deltaBounce(); @if (d_deltaBounce !== null) { {{ d_deltaBounce > 0 ? '▲' : d_deltaBounce < 0 ? '▼' : '–' }} {{ d_deltaBounce | number:'1.0-0' }}% } @else { — }
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="kpi-pair kpi-pair--solo">
+        <div class="kpi-card pink">
+          <div class="kpi-header">
+            <svg class="kpi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <p class="kpi-label">AVG TIME ON SITE</p>
+          </div>
+          <p class="kpi-value">{{ avgTimeOnSite() }}</p>
+          <div class="kpi-trend">
+            <app-sparkline [data]="sparkTimeOnSite()" ariaLabel="Avg time on site, last 30 days" />
+            <span class="kpi-delta" [class.up]="(deltaTimeOnSite() ?? 0) > 0" [class.down]="(deltaTimeOnSite() ?? 0) < 0">
+              @let d_deltaTimeOnSite = deltaTimeOnSite(); @if (d_deltaTimeOnSite !== null) { {{ d_deltaTimeOnSite > 0 ? '▲' : d_deltaTimeOnSite < 0 ? '▼' : '–' }} {{ d_deltaTimeOnSite | number:'1.0-0' }}% } @else { — }
+            </span>
+          </div>
+        </div>
       </div>
     </div>
-    <!-- ── Charts Row ──────────────────────────────────────────────────────── -->
-    <div class="admin-charts">
-      <!-- Project Views -->
-      <div class="admin-card">
-        <p class="card-title">PROJECT VIEWS</p>
-        @if (projectViews.length) {
-          <div class="bar-chart">
-            @for (item of projectViews; track item.label) {
-              <div class="bar-row">
-                <span class="bar-label">{{ item.label }}</span>
-                <div class="bar-track">
-                  <div class="bar-fill cyan" [style.width]="barWidth(item.count, projectViews[0].count)"></div>
+
+    <!-- ── Color-coded columns of charts (KPIs now live above in their own row) -->
+    <div class="admin-grid">
+
+      <!-- Cyan column — Who's coming? -->
+      <div class="admin-col">
+        <div class="admin-card cyan">
+          <div class="card-header">
+            <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            <p class="card-title">TRAFFIC SOURCES</p>
+          </div>
+          @if (trafficSources().length) {
+            <div class="bar-chart">
+              @for (item of trafficSources(); track item.label) {
+                <div class="bar-row">
+                  <span class="bar-label">{{ item.label }}</span>
+                  <div class="bar-track">
+                    <div class="bar-fill cyan" [style.width]="barWidth(item.count, trafficSources()[0].count)"></div>
+                  </div>
+                  <span class="bar-count">{{ item.count }}</span>
                 </div>
-                <span class="bar-count">{{ item.count }}</span>
-              </div>
-            }
-          </div>
-        } @else {
-          <p class="no-data">No data yet</p>
-        }
+              }
+            </div>
+          } @else {
+            <app-empty-state message="Awaiting first referral" hint="Direct visits and search engine arrivals show up here" />
+          }
+        </div>
       </div>
-      <!-- Top Link Clicks (conversions) -->
-      <div class="admin-card">
-        <p class="card-title">LINK CLICKS <span class="card-subtitle">— conversion events</span></p>
-        @if (topLinkClicks.length) {
-          <div class="bar-chart">
-            @for (item of topLinkClicks; track item.label) {
-              <div class="bar-row">
-                <span class="bar-label">{{ item.label }}</span>
-                <div class="bar-track">
-                  <div class="bar-fill green" [style.width]="barWidth(item.count, topLinkClicks[0].count)"></div>
+
+      <!-- Green column: page-view metrics -->
+      <div class="admin-col">
+        <div class="admin-card green">
+          <div class="card-header">
+            <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>
+            <p class="card-title">TOP PAGES <span class="card-subtitle">— views · time · click-through</span></p>
+          </div>
+          <app-leaderboard [rows]="topPagesLeaderboard()" />
+        </div>
+      </div>
+
+      <!-- Amber column: click / engagement metrics -->
+      <div class="admin-col">
+        <div class="admin-card amber">
+          <div class="card-header">
+            <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            <p class="card-title">LINK CLICKS <span class="card-subtitle">— conversion events</span></p>
+          </div>
+          @if (topLinkClicks().length) {
+            <div class="bar-chart">
+              @for (item of topLinkClicks(); track item.label) {
+                <div class="bar-row">
+                  <span class="bar-label">{{ item.label }}</span>
+                  <div class="bar-track">
+                    <div class="bar-fill amber" [style.width]="barWidth(item.count, topLinkClicks()[0].count)"></div>
+                  </div>
+                  <span class="bar-count">{{ item.count }}</span>
                 </div>
-                <span class="bar-count">{{ item.count }}</span>
-              </div>
-            }
-          </div>
-        } @else {
-          <p class="no-data">No data yet</p>
-        }
+              }
+            </div>
+          } @else {
+            <app-empty-state message="No outbound clicks yet" hint="Tracks visits to project storybooks, GitHub repos, and live demos" />
+          }
+        </div>
       </div>
-      <!-- Traffic Sources -->
-      <div class="admin-card">
-        <p class="card-title">TRAFFIC SOURCES</p>
-        @if (trafficSources.length) {
-          <div class="bar-chart">
-            @for (item of trafficSources; track item.label) {
-              <div class="bar-row">
-                <span class="bar-label">{{ item.label }}</span>
-                <div class="bar-track">
-                  <div class="bar-fill amber" [style.width]="barWidth(item.count, trafficSources[0].count)"></div>
-                </div>
-                <span class="bar-count">{{ item.count }}</span>
-              </div>
-            }
+
+      <!-- Pink column — How are they experiencing it? -->
+      <div class="admin-col">
+        <div class="admin-card pink">
+          <div class="card-header">
+            <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            <p class="card-title">DEVICE</p>
           </div>
-        } @else {
-          <p class="no-data">No data yet</p>
-        }
-      </div>
-    </div>
-    <!-- ── Bottom Row ──────────────────────────────────────────────────────── -->
-    <div class="admin-charts admin-charts--three">
-      <!-- Daily Activity -->
-      <div class="admin-card">
-        <p class="card-title">VIEWS — LAST 30 DAYS</p>
-        @if (dailyActivity.length) {
-          <div class="spark-chart">
-            @for (d of dailyActivity; track d.date) {
-              <div class="spark-col">
-                <div class="spark-bar cyan" [style.height]="barWidth(d.count, maxDailyCount)"></div>
-                <span class="spark-label">{{ d.date }}</span>
-              </div>
-            }
-          </div>
-        } @else {
-          <p class="no-data">No data yet</p>
-        }
-      </div>
-      <!-- Device -->
-      <div class="admin-card">
-        <p class="card-title">DEVICE</p>
-        @if (deviceBreakdown.length) {
-          <div class="bar-chart">
-            @for (item of deviceBreakdown; track item.label) {
-              <div class="bar-row">
-                <span class="bar-label">{{ item.label }}</span>
-                <div class="bar-track">
-                  <div class="bar-fill cyan" [style.width]="barWidth(item.count, deviceBreakdown[0].count)">
-                    <span class="bar-inline-count">{{ item.count }}</span>
+          @if (deviceBreakdown().length) {
+            <div class="bar-chart">
+              @for (item of deviceBreakdown(); track item.label) {
+                <div class="bar-row">
+                  <span class="bar-label">{{ item.label }}</span>
+                  <div class="bar-track">
+                    <div class="bar-fill pink" [style.width]="barWidth(item.count, deviceBreakdown()[0].count)">
+                      <span class="bar-inline-count">{{ item.count }}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            }
+              }
+            </div>
+          } @else {
+            <app-empty-state message="No device data yet" />
+          }
+        </div>
+        <div class="admin-card pink">
+          <div class="card-header">
+            <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            <p class="card-title">BROWSER</p>
           </div>
-        } @else {
-          <p class="no-data">No data yet</p>
-        }
-      </div>
-      <!-- Browser -->
-      <div class="admin-card">
-        <p class="card-title">BROWSER</p>
-        @if (browserBreakdown.length) {
-          <div class="bar-chart">
-            @for (item of browserBreakdown; track item.label) {
-              <div class="bar-row">
-                <span class="bar-label">{{ item.label }}</span>
-                <div class="bar-track">
-                  <div class="bar-fill green" [style.width]="barWidth(item.count, browserBreakdown[0].count)">
-                    <span class="bar-inline-count">{{ item.count }}</span>
+          @if (browserBreakdown().length) {
+            <div class="bar-chart">
+              @for (item of browserBreakdown(); track item.label) {
+                <div class="bar-row">
+                  <span class="bar-label">{{ item.label }}</span>
+                  <div class="bar-track">
+                    <div class="bar-fill pink" [style.width]="barWidth(item.count, browserBreakdown()[0].count)">
+                      <span class="bar-inline-count">{{ item.count }}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            }
-          </div>
-        } @else {
-          <p class="no-data">No data yet</p>
-        }
+              }
+            </div>
+          } @else {
+            <app-empty-state message="No browser data yet" />
+          }
+        </div>
       </div>
+
     </div>
+    <!-- ── Visit heatmap(): when do people show up? ─────────────────────────── -->
+    <section class="admin-card admin-card--full cyan heatmap()-section">
+      <div class="card-header">
+        <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <p class="card-title">WHEN PEOPLE VISIT <span class="card-subtitle">— page views by hour × day of week</span></p>
+      </div>
+      <app-heatmap [matrix]="heatmap()" accent="var(--cyan)" />
+    </section>
     <!-- ── Recent Events Table ─────────────────────────────────────────────── -->
     <div class="admin-card admin-card--full">
       <p class="card-title">RECENT EVENTS</p>
       <div class="admin-table-wrap">
-        @if (recentEvents.length) {
+        @if (recentEvents().length) {
           <table class="admin-table" aria-label="Recent visitor events">
             <caption class="sr-only">Recent visitor events</caption>
             <thead>
@@ -257,7 +388,7 @@
               </tr>
             </thead>
             <tbody>
-              @for (e of recentEvents; track e.id || $index) {
+              @for (e of recentEvents(); track e.id || $index) {
                 <tr>
                   <td>{{ e.created_at ? fmtDate(e.created_at) : '—' }}</td>
                   <td>{{ e.created_at ? fmtTime(e.created_at) : '—' }}</td>
@@ -274,9 +405,10 @@
             </tbody>
           </table>
         } @else {
-          <p class="no-data">No events yet</p>
+          <app-empty-state message="No events yet" hint="Recent visitor activity will stream in here as it happens" />
         }
       </div>
     </div>
+    }
   </main>
 }

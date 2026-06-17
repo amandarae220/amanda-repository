@@ -36,7 +36,7 @@ html, body {
   overscroll-behavior-x: none;
   }
   
-  section {
+  .scroll-container > section {
     scroll-snap-align: start;
     height: 100vh;
     display: flex;
@@ -46,23 +46,23 @@ html, body {
   }
 
   @media (max-width: 600px) {
-    section {
+    .scroll-container > section {
       padding: 2vh 8vh;
     }
   }
 
   @media (max-width: 600px) {
-    section {
+    .scroll-container > section {
       padding: 2vh 2vh;
     }
 
   @media (max-width: 900px) {
-  section {
+  .scroll-container > section {
     height: fit-content;
     padding: 88px 24px 48px;
   }
 
-  section#hero {
+  .scroll-container > section#hero {
     padding: 0px;
   }
 }

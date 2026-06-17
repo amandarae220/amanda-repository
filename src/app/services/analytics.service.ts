@@ -94,6 +94,7 @@ export class AnalyticsService {
 
   private async insert(event: PortfolioEvent): Promise<void> {
     if (!this.client) return;
+    if (this.visitor.isLocalhost) return;
     await this.client.from('portfolio_events').insert(event);
   }
 }

@@ -14,6 +14,12 @@ export class VisitorService {
     return isPlatformBrowser(this.platformId);
   }
 
+  get isLocalhost(): boolean {
+    if (!this.isBrowser) return false;
+    const host = window.location.hostname;
+    return host === 'localhost' || host === '127.0.0.1' || host === '::1';
+  }
+
   getVisitorId(): string {
     if (!this.isBrowser) return 'ssr';
     const existingId = localStorage.getItem(VISITOR_ID_KEY);
