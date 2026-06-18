@@ -20,6 +20,7 @@ import { AreaSeriesComponent } from './charts/area-series.component';
 import { HeatmapComponent } from './charts/heatmap.component';
 import { LeaderboardComponent } from './charts/leaderboard.component';
 import { EmptyStateComponent } from './charts/empty-state.component';
+import { SiteFooterComponent } from '../../layout/site-footer/site-footer.component';
 
 const MAX_RECENT_EVENTS = 50;
 const SPARK_WINDOW_DAYS = 30;
@@ -49,7 +50,7 @@ const HERO_ANNOTATIONS = [
   imports: [
     CommonModule, FormsModule,
     SparklineComponent, AreaSeriesComponent, HeatmapComponent,
-    LeaderboardComponent, EmptyStateComponent,
+    LeaderboardComponent, EmptyStateComponent, SiteFooterComponent,
   ],
   templateUrl: './admin.component.html',
   styleUrls: ['./admin.component.scss'],

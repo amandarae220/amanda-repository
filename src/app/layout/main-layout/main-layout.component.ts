@@ -6,6 +6,7 @@ import { HeroComponent } from '../../sections/hero/hero.component';
 import { WorkComponent } from '../../sections/work/work.component';
 import { AboutComponent } from '../../sections/about/about.component';
 import { ContactComponent } from '../../sections/contact/contact.component';
+import { SiteFooterComponent } from '../site-footer/site-footer.component';
 
 const BASE_TITLE = 'Amanda Lloyd — Frontend Engineer & Data Visualization Specialist';
 const BASE_DESC  = 'Portfolio of Amanda Lloyd — Frontend Engineer and Data Visualization Specialist. Angular, React, D3.js, and a data science background that makes the difference.';
@@ -13,7 +14,7 @@ const BASE_DESC  = 'Portfolio of Amanda Lloyd — Frontend Engineer and Data Vis
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [RouterModule, HeroComponent, WorkComponent, AboutComponent, ContactComponent],
+  imports: [RouterModule, HeroComponent, WorkComponent, AboutComponent, ContactComponent, SiteFooterComponent],
   templateUrl: './main-layout.component.html',
   styleUrls: ['./main-layout.component.scss']
 })

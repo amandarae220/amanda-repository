@@ -1,0 +1,103 @@
+<nav class="navbar" aria-label="Primary">
+  <ul class="nav-links">
+    <li><a href="/" class="nav-link">Home</a></li>
+    <li><a href="/#work" class="nav-link">Work</a></li>
+    <li><a href="/#about" class="nav-link">About</a></li>
+    <li><a href="/#contact" class="nav-link">Contact</a></li>
+  </ul>
+</nav>
+
+<main class="privacy-page">
+  <article class="privacy-wrapper">
+    <header class="privacy-header">
+      <p class="eyebrow">PRIVACY</p>
+      <h1>How this site handles your data</h1>
+      <p class="last-updated">Last updated {{ lastUpdated }}</p>
+    </header>
+
+    <section class="privacy-section">
+      <h2>The short version</h2>
+      <p>
+        This site records anonymous analytics so I can see which projects resonate.
+        No names, no emails, no ad networks, no third-party trackers, no selling of
+        anything to anyone. If that's all you wanted to know, you can stop reading here.
+      </p>
+    </section>
+
+    <section class="privacy-section">
+      <h2>What gets collected</h2>
+      <p>When you visit a page, the following is recorded:</p>
+      <ul>
+        <li>The page you viewed and how long you stayed on it</li>
+        <li>How you arrived (referrer hostname only — e.g. <em>linkedin.com</em>, not the full URL)</li>
+        <li>Your browser and whether you're using a touch device or a mouse</li>
+        <li>Project card clicks and outbound link clicks (so I can see what people open)</li>
+        <li>
+          A random identifier (UUID) stored in your browser, so I can tell that
+          three page views from the same visit are actually the same visit
+        </li>
+      </ul>
+    </section>
+
+    <section class="privacy-section">
+      <h2>What does <em>not</em> get collected</h2>
+      <ul>
+        <li>Your name, email, IP address, or any contact information</li>
+        <li>Form fields, keystrokes, or mouse movements</li>
+        <li>Third-party advertising or tracking pixels</li>
+        <li>Anything Google Analytics, Meta, or similar would collect — there are no such scripts on this site</li>
+      </ul>
+    </section>
+
+    <section class="privacy-section">
+      <h2>Where it's stored</h2>
+      <p>
+        Events are written to <a href="https://supabase.com" target="_blank" rel="noopener noreferrer">Supabase</a>,
+        a managed Postgres database. Row-level security restricts read access to my
+        authenticated session only. The visitor identifier lives in your browser's
+        <code>localStorage</code> and is rotated every 30 days, so the same person
+        appears as a "new visitor" at least once a month.
+      </p>
+    </section>
+
+    <section class="privacy-section">
+      <h2>How long it's kept</h2>
+      <p>
+        Event records are kept indefinitely so I can compare year-over-year trends.
+        Because no record is tied to a real person, "deleting your data" essentially
+        means rotating your browser's UUID — which you can do at any time by clearing
+        site data in your browser settings, or by waiting up to 30 days for the
+        automatic rotation.
+      </p>
+    </section>
+
+    <section class="privacy-section">
+      <h2>Your rights (GDPR / CCPA)</h2>
+      <p>
+        If you're in the EU, UK, or California, you have the right to know what's
+        being collected and to request its deletion. Since no record is linked to
+        your identity, the practical fulfillment of either request is the same:
+        clear your browser's site data for <em>amandarae.dev</em>, and the link
+        between you and any prior event is permanently severed.
+      </p>
+      <p>
+        If you'd like written confirmation, email
+        <a [attr.href]="'mailto:' + contactEmail">{{ contactEmail }}</a>.
+      </p>
+    </section>
+
+    <section class="privacy-section">
+      <h2>Changes to this policy</h2>
+      <p>
+        If I change what gets collected, this page gets updated and the
+        "Last updated" date at the top changes. Material changes will also be
+        called out in a banner on the home page for at least 30 days.
+      </p>
+    </section>
+
+    <p class="back-link">
+      <a href="/">← Back to home</a>
+    </p>
+  </article>
+</main>
+<app-site-footer />

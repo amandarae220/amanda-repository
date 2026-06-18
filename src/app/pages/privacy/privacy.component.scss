@@ -1,0 +1,122 @@
+main.privacy-page {
+  position: relative;
+  padding: 6rem 5rem 4rem 5rem;
+  min-height: calc(100vh - var(--nav-h));
+  display: block;
+
+  @media (max-width: 900px) {
+    padding: 4rem 1.5rem 2rem 1.5rem;
+  }
+}
+
+.privacy-wrapper {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.privacy-header {
+  margin-bottom: 3rem;
+
+  .eyebrow {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    color: var(--brand-purple);
+    margin: 0 0 0.75rem;
+  }
+
+  h1 {
+    font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 400;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    margin: 0 0 0.75rem;
+    color: var(--black);
+  }
+
+  .last-updated {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    color: #666;
+    margin: 0;
+    letter-spacing: 0.02em;
+  }
+}
+
+.privacy-section {
+  margin-bottom: 2.5rem;
+
+  h2 {
+    font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+    font-size: 1.5rem;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    margin: 0 0 1rem;
+    color: var(--black);
+  }
+
+  p {
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    line-height: 1.65;
+    color: #333;
+    margin: 0 0 1rem;
+
+    &:last-child { margin-bottom: 0; }
+  }
+
+  ul {
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    line-height: 1.65;
+    color: #333;
+    padding-left: 1.25rem;
+    margin: 0;
+
+    li {
+      margin-bottom: 0.5rem;
+
+      &:last-child { margin-bottom: 0; }
+    }
+  }
+
+  a {
+    color: var(--brand-purple);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.15s;
+
+    &:hover { border-color: var(--brand-purple); }
+  }
+
+  em {
+    font-style: italic;
+    color: #000;
+  }
+
+  code {
+    font-family: 'Roboto Mono', 'Menlo', 'Consolas', monospace;
+    font-size: 0.9em;
+    background: #f4f0f2;
+    padding: 0.1rem 0.35rem;
+    border-radius: 3px;
+    color: var(--brand-purple-dark);
+  }
+}
+
+.back-link {
+  margin-top: 4rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+
+  a {
+    color: var(--brand-purple);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.15s;
+
+    &:hover { border-color: var(--brand-purple); }
+  }
+}
