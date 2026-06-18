@@ -46,3 +46,40 @@ src/environments/environment.prod.ts
 
 # Local source backups — these belong in git history, not as zip archives
 *.zip
+
+# Secrets / credentials hardening — defensive patterns to catch accidental commits
+# .env files in any variant, any directory
+.env
+.env.*
+**/.env
+**/.env.*
+*.env
+*.env.*
+
+# Dev-local overrides commonly created by frameworks/IDEs
+*.local
+**/*.local
+
+# Certificate, key, and credential file patterns
+*.pem
+*.key
+*.p12
+*.pfx
+*.cer
+**/secrets.*
+**/credentials.*
+**/*-key.json
+**/service-account*.json
+
+# Auth tokens that show up in tooling configs
+.netrc
+.npmrc
+.aws/
+.ssh/
+
+# OS / cloud sync turds that sometimes contain secrets in titles
+*.swp
+*.swo
+*~
+.dropbox
+.icloud
