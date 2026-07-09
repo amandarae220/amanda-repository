@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `npm start` — dev server at http://localhost:4200 (`ng serve`)
 - `npm run build` — production build (SSR bundle output to `dist/amanda-portfolio/`)
 - `npm run watch` — dev build in watch mode
-- `npm test` — Karma/Jasmine unit tests (`ng test`)
+- `npm test` — Vitest unit tests via `@angular/build:unit-test` (`ng test`)
 - `npm run serve:ssr:amanda-portfolio` — run the built SSR server locally
 - Single test: `ng test --include='**/analytics-aggregator.spec.ts'` (or any glob for the spec you want)
 
