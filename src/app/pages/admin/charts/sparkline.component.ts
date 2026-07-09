@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 
 /**
  * Tiny inline trend line.
@@ -32,6 +32,7 @@ import { Component, Input } from '@angular/core';
       }
     </svg>
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: [':host { display: inline-block; line-height: 0; }'],
 })
 export class SparklineComponent {

@@ -1,4 +1,4 @@
-import { Component, OnInit, PLATFORM_ID, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, PLATFORM_ID, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Meta } from '@angular/platform-browser';
@@ -53,6 +53,7 @@ const HERO_ANNOTATIONS = [
     LeaderboardComponent, EmptyStateComponent, SiteFooterComponent,
   ],
   templateUrl: './admin.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./admin.component.scss'],
 })
 export class AdminComponent implements OnInit {

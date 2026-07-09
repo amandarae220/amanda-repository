@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 
 import { Router } from '@angular/router';
 import { AnalyticsService } from '../../services/analytics.service';
@@ -8,6 +8,7 @@ import { AnalyticsService } from '../../services/analytics.service';
   standalone: true,
   imports: [],
   templateUrl: './about.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./about.component.scss']
 })
 export class AboutComponent {

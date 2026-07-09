@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 
 /**
  * Small site-wide footer with copyright + privacy link.
@@ -12,6 +12,7 @@ import { Component, Input } from '@angular/core';
       <p>© {{ year }} Amanda Lloyd · <a href="/privacy">Privacy</a></p>
     </footer>
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: [`
     .site-footer {
       padding: 1.25rem 2rem;

@@ -8,7 +8,7 @@ Live: https://www.amandarae.dev
 
 ## Overview
 
-This portfolio showcases frontend engineering and data visualization work through a set of evolving projects. It's built with Angular 21 with SSR, deployed on Vercel, and backed by a Supabase analytics pipeline that streams visitor events into a custom `/admin` dashboard. Accessibility tested to WCAG 2.1 AA.
+This portfolio showcases frontend engineering and data visualization work through a set of evolving projects. It's built with Angular 22 with SSR, deployed on Vercel, and backed by a Supabase analytics pipeline that streams visitor events into a custom `/admin` dashboard. Accessibility tested to WCAG 2.1 AA.
 
 ---
 
@@ -16,7 +16,7 @@ This portfolio showcases frontend engineering and data visualization work throug
 
 | Technology | Why I chose it |
 |------------|----------------|
-| Angular 21 + SSR | Standalone components, signals + computed for memoized state, control-flow templates |
+| Angular 22 + SSR | Standalone components, signals + computed for memoized state, control-flow templates |
 | Supabase | Anonymous event ingestion + RLS-gated read; Supabase Auth for the admin route |
 | Vercel | Auto-deploys on push to main; CDN, preview deploys, Speed Insights |
 | SCSS | Scoped component styles with CSS custom properties; no utility-class framework |
@@ -36,7 +36,7 @@ The `/admin` route is a custom visualization-engineering exercise — every char
 | `HistogramComponent` | Vertical-bar distribution chart with bucket highlight support (used for the visit-depth histogram). |
 | `EmptyStateComponent` | Intentional placeholders for charts with no data yet — every chart has a context-specific empty message. |
 
-State management uses Angular 21 signals + `computed()` throughout. Aggregations in [`analytics-aggregator.ts`](src/app/pages/admin/analytics-aggregator.ts) (pure functions: visit detection, period-over-period deltas, daily series bucketing, depth distribution, project performance) only recompute when their input signals change — meaningful performance win for a dashboard with ~15 derived metrics.
+State management uses Angular 22 signals + `computed()` throughout. Aggregations in [`analytics-aggregator.ts`](src/app/pages/admin/analytics-aggregator.ts) (pure functions: visit detection, period-over-period deltas, daily series bucketing, depth distribution, project performance) only recompute when their input signals change — meaningful performance win for a dashboard with ~15 derived metrics.
 
 The dashboard is organized as four color-coded columns telling a story:
 - 🔵 **Who's coming?** — total visits, unique visitors, traffic sources
@@ -48,13 +48,13 @@ The dashboard is organized as four color-coded columns telling a story:
 
 ## Getting Started
 
-**Prerequisites:** Node 20+, Angular CLI 21
+**Prerequisites:** Node ≥22.22.3, Angular CLI 22
 
 ```bash
 git clone https://github.com/amandarae220/amanda-repository.git
 cd amanda-repository
 npm install
-ng serve
+npm start
 ```
 
 App runs at `http://localhost:4200`. Events tracked from localhost are skipped at the ingest layer so they don't pollute analytics.
@@ -71,6 +71,7 @@ Deployed on Vercel. Pushes to `main` trigger automatic production builds.
 
 ## Latest Updates
 
+- **Jul 2026** — Angular 21 → 22 upgrade; Express 4 → 5; privacy policy route added; further a11y + audit-compliance passes; design-token refactor across admin dashboard
 - **Jun 2026** — Analytics dashboard rebuilt as a visualization-engineering showcase: hero strip, sparklines + Δ on every KPI, time-series with rolling average + comparison overlay + annotations, hour×day heatmap, project leaderboard, visit-depth histogram. Pure SVG + Angular signals.
 - **Jun 2026** — Angular 19 → 21 upgrade; npm audit 40 vulns → 10 (all dev-only transitive)
 - **Jun 2026** — Admin auth migrated from client-side hash to real Supabase Auth + RLS

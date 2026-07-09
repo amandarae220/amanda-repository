@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, OnInit, Renderer2, inject, DOCUMENT } from '@angular/core';
+import { Component, AfterViewInit, OnInit, Renderer2, inject, DOCUMENT, ChangeDetectionStrategy } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { Title, Meta } from '@angular/platform-browser';
 
@@ -16,6 +16,7 @@ const BASE_DESC  = 'Portfolio of Amanda Lloyd — Frontend Engineer and Data Vis
   standalone: true,
   imports: [RouterModule, HeroComponent, WorkComponent, AboutComponent, ContactComponent, SiteFooterComponent],
   templateUrl: './main-layout.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./main-layout.component.scss']
 })
 export class MainLayoutComponent implements OnInit, AfterViewInit {
