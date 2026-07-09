@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 
 
 @Component({
@@ -6,6 +6,7 @@ import { Component } from '@angular/core';
   standalone: true,
   imports: [],
   templateUrl: './contact.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./contact.component.scss']
 })
 export class ContactComponent {}

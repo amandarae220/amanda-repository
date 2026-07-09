@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 
 export type DailyPoint = { date: string; value: number };
 export type Annotation = { date: string; label: string };
@@ -60,6 +60,7 @@ export type Annotation = { date: string; label: string };
       }
     </div>
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: [`
     :host { display: block; line-height: 0; width: 100%; }
     .chart-wrap { position: relative; width: 100%; }

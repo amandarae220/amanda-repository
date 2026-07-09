@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 
 /**
  * Friendly placeholder for charts with no data yet.
@@ -17,6 +17,7 @@ import { Component, Input } from '@angular/core';
       @if (hint) { <p class="empty-hint">{{ hint }}</p> }
     </div>
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: [`
     :host { display: block; }
     .empty {

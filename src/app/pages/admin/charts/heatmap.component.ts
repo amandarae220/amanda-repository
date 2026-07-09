@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 
 /**
  * 7×24 visit-intensity heatmap (day-of-week × hour-of-day).
@@ -37,6 +37,7 @@ import { Component, Input } from '@angular/core';
       </div>
     </div>
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: [`
     :host { display: block; }
     .heatmap {

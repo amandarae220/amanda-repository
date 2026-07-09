@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { Title, Meta } from '@angular/platform-browser';
 import { SiteFooterComponent } from '../../layout/site-footer/site-footer.component';
 
@@ -7,6 +7,7 @@ import { SiteFooterComponent } from '../../layout/site-footer/site-footer.compon
   standalone: true,
   imports: [SiteFooterComponent],
   templateUrl: './privacy.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./privacy.component.scss'],
 })
 export class PrivacyComponent implements OnInit {

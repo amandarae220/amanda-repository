@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
 import { Title, Meta } from '@angular/platform-browser';
@@ -17,6 +17,7 @@ const META_DESCRIPTION_MAX_CHARS = 155;
   standalone: true,
   imports: [SiteFooterComponent],
   templateUrl: './project-detail.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./project-detail.component.scss']
 })
 export class ProjectDetailComponent implements OnInit, OnDestroy {

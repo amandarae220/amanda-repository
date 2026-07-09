@@ -13,6 +13,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 There is no lint script — code style is enforced by TypeScript strict mode and the Angular compiler.
 
+Requires Node ≥22.22.3 (Angular 22 requirement). Use `nvm use 22` locally if your default is older.
+
 ## Local environment setup
 
 `src/environments/environment.ts` is gitignored. Copy `environment.example.ts` to `environment.ts` and fill in Supabase URL + anon key. Admin auth uses Supabase Auth (`signInWithPassword`) — an admin user must exist in the Supabase project's Auth → Users. There is no password in source or in env vars.

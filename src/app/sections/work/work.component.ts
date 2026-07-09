@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { AnalyticsService } from '../../services/analytics.service';
@@ -9,6 +9,7 @@ import { HOME_CARDS } from '../../pages/project-detail/project-data';
   standalone: true,
   imports: [],
   templateUrl: './work.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./work.component.scss']
 })
 export class WorkComponent {
