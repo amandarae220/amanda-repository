@@ -1,5 +1,6 @@
 User-agent: *
 Allow: /
 Disallow: /admin
+Disallow: /calculator-v2/admin.html
 
 Sitemap: https://www.amandarae.dev/sitemap.xml
