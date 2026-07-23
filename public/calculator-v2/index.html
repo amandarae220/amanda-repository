@@ -1,0 +1,2597 @@
+<html lang="en" class="no-js">
+
+<head>
+    <!-- Runs synchronously during head parsing, so .no-js is gone before the
+         browser ever paints the body. Any client that doesn't execute scripts
+         (rare crawlers, JS-disabled browsers) keeps the class, which CSS uses
+         below to show a fallback message and hide the app. Replaces the
+         older <noscript> pattern that WAVE flagged. -->
+    <script>document.documentElement.classList.remove('no-js')</script>
+    <meta charset="UTF-8">
+    <title>Retirement Savings Calculator | Compound Interest Visualizer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Project your retirement savings with an interactive compound interest calculator. See when investments outpace contributions and calculate your Coast FI number.">
+    <meta name="keywords" content="retirement calculator, compound interest, Coast FI, FIRE calculator, financial independence, savings projection, investment growth">
+    <meta name="author" content="Amanda Anderson">
+    <meta name="theme-color" content="#5a38e0">
+
+    <link rel="canonical" href="https://www.amandarae.dev/calculator-v2/">
+
+    <!-- Performance: warm up the connections we'll need before the parser hits them -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://d3js.org">
+    <link rel="preconnect" href="https://bkkcwlpkgwqobfdtcomx.supabase.co" crossorigin>
+    <link rel="dns-prefetch" href="https://d3js.org">
+    <link rel="dns-prefetch" href="https://bkkcwlpkgwqobfdtcomx.supabase.co">
+
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Retirement Savings Calculator">
+    <meta property="og:description" content="Project your retirement savings with an interactive compound interest calculator. See when investments outpace contributions and calculate your Coast FI number.">
+    <meta property="og:url" content="https://www.amandarae.dev/calculator-v2/">
+    <meta property="og:image" content="https://www.amandarae.dev/assets/calculator-v2.png">
+    <meta property="og:image:alt" content="Stacked bar chart showing projected retirement savings growth over 20 years.">
+    <meta property="og:site_name" content="Retirement Savings Calculator">
+    <meta property="og:locale" content="en_US">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Retirement Savings Calculator">
+    <meta name="twitter:description" content="Project your retirement savings with an interactive compound interest calculator. See when investments outpace contributions and calculate your Coast FI number.">
+    <meta name="twitter:image" content="https://www.amandarae.dev/assets/calculator-v2.png">
+    <meta name="twitter:image:alt" content="Stacked bar chart showing projected retirement savings growth over 20 years.">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Retirement Savings Calculator",
+      "alternateName": "Compound Interest Visualizer",
+      "description": "An interactive compound interest visualizer that projects retirement savings growth year by year and surfaces key financial milestones including Coast FI, Lift Off, and Tipping Point.",
+      "url": "https://www.amandarae.dev/calculator-v2/",
+      "applicationCategory": "FinanceApplication",
+      "operatingSystem": "Web",
+      "inLanguage": "en",
+      "dateModified": "2026-06-14",
+      "screenshot": "https://www.amandarae.dev/assets/calculator-v2.png",
+      "featureList": [
+        "Compound interest projection over any timeline",
+        "Stacked breakdown of principal, self contributions, employer contributions, and earned interest",
+        "Coast FI calculator using the 25x rule",
+        "Annual interest vs. contribution crossover detection",
+        "Conservative and aggressive retirement drawdown scenarios",
+        "Compare up to 4 saved scenarios on the same chart"
+      ],
+      "author": {
+        "@type": "Person",
+        "name": "Amanda Anderson",
+        "url": "https://github.com/amandarae220"
+      },
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      }
+    }
+    </script>
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --brand-primary: #5a38e0;
+            --brand-light:   #8b6ff5;
+            --brand-dark:    #3a1fa0;
+            --brand-accent:  #7657f4;
+            --brand-income:  #1680d4;
+            --bg-surface:    #fcfcff;
+            --color-error:   #ff6b6b;
+
+            /* Darker text variants of the brand colors. The vivid accents above
+               fail WCAG 1.4.3 (4.5:1) when used for small text on the light
+               insight-card backgrounds. These pass:
+               --tag-text-purple on #f4f2ff = 5.6:1
+               --tag-text-blue   on #f0f8ff = 5.5:1 */
+            --tag-text-purple: #6042e3;
+            --tag-text-blue:   #1668a8;
+
+            /* Chart series tokens — referenced from JS via getComputedStyle */
+            --chart-self:    #7657f4;
+            --chart-work:    #bfb5ff;
+            --chart-interest:#68d0fa;
+
+            /* Saved-scenario palette (in display order) */
+            --sc-color-1:    #e8774a;
+            --sc-color-2:    #2baa6a;
+            --sc-color-3:    #1680d4;
+            --sc-color-4:    #c94fa0;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        .sr-only {
+            position: absolute; width: 1px; height: 1px;
+            padding: 0; margin: -1px; overflow: hidden;
+            clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+        }
+
+        /* JS-required fallback — visible only when the inline head script
+           hasn't removed .no-js from <html>. Replaces a <noscript> element. */
+        .no-js-message { display: none; }
+        html.no-js .no-js-message {
+            display: block;
+            max-width: 680px;
+            margin: 48px auto;
+            padding: 24px;
+            font-family: sans-serif;
+            line-height: 1.6;
+            color: #1a1a2e;
+        }
+        html.no-js .no-js-message .no-js-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        html.no-js #app,
+        html.no-js #mobileConfigBtn,
+        html.no-js #mobileOverlay,
+        html.no-js #mobileSheet,
+        html.no-js #tooltip,
+        html.no-js #infoTooltip { display: none !important; }
+
+        body {
+            font-family: sans-serif;
+            font-size: 14px;
+            color: #000;
+            height: 100vh;          /* fallback for browsers without dvh support */
+            height: 100dvh;         /* iOS Safari: matches visible viewport even when URL bar shows */
+            overflow: hidden;
+        }
+
+        /* ── App shell ── */
+        #app {
+            display: flex;
+            height: 100vh;
+            height: 100dvh;
+        }
+
+        /* ══════════════════════════════════════════
+           LEFT PANEL
+        ══════════════════════════════════════════ */
+        #leftPanel {
+            width: 420px;
+            min-width: 320px;
+            flex-shrink: 0;
+            background: linear-gradient(160deg, var(--brand-light) 0%, var(--brand-primary) 55%, var(--brand-dark) 100%);
+            color: #fff;
+            padding: clamp(16px, 3.5vh, 36px) 32px;
+            display: flex;
+            flex-direction: column;
+            gap: clamp(8px, 2vh, 24px);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Large decorative $ watermark */
+        #leftPanel::before {
+            content: "$";
+            position: absolute;
+            font-family: 'Oswald', sans-serif;
+            font-size: 380px;
+            font-weight: 700;
+            color: rgba(255,255,255,0.05);
+            right: -40px;
+            bottom: -60px;
+            line-height: 1;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .appTitle {
+            font-family: 'Oswald', sans-serif;
+            font-size: 13px;
+            font-weight: 400;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.55);
+        }
+
+        .backToPortfolio {
+            font-family: 'Oswald', sans-serif;
+            font-size: 12px;
+            font-weight: 400;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.65);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            align-self: flex-start;
+            transition: color 0.15s ease;
+        }
+        .backToPortfolio:hover,
+        .backToPortfolio:focus-visible {
+            color: #fff;
+        }
+
+        /* ── Hero metric ── */
+        .metaLabel {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: rgba(255,255,255,0.55);
+            margin-bottom: 6px;
+        }
+
+        #result {
+            font-family: 'Oswald', sans-serif;
+            font-size: clamp(34px, 5.5vh, 54px);
+            font-weight: 700;
+            line-height: 1.15;
+            letter-spacing: -1px;
+            color: #fff;
+            /* Oswald renders the $ glyph slightly above the cap-line; iOS
+               Safari is stricter about clipping than desktop browsers, so we
+               give the glyphs explicit headroom inside the element. */
+            padding-top: 0.12em;
+        }
+
+        #heroYears {
+            font-size: 12px;
+            color: rgba(255,255,255,0.75);
+            margin-top: 8px;
+        }
+
+        /* ── Secondary metrics ── */
+        #secondaryMetrics {
+            display: flex;
+        }
+
+        .secMetric { flex: 1; }
+
+        .secMetric + .secMetric {
+            border-left: 1px solid rgba(255,255,255,0.15);
+            padding-left: 20px;
+            margin-left: 4px;
+        }
+
+        .secVal {
+            font-family: 'Oswald', sans-serif;
+            font-size: clamp(15px, 2.5vh, 22px);
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .secLabel {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: rgba(255,255,255,0.75);
+            margin-top: 4px;
+        }
+
+        /* ── Divider ── */
+        .panelDivider {
+            border: none;
+            border-top: 1px solid rgba(255,255,255,0.14);
+        }
+
+        /* ── Inputs ── */
+        #inputsGrid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(8px, 1.5vh, 14px);
+            margin-bottom: clamp(16px, 3vh, 28px);
+        }
+
+        #inputsGrid .inputGroup.full {
+            grid-column: 1 / -1;
+        }
+
+        .inputGroup {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .inputGroup label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: rgba(255,255,255,0.55);
+            margin-bottom: 6px;
+        }
+
+        .inputGroup input {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.18);
+            border-radius: 6px;
+            padding: 9px 11px;
+            font-size: 14px;
+            color: #fff;
+            width: 100%;
+            transition: background 0.15s, border-color 0.15s;
+            /* Remove browser number arrows */
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+
+        .inputGroup input::-webkit-outer-spin-button,
+        .inputGroup input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+        .inputGroup input:focus {
+            outline: none;
+            background: rgba(255,255,255,0.16);
+            border-color: rgba(255,255,255,0.45);
+        }
+
+        .inputGroup input::placeholder { color: rgba(255,255,255,0.6); }
+
+        /* ── Required field marker ── */
+        .reqMark {
+            color: rgba(255,255,255,0.85);
+            font-size: 11px;
+            vertical-align: middle;
+        }
+
+        /* ── Input error state (purple panel) ── */
+        .inputGroup input.invalid,
+        .inputGroup input.invalid:focus {
+            border-color: rgba(255, 110, 110, 0.9);
+            background: rgba(255, 80, 80, 0.15);
+        }
+
+        .inputError {
+            font-size: 10px;
+            color: rgba(255, 140, 140, 1);
+            margin-top: 3px;
+            line-height: 1.3;
+        }
+
+        /* ── Error state overrides inside the white mobile sheet ── */
+        #mobileSheetContent .reqMark { color: #bbb; }
+        #mobileSheetContent .inputGroup input.invalid,
+        #mobileSheetContent .inputGroup input.invalid:focus {
+            border-color: #e53935;
+            background: rgba(229, 57, 53, 0.06);
+        }
+        #mobileSheetContent .inputError { color: #e53935; }
+
+        /* ── Save bar ── */
+        #saveBar {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        #scenarioName {
+            flex: 1;
+            background: rgba(255,255,255,0.1);
+            border: 1.5px solid rgba(255,255,255,0.18);
+            border-radius: 6px;
+            padding: 9px 11px;
+            font-size: 13px;
+            color: #fff;
+            transition: border-color 0.15s, background 0.15s;
+        }
+
+        #scenarioName::placeholder { color: rgba(255,255,255,0.6); }
+        #scenarioName:focus { outline: none; background: rgba(255,255,255,0.16); border-color: rgba(255,255,255,0.45); }
+        #scenarioName.error { border-color: var(--color-error); }
+
+        #saveBtn {
+            font-family: sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 9px 14px;
+            border: none;
+            border-radius: 6px;
+            background: #fff;
+            color: var(--brand-primary);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: opacity 0.15s;
+            flex-shrink: 0;
+        }
+
+        #saveBtn:hover:not(:disabled) { opacity: 0.88; }
+        #saveBtn:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+        #saveBtn:disabled { background: rgba(255,255,255,0.25); color: rgba(255,255,255,0.5); cursor: not-allowed; }
+
+        /* ══════════════════════════════════════════
+           RIGHT PANEL
+        ══════════════════════════════════════════ */
+        #rightPanel {
+            flex: 1;
+            background: var(--bg-surface);
+            padding: 36px 40px 32px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            min-width: 0;
+        }
+
+        #chartWrapper {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            min-height: 0;
+        }
+
+        #chart {
+            width: 100%;
+        }
+
+        #chart svg {
+            width: 100%;
+            height: auto;
+            display: block;
+            overflow: visible;
+        }
+
+        /* ── Key Insights ── */
+        #insightsSection {
+            padding-top: 24px;
+            margin-top: 4px;
+        }
+
+        .insightsSectionTitle {
+            font-family: 'Oswald', sans-serif;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 14px;
+        }
+
+        #insightCards {
+            display: flex;
+            align-items: stretch;
+            gap: 12px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+            scrollbar-width: none;
+        }
+
+        #insightCards::-webkit-scrollbar { display: none; }
+
+        .insightCard {
+            flex: 0 0 auto;
+            width: 156px;
+            display: flex;
+            flex-direction: column;
+            background: #f4f2ff;
+            border-radius: 12px;
+            border-left: 3px solid var(--brand-accent);
+            padding: 14px 14px 14px 13px;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.45s ease, transform 0.45s ease;
+        }
+
+        .insightCard.ic-income {
+            background: #f0f8ff;
+            border-left-color: var(--brand-income);
+        }
+
+        .insightCard:focus-visible {
+            outline: 2px solid var(--brand-accent);
+            outline-offset: 2px;
+        }
+
+        .insightCard.ic-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .ic-tag {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--tag-text-purple);
+            margin-bottom: 8px;
+        }
+
+        .ic-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--brand-accent);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0;
+        }
+
+        .ic-income .ic-tag { color: var(--tag-text-blue); }
+
+        .ic-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #1a1a2e;
+            line-height: 1.2;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .ic-info {
+            background: none;
+            border: none;
+            padding: 0;
+            margin: 0;
+            cursor: pointer;
+            color: var(--brand-accent);
+            opacity: 0.55;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.15s;
+            border-radius: 50%;
+            position: relative;
+        }
+        /* Invisible hit-area extender — guarantees a 24×24 touch target
+           (WCAG 2.5.8 AA) without enlarging the visible icon or disturbing
+           the surrounding flex layout. */
+        .ic-info::before {
+            content: '';
+            position: absolute;
+            inset: -6px;
+        }
+        .ic-info:hover, .ic-info:focus-visible { opacity: 1; }
+        .ic-info:focus-visible { outline: 2px solid var(--brand-accent); outline-offset: 2px; }
+        .ic-income .ic-info { color: var(--brand-income); }
+
+        /* Input-label variant — sits next to small uppercase labels on the purple panel */
+        .ic-info.input-info {
+            color: rgba(255,255,255,0.7);
+            opacity: 0.7;
+            vertical-align: middle;
+        }
+        .ic-info.input-info:hover,
+        .ic-info.input-info:focus-visible {
+            color: #fff;
+            opacity: 1;
+        }
+        .ic-info.input-info:focus-visible {
+            outline-color: rgba(255,255,255,0.7);
+        }
+
+        /* Inside the white mobile sheet, switch back to brand-accent on the lighter background */
+        #mobileSheetContent .ic-info.input-info { color: #888; }
+        #mobileSheetContent .ic-info.input-info:hover,
+        #mobileSheetContent .ic-info.input-info:focus-visible { color: var(--brand-accent); }
+        #mobileSheetContent .ic-info.input-info:focus-visible { outline-color: var(--brand-accent); }
+
+        #infoTooltip {
+            position: fixed;
+            max-width: 260px;
+            background: #1a1a2e;
+            color: #fff;
+            border-radius: 8px;
+            padding: 12px 14px;
+            font-size: 12px;
+            line-height: 1.45;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.12s;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.22);
+            z-index: 150;
+        }
+        #infoTooltip.visible { opacity: 1; }
+        #infoTooltip .info-tt-title {
+            font-family: 'Oswald', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: #b9a8ff;
+            margin-bottom: 6px;
+        }
+
+        .ic-value {
+            font-size: 19px;
+            font-weight: 800;
+            color: #1a1a2e;
+            line-height: 1.1;
+            margin-bottom: 7px;
+        }
+
+        .ic-unit {
+            font-size: 12px;
+            font-weight: 500;
+            color: #6c6c6c; /* 4.74:1 on #f4f2ff, 4.91:1 on #f0f8ff — passes WCAG 1.4.3 */
+        }
+
+        .ic-label {
+            font-size: 11px;
+            color: #555;
+            line-height: 1.4;
+            margin-top: auto;
+            padding-top: 6px;
+        }
+
+        /* ── Saved scenarios ── */
+        #savedSection {
+            display: none;
+            border-top: 1px solid #ebebeb;
+            padding-top: 28px;
+            margin-top: 8px;
+        }
+
+        .savedSectionHeader {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .savedSectionTitle {
+            font-family: 'Oswald', sans-serif;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .savedSectionSub {
+            font-size: 12px;
+            color: #6c6c6c; /* 5.13:1 on #fcfcff — passes WCAG 1.4.3 */
+        }
+
+        #savedCards {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .savedCard {
+            flex: 1;
+            min-width: 160px;
+            background: #fafafa;
+            border-radius: 10px;
+            border-top: 3px solid #ddd;
+            padding: 16px;
+        }
+
+        .savedCardHeader {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .savedCardName {
+            font-weight: 700;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .scDot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .deleteBtn {
+            background: none;
+            border: none;
+            color: #6c6c6c; /* ~5:1 on #fafafa — passes WCAG for non-text UI */
+            cursor: pointer;
+            font-size: 18px;
+            line-height: 1;
+            padding: 8px;
+            margin: -8px;
+            min-width: 44px;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .deleteBtn:hover { color: #1a1a2e; }
+        .deleteBtn:focus-visible { outline: 2px solid var(--brand-accent); outline-offset: 2px; border-radius: 4px; }
+
+        .savedCardPills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-bottom: 14px;
+        }
+
+        .pill {
+            background: #ebebeb;
+            border-radius: 3px;
+            padding: 3px 7px;
+            font-size: 11px;
+            color: #555;
+        }
+
+        .savedCardMetrics {
+            display: flex;
+            gap: 4px;
+        }
+
+        .savedMetric {
+            flex: 1;
+            text-align: center;
+        }
+
+        .savedMetricVal {
+            font-family: 'Oswald', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .savedMetricLabel {
+            font-size: 11px;
+            color: #6c6c6c; /* ~5:1 on #fafafa — passes WCAG 1.4.3 */
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-top: 3px;
+        }
+
+        /* ── Axis / chart text ── */
+        .axis, .axisLabel {
+            font-family: sans-serif;
+            font-size: 10px;
+        }
+
+        /* ── Tooltip ── */
+        #tooltip {
+            position: fixed;
+            pointer-events: none;
+            background: #16213e;
+            color: #fff;
+            border-radius: 10px;
+            padding: 14px 18px;
+            font-size: 12px;
+            opacity: 0;
+            transition: opacity 0.12s;
+            min-width: 210px;
+            box-shadow: 0 8px 28px rgba(0,0,0,0.3);
+            z-index: 100;
+        }
+
+        .tt-year {
+            font-family: 'Oswald', sans-serif;
+            font-size: 17px;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.15);
+        }
+
+        .tt-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            padding: 3px 0;
+            color: rgba(255,255,255,0.8);
+        }
+
+        .tt-row.tt-total {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(255,255,255,0.15);
+            color: #fff;
+            font-weight: 700;
+        }
+
+        .tt-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 6px;
+            flex-shrink: 0;
+        }
+
+        .tt-dot-self     { background: var(--chart-self); }
+        .tt-dot-work     { background: var(--chart-work); }
+        .tt-dot-interest { background: var(--chart-interest); }
+
+        .tt-label { display: flex; align-items: center; }
+
+        /* ══════════════════════════════════════════
+           MOBILE BOTTOM SHEET UI
+        ══════════════════════════════════════════ */
+        #mobileConfigBtn {
+            display: none;
+            position: fixed;
+            bottom: 24px;
+            right: 20px;
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: var(--brand-primary);
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 20px rgba(90, 56, 224, 0.5);
+            z-index: 200;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+
+        #mobileConfigBtn:active {
+            transform: scale(0.92);
+            box-shadow: 0 2px 10px rgba(90, 56, 224, 0.4);
+        }
+
+        #mobileConfigBtn:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+
+        #mobileOverlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            z-index: 300;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s;
+        }
+
+        #mobileOverlay.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        #mobileSheet {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border-radius: 20px 20px 0 0;
+            z-index: 400;
+            transform: translateY(110%);
+            transition: transform 0.32s cubic-bezier(0.32, 0.72, 0, 1);
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 -4px 32px rgba(0, 0, 0, 0.18);
+            pointer-events: none;
+        }
+
+        #mobileSheet.open {
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .sheetHandle {
+            width: 36px;
+            height: 4px;
+            background: #ddd;
+            border-radius: 2px;
+            margin: 12px auto 0;
+            flex-shrink: 0;
+        }
+
+        .sheetHeader {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 20px 12px;
+            flex-shrink: 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .sheetTitle {
+            font-family: 'Oswald', sans-serif;
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        #sheetDoneBtn {
+            background: var(--brand-primary);
+            color: #fff;
+            border: none;
+            border-radius: 20px;
+            padding: 7px 18px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: sans-serif;
+        }
+
+        #sheetDoneBtn:focus-visible { outline: 2px solid var(--brand-primary); outline-offset: 2px; }
+
+        #mobileSheetContent {
+            overflow-y: auto;
+            padding: 20px;
+            flex: 1;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Light-theme overrides for inputs inside the white sheet */
+        #mobileSheetContent .inputGroup label { color: #555; }
+
+        #mobileSheetContent .inputGroup input {
+            background: #f4f4f6;
+            border-color: #e0e0e0;
+            color: #1a1a1a;
+            font-size: 16px;
+            padding: 11px;
+        }
+
+        #mobileSheetContent .inputGroup input::placeholder { color: #bbb; }
+
+        #mobileSheetContent .inputGroup input:focus {
+            background: #fff;
+            border-color: var(--brand-primary);
+            outline: none;
+        }
+
+        #mobileSheetContent .panelDivider { border-top-color: #ebebeb; }
+
+        #mobileSheetContent #scenarioName {
+            background: #f4f4f6;
+            border-color: #e0e0e0;
+            color: #1a1a1a;
+            font-size: 16px;
+        }
+
+        #mobileSheetContent #scenarioName::placeholder { color: #bbb; }
+
+        #mobileSheetContent #scenarioName:focus {
+            background: #fff;
+            border-color: var(--brand-primary);
+            outline: none;
+        }
+
+        #mobileSheetContent #saveBtn {
+            background: var(--brand-primary);
+            color: #fff;
+        }
+
+        /* ══════════════════════════════════════════
+           MOBILE  (≤ 720px)
+        ══════════════════════════════════════════ */
+        @media (max-width: 720px) {
+            #app { flex-direction: column; height: 100vh; height: 100dvh; }
+
+            /* ── Left panel: compact metric strip ── */
+            #leftPanel {
+                width: 100%;
+                min-width: 0;
+                flex-shrink: 0;
+                padding: 20px 20px 16px;
+                gap: 12px;
+                overflow: hidden;
+            }
+
+            #leftPanel::before { display: none; }
+
+            #result { font-size: clamp(32px, 10vw, 52px); }
+
+            /* Hide inputs divider; inputs move to sheet */
+            #inputsDivider { display: none; }
+
+            /* ── Right panel: scrollable, chart prominent ── */
+            #rightPanel {
+                flex: 1;
+                min-height: 0;
+                padding: 10px 16px 88px;
+                overflow-y: auto;
+            }
+
+            #chartWrapper {
+                flex: none;
+                min-height: 52vw;
+                align-items: stretch;
+                margin-top: 16px;
+            }
+
+            /* Saved scenarios: single column on mobile */
+            #savedSection { padding-top: 16px; margin-top: 4px; }
+            #savedCards { flex-direction: column; }
+            .savedCard { min-width: 0; flex: none; }
+
+            /* Show floating configure button */
+            #mobileConfigBtn { display: flex; }
+
+            /* ── Chart text: 18 SVG units ≈ 12–14px actual across common phones
+               (500-unit viewBox × ~0.69–0.80 device scale), meeting WCAG 1.4.4
+               and Section 508 minimum legibility for data visualization labels ── */
+            .axis, .axisLabel { font-size: 18px; }
+
+            /* ── Tooltip ── */
+            #tooltip { min-width: 170px; padding: 10px 14px; font-size: 11px; }
+            .tt-year { font-size: 14px; margin-bottom: 7px; padding-bottom: 6px; }
+        }
+
+        /* ── Very small screens: single-column inputs in sheet ── */
+        @media (max-width: 400px) {
+            #inputsGrid { grid-template-columns: 1fr; }
+            #inputsGrid .inputGroup.full { grid-column: 1; }
+        }
+
+        /* ── Reduced motion: disable all decorative animations ── */
+        @media (prefers-reduced-motion: reduce) {
+            .insightCard { transition: none; opacity: 1; transform: none; }
+            .insightCard.ic-visible { opacity: 1; transform: none; }
+            .consent-banner { transition: none; }
+        }
+
+        /* ══════════════════════════════════════════
+           CONSENT BANNER + PRIVACY FOOTER
+        ══════════════════════════════════════════ */
+        .consent-banner {
+            position: fixed;
+            left: 16px;
+            right: 16px;
+            bottom: 16px;
+            max-width: 560px;
+            margin: 0 auto;
+            background: #1a1a2e;
+            color: #fff;
+            padding: 16px 18px;
+            border-radius: 12px;
+            box-shadow: 0 12px 36px rgba(0,0,0,0.32);
+            z-index: 500;
+            display: none;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: opacity 0.25s, transform 0.25s;
+        }
+
+        .consent-banner.visible {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .consent-banner p {
+            margin: 0 0 12px;
+            font-size: 13px;
+            line-height: 1.5;
+            color: rgba(255,255,255,0.92);
+        }
+
+        .consent-banner a {
+            color: #b9a8ff;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+
+        .consent-banner a:focus-visible {
+            outline: 2px solid #b9a8ff;
+            outline-offset: 2px;
+            border-radius: 2px;
+        }
+
+        .consent-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        .consent-btn {
+            font-family: sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .consent-secondary {
+            background: transparent;
+            color: rgba(255,255,255,0.78);
+            border: 1px solid rgba(255,255,255,0.32);
+        }
+        .consent-secondary:hover { background: rgba(255,255,255,0.08); color: #fff; }
+        .consent-secondary:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+        .consent-primary {
+            background: var(--brand-primary);
+            color: #fff;
+        }
+        .consent-primary:hover { background: var(--brand-accent); }
+        .consent-primary:focus-visible { outline: 2px solid #fff; outline-offset: 2px; box-shadow: 0 0 0 4px var(--brand-primary); }
+
+        /* Footer in the right panel */
+        .siteFooter {
+            margin-top: 28px;
+            padding-top: 18px;
+            border-top: 1px solid #ebebeb;
+            font-size: 12px;
+            color: var(--text-muted, #6c6c6c);
+            text-align: center;
+        }
+        .siteFooter a {
+            color: var(--tag-text-purple);
+            text-decoration: none;
+        }
+        .siteFooter a:hover { text-decoration: underline; }
+        .siteFooter a:focus-visible { outline: 2px solid var(--brand-accent); outline-offset: 2px; border-radius: 2px; }
+    </style>
+</head>
+
+<body>
+<div class="no-js-message" role="alert">
+    <p class="no-js-title">This calculator requires JavaScript.</p>
+    <p>Enable JavaScript and reload the page to project your retirement savings, calculate your Coast FI number, and model retirement drawdown scenarios.</p>
+    <p>Source code: <a href="https://github.com/amandarae220/Calculator2.0">github.com/amandarae220/Calculator2.0</a></p>
+</div>
+
+<div id="app">
+
+    <!-- ══ LEFT PANEL ══ -->
+    <aside id="leftPanel" aria-label="Calculator inputs and summary">
+        <a class="backToPortfolio" href="/project/calculator" aria-label="Back to portfolio project page">← Back to portfolio</a>
+        <h1 class="appTitle">Retirement Savings Calculator</h1>
+
+        <section id="hero" aria-label="Total savings summary" aria-live="polite" aria-atomic="true">
+            <div class="metaLabel">Total Savings</div>
+            <div id="result" role="status"></div>
+            <div id="heroYears" class="heroYears"></div>
+        </section>
+
+        <section id="secondaryMetrics">
+            <div class="secMetric">
+                <div id="contributed" class="secVal"></div>
+                <div class="secLabel">Contributed</div>
+            </div>
+            <div class="secMetric">
+                <div id="interest" class="secVal"></div>
+                <div class="secLabel">Interest Earned</div>
+            </div>
+        </section>
+
+        <hr class="panelDivider" id="inputsDivider">
+
+        <div id="inputsSection">
+        <div id="inputsGrid">
+            <div class="inputGroup">
+                <label for="p">Starting Amount <span class="reqMark" aria-label="required">*</span></label>
+                <input id="p" type="number" step="1" value="25000" autocomplete="off" aria-required="true" aria-describedby="p-error">
+                <div class="inputError" id="p-error" role="alert" aria-live="assertive"></div>
+            </div>
+            <div class="inputGroup">
+                <label for="r">Rate (%) <span class="reqMark" aria-label="required">*</span></label>
+                <input id="r" type="number" step="any" value="8" autocomplete="off" aria-required="true" aria-describedby="r-error">
+                <div class="inputError" id="r-error" role="alert" aria-live="assertive"></div>
+            </div>
+            <div class="inputGroup">
+                <label for="t">Years <span class="reqMark" aria-label="required">*</span></label>
+                <input id="t" type="number" step="1" value="20" autocomplete="off" aria-required="true" aria-describedby="t-error">
+                <div class="inputError" id="t-error" role="alert" aria-live="assertive"></div>
+            </div>
+            <div class="inputGroup">
+                <label for="c">Self Contribution (yr)</label>
+                <input id="c" type="number" step="1" value="15000" autocomplete="off" aria-describedby="c-error">
+                <div class="inputError" id="c-error" role="alert" aria-live="assertive"></div>
+            </div>
+            <div class="inputGroup full">
+                <label for="e">Employer Contribution (yr)</label>
+                <input id="e" type="number" step="1" value="7000" autocomplete="off" aria-describedby="e-error">
+                <div class="inputError" id="e-error" role="alert" aria-live="assertive"></div>
+            </div>
+            <div class="inputGroup full">
+                <label for="s">Yearly Spend</label>
+                <input id="s" type="number" step="1" autocomplete="off" placeholder="For Coast FI" aria-describedby="s-error">
+                <div class="inputError" id="s-error" role="alert" aria-live="assertive"></div>
+            </div>
+        </div>
+
+        <hr class="panelDivider">
+
+        <div id="saveBar">
+            <label for="scenarioName" class="sr-only">Scenario name (20 character limit)</label>
+            <input id="scenarioName" type="text" maxlength="20" placeholder="Name this scenario…" aria-describedby="saveBtn" autocomplete="off">
+            <button id="saveBtn">Save</button>
+        </div>
+        </div><!-- /#inputsSection -->
+    </aside>
+
+    <!-- ══ RIGHT PANEL ══ -->
+    <main id="rightPanel">
+        <div id="chartWrapper">
+            <div id="chart"></div>
+        </div>
+
+        <section id="insightsSection" aria-labelledby="insightsHeading">
+            <h2 id="insightsHeading" class="insightsSectionTitle">Key Insights</h2>
+            <div id="insightCards" role="list" aria-label="Key insights about your retirement projection" aria-live="polite"></div>
+        </section>
+
+        <section id="savedSection" aria-labelledby="savedHeading">
+            <div class="savedSectionHeader">
+                <h2 id="savedHeading" class="savedSectionTitle">Saved Scenarios</h2>
+                <span class="savedSectionSub" id="savedCount" aria-live="polite"></span>
+            </div>
+            <div id="savedCards"></div>
+        </section>
+
+        <footer class="siteFooter">
+            <a href="privacy.html">Privacy policy</a>
+        </footer>
+    </main>
+
+</div>
+
+<!-- Mobile floating configure button -->
+<button id="mobileConfigBtn" aria-label="Configure inputs">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+    </svg>
+</button>
+
+<!-- Mobile overlay -->
+<div id="mobileOverlay"></div>
+
+<!-- Mobile bottom sheet -->
+<div id="mobileSheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitleText">
+    <div class="sheetHandle" aria-hidden="true"></div>
+    <div class="sheetHeader">
+        <span class="sheetTitle" id="sheetTitleText">Configure</span>
+        <button id="sheetDoneBtn">Done</button>
+    </div>
+    <div id="mobileSheetContent"></div>
+</div>
+
+<!-- Tooltip -->
+<div id="tooltip" aria-hidden="true">
+    <div class="tt-year" id="ttYear"></div>
+    <div class="tt-row">
+        <span class="tt-label"><span class="tt-dot tt-dot-interest"></span>Interest</span>
+        <span id="ttInterest"></span>
+    </div>
+    <div class="tt-row">
+        <span class="tt-label"><span class="tt-dot tt-dot-work"></span>Work Contributions</span>
+        <span id="ttWork"></span>
+    </div>
+    <div class="tt-row">
+        <span class="tt-label"><span class="tt-dot tt-dot-self"></span>Self Contributions</span>
+        <span id="ttSelf"></span>
+    </div>
+    <div class="tt-row tt-total">
+        <span>Total</span>
+        <span id="ttTotal"></span>
+    </div>
+</div>
+
+<!-- Info tooltip for insight definitions -->
+<div id="infoTooltip" role="tooltip" aria-hidden="true"></div>
+
+<!-- Analytics consent banner — appears on first visit; choice persisted in localStorage -->
+<div id="consentBanner" class="consent-banner" role="dialog" aria-modal="false" aria-labelledby="consentText">
+    <p id="consentText">This calculator stores anonymous usage analytics to help me improve it. Nothing personally identifiable is collected. See the <a href="privacy.html">privacy policy</a> for details.</p>
+    <div class="consent-actions">
+        <button id="consentDecline" class="consent-btn consent-secondary" type="button">Decline</button>
+        <button id="consentAccept"  class="consent-btn consent-primary"   type="button">Accept</button>
+    </div>
+</div>
+
+<script>
+    var KEYS      = ['Self Contributions', 'Work Contributions', 'Interest'];
+    var MAX_SAVED = 4;
+
+    // Read chart colors from CSS custom properties so design tokens stay
+    // the single source of truth — change a color in one place, not two.
+    function readCssVar(name) {
+        return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    }
+
+    var BAR_COLORS = {
+        'Self Contributions': readCssVar('--chart-self'),
+        'Work Contributions': readCssVar('--chart-work'),
+        'Interest':           readCssVar('--chart-interest')
+    };
+    var SC_COLORS = [
+        readCssVar('--sc-color-1'),
+        readCssVar('--sc-color-2'),
+        readCssVar('--sc-color-3'),
+        readCssVar('--sc-color-4')
+    ];
+    var MARKER_COLOR = readCssVar('--brand-accent');
+    var COVER_COLOR  = readCssVar('--bg-surface');
+
+    // Chart layout constants
+    var Y_MAX_PAD    = 1.05;  // headroom above the tallest bar
+
+    // Cached once so all callers share the same MediaQueryList instance
+    var PREFERS_REDUCED_MOTION = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+    var SECTION_ID = "#chart";
+    var PADDING   = 0.15;
+    var margin    = { top: 30, right: 30, bottom: 10, left: 55 };
+    var width     = 860;
+    var height    = 360;
+
+    function isMobile() { return window.innerWidth <= 720; }
+
+    // Measure text width in SVG viewBox units without rendering. The SVG legend
+    // uses font-family: sans-serif, so canvas measurement matches getBBox() in
+    // the same coordinate space — letting us pre-compute layout before deciding
+    // how much vertical space the legend needs.
+    function measureTextWidth(text, fontSize) {
+        var c = measureTextWidth._c || (measureTextWidth._c = document.createElement('canvas'));
+        var ctx = c.getContext('2d');
+        ctx.font = fontSize + 'px sans-serif';
+        return ctx.measureText(text).width;
+    }
+
+    function updateChartDims() {
+        if (isMobile()) {
+            margin = { top: 20, right: 16, bottom: 10, left: 64 };
+            width  = 500;
+            height = 360;
+        } else {
+            margin = { top: 30, right: 30, bottom: 10, left: 55 };
+            width  = 860;
+            height = 360;
+        }
+    }
+
+    var sheetOpener = null;
+
+    function openSheet() {
+        sheetOpener = document.activeElement;
+        document.getElementById("mobileOverlay").classList.add("visible");
+        document.getElementById("mobileSheet").classList.add("open");
+        // Move focus to first focusable element in the sheet
+        var sheet = document.getElementById("mobileSheet");
+        var focusable = sheet.querySelectorAll('input, button, [tabindex]:not([tabindex="-1"])');
+        if (focusable.length) setTimeout(function() { focusable[0].focus(); }, 50);
+        if (window.CalcAnalytics) window.CalcAnalytics.mobileSheetOpened();
+    }
+
+    function closeSheet() {
+        document.getElementById("mobileOverlay").classList.remove("visible");
+        document.getElementById("mobileSheet").classList.remove("open");
+        // Return focus to the element that opened the sheet
+        if (sheetOpener) { sheetOpener.focus(); sheetOpener = null; }
+    }
+
+    // Escape key closes sheet; Tab key is trapped inside sheet while open
+    document.addEventListener("keydown", function(e) {
+        var sheet = document.getElementById("mobileSheet");
+        if (!sheet.classList.contains("open")) return;
+        if (e.key === "Escape") { closeSheet(); return; }
+        if (e.key === "Tab") {
+            var focusable = Array.prototype.slice.call(
+                sheet.querySelectorAll('input, button, [tabindex]:not([tabindex="-1"])')
+            ).filter(function(el) { return !el.disabled; });
+            if (!focusable.length) return;
+            var first = focusable[0], last = focusable[focusable.length - 1];
+            if (e.shiftKey && document.activeElement === first) {
+                e.preventDefault(); last.focus();
+            } else if (!e.shiftKey && document.activeElement === last) {
+                e.preventDefault(); first.focus();
+            }
+        }
+    });
+
+    function setupMobileInputs() {
+        var section      = document.getElementById("inputsSection");
+        var sheetContent = document.getElementById("mobileSheetContent");
+        var leftPanel    = document.getElementById("leftPanel");
+        if (isMobile()) {
+            if (section.parentNode !== sheetContent) sheetContent.appendChild(section);
+        } else {
+            if (section.parentNode !== leftPanel) {
+                leftPanel.appendChild(section);
+                closeSheet();
+            }
+        }
+    }
+
+    // Returns bar grouping interval based on total years (mobile only)
+    function getMobileGroupSize(maxYears) {
+        if (!isMobile() || maxYears < 10) return 1;
+        if (maxYears < 20) return 3;
+        if (maxYears < 35) return 4;
+        return 5;
+    }
+
+    // Builds evenly-spaced time checkpoints, always including year 0 and maxT
+    function buildDisplayTimes(maxT, step) {
+        var times = [0];
+        for (var i = step; i < maxT; i += step) { times.push(i); }
+        if (times[times.length - 1] !== maxT) times.push(maxT);
+        return times;
+    }
+
+    var totalArray      = [];
+    var savedScenarios  = [];
+    var displayTimesCache = [];
+    var ttEl           = document.getElementById("tooltip");
+
+    // ── Formatting ──────────────────────────────────────
+    function fmtDollar(v) {
+        return "$" + Math.round(Math.abs(v)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    function fmtCompact(v) {
+        v = Math.round(Math.abs(v));
+        if (v >= 1000000) return "$" + (v / 1000000).toFixed(1).replace(/\.0$/, "") + "M";
+        if (v >= 1000)    return "$" + Math.round(v / 1000) + "k";
+        return "$" + v;
+    }
+
+    // ── Calculation ─────────────────────────────────────
+    function computeArray(p, r, t, c, e) {
+        var n = 1, ce = c + e, selfBal = p, workBal = 0, arr = [];
+        for (var i = 0; i <= t; i++) {
+            var base   = Math.pow(1 + r / (n * 100), n * i);
+            var amount = p * base + (r > 0 ? ce * ((base - 1) / (r / (n * 100))) : ce * i);
+            arr.push({
+                time: i, amount: amount,
+                'Self Contributions': selfBal,
+                'Work Contributions': workBal,
+                Interest: amount - selfBal - workBal
+            });
+            selfBal += c;
+            workBal += e;
+        }
+        return arr;
+    }
+
+    function readInputs() {
+        return {
+            p: +document.getElementById("p").value,
+            r: +document.getElementById("r").value,
+            t: +document.getElementById("t").value,
+            c: +document.getElementById("c").value,
+            e: +document.getElementById("e").value,
+            s: +document.getElementById("s").value
+        };
+    }
+
+    // ── Left panel metrics ───────────────────────────────
+    function updatePanel() {
+        var inp  = readInputs();
+        var last = totalArray[totalArray.length - 1];
+        var sav  = Math.round(last.amount);
+        var con  = Math.round(inp.p + (inp.c + inp.e) * inp.t);
+        var int_ = sav - con;
+
+        document.getElementById("result").textContent      = fmtDollar(sav);
+        document.getElementById("contributed").textContent = fmtDollar(con);
+        document.getElementById("interest").textContent    = fmtDollar(Math.max(0, int_));
+        document.getElementById("heroYears").textContent   =
+            "after " + inp.t + " year" + (inp.t === 1 ? "" : "s");
+    }
+
+    // ── Saved scenarios ──────────────────────────────────
+    function renderSavedSection() {
+        var section   = document.getElementById("savedSection");
+        var container = document.getElementById("savedCards");
+
+        if (savedScenarios.length === 0) {
+            section.style.display = "none";
+            updateSaveBtn();
+            return;
+        }
+
+        section.style.display = "block";
+        document.getElementById("savedCount").textContent =
+            savedScenarios.length + " of " + MAX_SAVED;
+        updateSaveBtn();
+
+        container.textContent = '';
+        savedScenarios.forEach(function(sc, idx) {
+            container.appendChild(buildSavedCard(sc, idx));
+        });
+    }
+
+    function buildSavedCard(sc, idx) {
+        var sav      = Math.round(sc.totalArray[sc.totalArray.length - 1].amount);
+        var con      = Math.round(sc.p + (sc.c + sc.e) * sc.t);
+        var interest = Math.max(0, sav - con);
+
+        var card = document.createElement('div');
+        card.className = 'savedCard';
+        card.style.borderTopColor = sc.color;
+
+        var header = document.createElement('div');
+        header.className = 'savedCardHeader';
+
+        var nameWrap = document.createElement('span');
+        nameWrap.className = 'savedCardName';
+        var dot = document.createElement('span');
+        dot.className = 'scDot';
+        dot.style.background = sc.color;
+        nameWrap.appendChild(dot);
+        nameWrap.appendChild(document.createTextNode(sc.name));
+
+        var deleteBtn = document.createElement('button');
+        deleteBtn.className = 'deleteBtn';
+        deleteBtn.setAttribute('aria-label', 'Delete scenario ' + sc.name);
+        deleteBtn.textContent = '×';
+        deleteBtn.addEventListener('click', function() {
+            savedScenarios.splice(idx, 1);
+            savedScenarios.forEach(function(s, i) { s.color = SC_COLORS[i]; });
+            renderSavedSection();
+            lineChartUpdate(false);
+        });
+
+        header.appendChild(nameWrap);
+        header.appendChild(deleteBtn);
+
+        var pills = document.createElement('div');
+        pills.className = 'savedCardPills';
+        [
+            fmtCompact(sc.p) + ' start',
+            sc.r + '% rate',
+            sc.t + ' yrs',
+            'Self ' + fmtCompact(sc.c),
+            'Employer ' + fmtCompact(sc.e)
+        ].forEach(function(text) {
+            var pill = document.createElement('span');
+            pill.className = 'pill';
+            pill.textContent = text;
+            pills.appendChild(pill);
+        });
+
+        var metrics = document.createElement('div');
+        metrics.className = 'savedCardMetrics';
+        metrics.appendChild(renderMetric(fmtDollar(sav),      'Total'));
+        metrics.appendChild(renderMetric(fmtDollar(con),      'Contributed'));
+        metrics.appendChild(renderMetric(fmtDollar(interest), 'Interest'));
+
+        card.appendChild(header);
+        card.appendChild(pills);
+        card.appendChild(metrics);
+        return card;
+    }
+
+    function renderMetric(value, label) {
+        var wrap = document.createElement('div');
+        wrap.className = 'savedMetric';
+        var val = document.createElement('div');
+        val.className = 'savedMetricVal';
+        val.textContent = value;
+        var lbl = document.createElement('div');
+        lbl.className = 'savedMetricLabel';
+        lbl.textContent = label;
+        wrap.appendChild(val);
+        wrap.appendChild(lbl);
+        return wrap;
+    }
+
+    // ── Tooltip ──────────────────────────────────────────
+    function showTooltip(d) {
+        var pt = d.data;
+        document.getElementById("ttYear").textContent     = "Year " + pt.time;
+        document.getElementById("ttSelf").textContent     = fmtDollar(pt['Self Contributions']);
+        document.getElementById("ttWork").textContent     = fmtDollar(pt['Work Contributions']);
+        document.getElementById("ttInterest").textContent = fmtDollar(pt.Interest);
+        document.getElementById("ttTotal").textContent    = fmtDollar(pt.amount);
+        ttEl.style.opacity = "1";
+        ttEl.setAttribute("aria-hidden", "false");
+    }
+
+    function hideTooltip() {
+        ttEl.style.opacity = "0";
+        ttEl.setAttribute("aria-hidden", "true");
+    }
+
+    function moveTooltip(ev) {
+        var ttW = ttEl.offsetWidth || 220, ttH = ttEl.offsetHeight || 140;
+        var left = ev.clientX + 16, top = ev.clientY - ttH / 2;
+        if (left + ttW > window.innerWidth  - 12) left = ev.clientX - ttW - 16;
+        if (top  + ttH > window.innerHeight - 12) top  = window.innerHeight - ttH - 12;
+        if (top < 8) top = 8;
+        ttEl.style.left = left + "px";
+        ttEl.style.top  = top  + "px";
+    }
+
+    function attachTooltip(sel) {
+        sel.on("mouseover", function(event, d) { showTooltip(d); })
+           .on("mousemove", function(event)    { moveTooltip(event); })
+           .on("mouseout",  hideTooltip);
+    }
+
+    // ── Validation ───────────────────────────────────────
+    var RULES = {
+        p: { required: true,  integer: true,  min: 0, max: 1000000,
+             msgs: { required: 'Required', range: 'Between $0 and $1,000,000', integer: 'Whole numbers only' } },
+        r: { required: true,  integer: false, min: 0, max: 20,
+             msgs: { required: 'Required', range: 'Between 0% and 20%' } },
+        t: { required: true,  integer: true,  min: 1, max: 50,
+             msgs: { required: 'Required', range: 'Between 1 and 50 years', integer: 'Whole numbers only' } },
+        c: { required: false, integer: true,  min: 0, max: 100000,
+             msgs: { range: 'Between $0 and $100,000', integer: 'Whole numbers only' } },
+        e: { required: false, integer: true,  min: 0, max: 100000,
+             msgs: { range: 'Between $0 and $100,000', integer: 'Whole numbers only' } },
+        s: { required: false, integer: true,  min: 0, max: 500000,
+             msgs: { range: 'Between $0 and $500,000', integer: 'Whole numbers only' } }
+    };
+
+    function fieldError(id) {
+        var rule = RULES[id];
+        var raw  = document.getElementById(id).value.trim();
+        if (raw === '') return rule.required ? rule.msgs.required : '';
+        var num = Number(raw);
+        if (isNaN(num)) return 'Enter a valid number';
+        if (rule.integer && num % 1 !== 0) return rule.msgs.integer;
+        if (num < rule.min || num > rule.max) return rule.msgs.range;
+        return '';
+    }
+
+    function showFieldError(id) {
+        var msg = fieldError(id);
+        document.getElementById(id).classList.toggle('invalid', msg !== '');
+        document.getElementById(id + '-error').textContent = msg;
+        return msg === '';
+    }
+
+    function clearFieldError(id) {
+        document.getElementById(id).classList.remove('invalid');
+        document.getElementById(id + '-error').textContent = '';
+    }
+
+    function updateSaveBtn() {
+        var saveBtn = document.getElementById('saveBtn');
+        if (savedScenarios.length >= MAX_SAVED) {
+            saveBtn.disabled    = true;
+            saveBtn.textContent = 'Max 4';
+            return;
+        }
+        var areAllFieldsValid = ['p', 'r', 't', 'c', 'e', 's'].every(function(id) {
+            return fieldError(id) === '';
+        });
+        saveBtn.disabled    = !areAllFieldsValid;
+        saveBtn.textContent = 'Save';
+    }
+
+    // ── Chart ────────────────────────────────────────────
+    // ── Key Insights ─────────────────────────────────────
+    function computeInsights(inp, arr) {
+        var insights = [];
+        var r          = inp.r / 100;
+        var selfContrib = inp.c || 0;
+        var fmt = d3.format(',.0f');
+
+        // 1. Year annual interest outpaces self contribution (excluding employer match)
+        if (selfContrib > 0) {
+            for (var j = 1; j <= inp.t; j++) {
+                var annInt = arr[j].Interest - arr[j - 1].Interest;
+                if (annInt >= selfContrib) {
+                    insights.push({
+                        type:  'milestone',
+                        year:  j,
+                        title: 'Lift Off',
+                        tag:   'Year ' + j,
+                        value: '$' + fmt(annInt),
+                        unit:  '/yr',
+                        label: 'Annual interest outpaces your self contribution'
+                    });
+                    break;
+                }
+            }
+        }
+
+        // 2. Year cumulative interest overtakes total contributions
+        for (var i = 1; i <= inp.t; i++) {
+            var totContrib = arr[i]['Self Contributions'] + arr[i]['Work Contributions'];
+            if (arr[i].Interest >= totContrib) {
+                insights.push({
+                    type:  'milestone',
+                    year:  i,
+                    title: 'Tipping Point',
+                    tag:   'Year ' + i,
+                    value: '$' + fmt(arr[i].amount),
+                    label: 'Interest overtakes total contributions'
+                });
+                break;
+            }
+        }
+
+        var yearlySpend = inp.s || 0;
+
+        // 3. Lean FI — year balance reaches a leaner FI target (60% of stated spend × 25)
+        if (yearlySpend > 0) {
+            var leanFiTarget = yearlySpend * 0.6 * 25;
+            var leanYear = null;
+            for (var m = 1; m <= inp.t; m++) {
+                if (arr[m].amount >= leanFiTarget) { leanYear = m; break; }
+            }
+            if (leanYear !== null) {
+                insights.push({
+                    type:  'milestone',
+                    year:  leanYear,
+                    title: 'Lean FI',
+                    tag:   'Year ' + leanYear,
+                    value: '$' + fmt(leanFiTarget),
+                    label: 'Lean FI target reached — you could fully retire on a trimmed budget'
+                });
+            } else {
+                insights.push({
+                    type:  'milestone',
+                    title: 'Lean FI',
+                    tag:   'Not within timeline',
+                    value: '$' + fmt(leanFiTarget),
+                    label: 'Lean FI target — extend your timeline or increase contributions'
+                });
+            }
+        } else {
+            insights.push({
+                type:  'milestone',
+                title: 'Lean FI',
+                tag:   ' ',
+                value: '—',
+                label: 'Enter your yearly spend above to unlock this insight'
+            });
+        }
+
+        // 4. Coast FI — unlocks when yearly spend is provided
+        if (yearlySpend > 0 && r > 0) {
+            var fiTarget  = yearlySpend * 25;
+            var coastYear = null;
+            for (var k = 1; k <= inp.t; k++) {
+                var coastNeeded = fiTarget / Math.pow(1 + r, inp.t - k);
+                if (arr[k].amount >= coastNeeded) { coastYear = k; break; }
+            }
+            if (coastYear !== null) {
+                insights.push({
+                    type:  'milestone',
+                    year:  coastYear,
+                    title: 'Coast FI',
+                    tag:   'Year ' + coastYear,
+                    value: '$' + fmt(fiTarget),
+                    label: 'FI target — stop contributing now and coast to full FI by year ' + inp.t
+                });
+            } else {
+                insights.push({
+                    type:  'milestone',
+                    title: 'Coast FI',
+                    tag:   'Not within timeline',
+                    value: '$' + fmt(fiTarget),
+                    label: 'FI target — extend your timeline or increase contributions'
+                });
+            }
+        } else {
+            insights.push({
+                type:  'milestone',
+                title: 'Coast FI',
+                tag:   ' ',
+                value: '—',
+                label: 'Enter your yearly spend above to unlock this insight'
+            });
+        }
+
+
+        // 5. Sustainable income at retirement (interest only — principal preserved)
+        if (r > 0) {
+            var sustIncome = arr[inp.t].amount * r;
+            insights.push({
+                type:  'income',
+                title: 'Skim the Top',
+                tag:   'Conservative',
+                value: '$' + fmt(sustIncome),
+                unit:  '/yr',
+                label: 'Withdraw interest only — principal preserved forever'
+            });
+        }
+
+        // 6. 30-year drawdown (spend it all — annuity formula)
+        var finalBal = arr[inp.t].amount;
+        var drawdown = r > 0
+            ? finalBal * r / (1 - Math.pow(1 + r, -30))
+            : finalBal / 30;
+        insights.push({
+            type:  'income',
+            title: 'Die with Zero',
+            tag:   'Aggressive',
+            value: '$' + fmt(drawdown),
+            unit:  '/yr',
+            label: 'Full spend-down over 30 years'
+        });
+
+        return insights;
+    }
+
+    // Plain-language explainers for each insight card. Keyed by title.
+    var INFO_DEFINITIONS = {
+        // Insight cards
+        'Lift Off':
+            'The first year your annual interest earnings exceed your own yearly contributions. ' +
+            "From this point on, your money is doing more work than you are — that's the magic of compound growth.",
+        'Tipping Point':
+            "The year your cumulative interest earned overtakes the total amount you've contributed. " +
+            'More than half of your balance is now growth, not savings.',
+        'Coast FI':
+            'Short for "Coast Financial Independence." It\'s the amount you\'d need invested today so that, without saving another dollar, ' +
+            'compound growth alone would carry you to full FI by your target year. Calculated using the 25× rule ' +
+            '(25 years of annual expenses, derived from the Trinity Study / 4% safe withdrawal rate).',
+        'Lean FI':
+            'Short for "Lean Financial Independence." The year your balance crosses a leaner FI target — ' +
+            'enough to fully retire on roughly 60% of your stated yearly spend (the FIRE community\'s rough definition of a no-frills early retirement). ' +
+            'Calculated as 60% of your yearly spend × 25.',
+        'Skim the Top':
+            'The conservative drawdown strategy. Withdraw only the interest each year, leaving the principal untouched. ' +
+            'This income could continue indefinitely, but it usually means living below your means in retirement.',
+        'Die with Zero':
+            'The aggressive drawdown strategy, inspired by Bill Perkins\' book of the same name. ' +
+            'Spend down your entire balance over 30 years using a standard annuity formula. ' +
+            'The philosophy: maximize life experiences rather than leave a large unspent estate.',
+
+        // Input fields
+        'Starting Amount':
+            'The current value of your investments — the principal that starts compounding from year 1. ' +
+            'Include all the accounts you\'re growing toward financial independence (401(k), IRA, HSA, taxable brokerage, etc.). ' +
+            'Bigger starting balances compound more aggressively, since growth is multiplicative.',
+        'Rate (%)':
+            'Expected average annual return on your investments, before inflation. ' +
+            'The S&P 500 has historically averaged ~10% nominal (~7% after inflation). ' +
+            'Most conservative projections use 6–8%. Small differences here compound dramatically over long timelines.',
+        'Years':
+            'How many years your money compounds before you start drawing from it — usually the time until you plan to retire or reach FI. ' +
+            'Longer timelines let compound growth do more of the work; small rate differences become large dollar differences.',
+        'Self Contribution':
+            'How much you personally add to your investments each year — salary deferrals, IRA contributions, brokerage deposits. ' +
+            'This is the lever you control most directly. Increasing it by even a few thousand a year can shift Lift Off and Tipping Point years earlier.',
+        'Employer Contribution':
+            'How much your employer adds to your retirement accounts each year — typically a 401(k) match, pension, or profit-share. ' +
+            'It\'s free money on top of your salary. Maxing this out is usually the highest-ROI move in any financial plan.',
+        'Yearly Spend':
+            'How much you expect to spend per year in retirement. Used to calculate FI targets via the 25× rule ' +
+            '(e.g., $50k yearly spend → $1.25M target). Leave blank if you don\'t have a target lifestyle yet — Coast FI and Lean FI unlock once filled in.'
+    };
+
+    var infoTooltipEl = document.getElementById('infoTooltip');
+    var activeInfoBtn = null;
+
+    function showInfoTooltip(btn, title) {
+        var defText = INFO_DEFINITIONS[title];
+        if (!defText) return;
+        infoTooltipEl.innerHTML = '';
+        var t = document.createElement('div');
+        t.className = 'info-tt-title';
+        t.textContent = title;
+        var b = document.createElement('div');
+        b.textContent = defText;
+        infoTooltipEl.appendChild(t);
+        infoTooltipEl.appendChild(b);
+        infoTooltipEl.classList.add('visible');
+        infoTooltipEl.setAttribute('aria-hidden', 'false');
+        activeInfoBtn = btn;
+        positionInfoTooltip(btn);
+    }
+
+    function hideInfoTooltip() {
+        infoTooltipEl.classList.remove('visible');
+        infoTooltipEl.setAttribute('aria-hidden', 'true');
+        activeInfoBtn = null;
+    }
+
+    function positionInfoTooltip(btn) {
+        var rect = btn.getBoundingClientRect();
+        var tipW = infoTooltipEl.offsetWidth;
+        var tipH = infoTooltipEl.offsetHeight;
+        var gap = 8;
+        // Prefer above the icon; fall back to below if there's no room
+        var top = rect.top - tipH - gap;
+        if (top < 8) top = rect.bottom + gap;
+        // Center horizontally on the icon, clamp to viewport
+        var left = rect.left + rect.width / 2 - tipW / 2;
+        if (left < 8) left = 8;
+        if (left + tipW > window.innerWidth - 8) left = window.innerWidth - tipW - 8;
+        infoTooltipEl.style.left = left + 'px';
+        infoTooltipEl.style.top = top + 'px';
+    }
+
+    // Hide info tooltip when scrolling / resizing so it doesn't float in place
+    window.addEventListener('scroll', function() { if (activeInfoBtn) hideInfoTooltip(); }, true);
+    window.addEventListener('resize', function() { if (activeInfoBtn) hideInfoTooltip(); });
+    document.addEventListener('click', function(e) {
+        if (activeInfoBtn && !e.target.closest('.ic-info')) hideInfoTooltip();
+    });
+
+    function buildInsightCard(ins, i) {
+        var card = document.createElement('div');
+        card.className = 'insightCard' + (ins.type === 'income' ? ' ic-income' : '');
+        card.setAttribute('role', 'listitem');
+
+        // Explicit aria-label so AT reads a clean summary instead of walking
+        // every child node (which would otherwise pull in the info button's
+        // label and the SR-only definition span — the definition would then
+        // be announced twice: once here and once via aria-describedby when
+        // the user tabs into the info button itself).
+        var ariaParts = [
+            ins.tag,
+            ins.title,
+            ins.value + (ins.unit || ''),
+            ins.label
+        ].filter(function(p) { return p && /\S/.test(p); });
+        card.setAttribute('aria-label', ariaParts.join('. '));
+
+        var tag = document.createElement('div');
+        tag.className = 'ic-tag';
+        if (ins.year !== undefined) {
+            var num = document.createElement('span');
+            num.className = 'ic-num';
+            num.textContent = String(i + 1);
+            tag.appendChild(num);
+        }
+        tag.appendChild(document.createTextNode(ins.tag));
+        card.appendChild(tag);
+
+        if (ins.title) {
+            var title = document.createElement('div');
+            title.className = 'ic-title';
+            title.appendChild(document.createTextNode(ins.title));
+            if (INFO_DEFINITIONS[ins.title]) {
+                var info = document.createElement('button');
+                var descId = 'def-' + ins.title.replace(/\s+/g, '-').toLowerCase();
+                info.type = 'button';
+                info.className = 'ic-info';
+                info.setAttribute('aria-label', 'What does ' + ins.title + ' mean?');
+                info.setAttribute('aria-describedby', descId);
+                info.innerHTML =
+                    '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true" focusable="false">' +
+                    '<circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.4"/>' +
+                    '<rect x="6.3" y="5.8" width="1.4" height="4.2" rx="0.5" fill="currentColor"/>' +
+                    '<circle cx="7" cy="3.9" r="0.85" fill="currentColor"/>' +
+                    '</svg>';
+                title.appendChild(info);
+
+                // SR-only description that the button is described-by. Screen readers
+                // announce this after the button's label on focus.
+                var srDesc = document.createElement('span');
+                srDesc.id = descId;
+                srDesc.className = 'sr-only';
+                srDesc.textContent = INFO_DEFINITIONS[ins.title];
+                title.appendChild(srDesc);
+
+                var insightTitle = ins.title;
+                info.addEventListener('mouseenter', function() { showInfoTooltip(info, insightTitle); });
+                info.addEventListener('mouseleave', hideInfoTooltip);
+                info.addEventListener('focus',      function() { showInfoTooltip(info, insightTitle); });
+                info.addEventListener('blur',       hideInfoTooltip);
+                info.addEventListener('click', function(e) {
+                    // Touch / keyboard toggle behavior
+                    e.stopPropagation();
+                    if (activeInfoBtn === info) hideInfoTooltip();
+                    else showInfoTooltip(info, insightTitle);
+                });
+            }
+            card.appendChild(title);
+        }
+
+        var value = document.createElement('div');
+        value.className = 'ic-value';
+        value.appendChild(document.createTextNode(ins.value));
+        if (ins.unit) {
+            var unit = document.createElement('span');
+            unit.className = 'ic-unit';
+            unit.textContent = ins.unit;
+            value.appendChild(unit);
+        }
+        card.appendChild(value);
+
+        var label = document.createElement('div');
+        label.className = 'ic-label';
+        label.textContent = ins.label;
+        card.appendChild(label);
+
+        return card;
+    }
+
+    function renderInsights(insights, isInitial) {
+        var container = document.getElementById('insightCards');
+        container.textContent = '';
+        var baseDelay = PREFERS_REDUCED_MOTION.matches ? 0 : (isInitial ? 3100 : 50);
+        var inp = readInputs();
+
+        insights.forEach(function(ins, i) {
+            var card = buildInsightCard(ins, i);
+            container.appendChild(card);
+
+            // Wire card hover + keyboard focus → bar highlight (+ analytics)
+            var highlightYear = ins.year !== undefined ? ins.year
+                : ins.type === 'income' ? inp.t : null;
+            if (highlightYear !== null) {
+                card.style.cursor = 'pointer';
+                card.setAttribute('tabindex', '0');
+                var insightName = ins.title || ins.tag;
+                var onActivate = function(y, name) {
+                    return function() {
+                        highlightBars(y);
+                        if (window.CalcAnalytics) window.CalcAnalytics.insightFocused(name);
+                    };
+                }(highlightYear, insightName);
+                card.addEventListener('mouseenter', onActivate);
+                card.addEventListener('focus',      onActivate);
+                card.addEventListener('mouseleave', clearBarHighlight);
+                card.addEventListener('blur',       clearBarHighlight);
+                card.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); highlightBars(highlightYear); }
+                });
+            }
+
+            setTimeout(function(c) {
+                return function() { c.classList.add('ic-visible'); };
+            }(card), baseDelay + i * 130);
+        });
+    }
+
+    function highlightBars(year) {
+        var dt = year;
+        for (var k = 0; k < displayTimesCache.length; k++) {
+            if (displayTimesCache[k] >= year) { dt = displayTimesCache[k]; break; }
+        }
+        d3.select(SECTION_ID).select("svg").selectAll("g.bar-group rect")
+            .transition().duration(100)
+            .attr("opacity", function(d) { return d.data.time === dt ? 1 : 0.25; });
+    }
+
+    function clearBarHighlight() {
+        d3.select(SECTION_ID).select("svg").selectAll("g.bar-group rect")
+            .transition().duration(180)
+            .attr("opacity", 1);
+    }
+
+    function setupBarHighlight(selection) {
+        selection
+            .style("cursor", "pointer")
+            .on("mouseover.hl", function(event, d) { highlightBars(d.data.time); })
+            .on("mouseleave.hl", clearBarHighlight);
+    }
+
+    function drawMilestoneMarkers(svg, x, y, displayTimes, inp, arr, insights, isInitial) {
+        svg.selectAll(".milestone-marker").remove();
+
+        var markerRadius = isMobile() ? 9  : 6;
+        var lineH        = isMobile() ? 14 : 11;
+        var fs           = isMobile() ? 11 : 7;
+
+        // Build a map of displayTime → [{ins, num}] for milestone insights only
+        var byDt = {};
+        insights.forEach(function(ins, idx) {
+            if (ins.year === undefined) return;
+            // Find the first displayTime >= milestone year within the bar range
+            var dt = null;
+            for (var k = 0; k < displayTimes.length; k++) {
+                if (displayTimes[k] >= ins.year && displayTimes[k] <= inp.t) {
+                    dt = displayTimes[k];
+                    break;
+                }
+            }
+            if (dt === null || x(dt) === undefined) return;
+            if (!byDt[dt]) byDt[dt] = [];
+            byDt[dt].push({ ins: ins, num: idx + 1 });
+        });
+
+        Object.keys(byDt).forEach(function(dt) {
+            dt = +dt;
+            var group  = byDt[dt];
+            var barTop = y(arr[dt].amount);
+            var baseCx = x(dt) + x.bandwidth() / 2;
+
+            group.forEach(function(m, gi) {
+                var cx = group.length === 1 ? baseCx
+                    : baseCx + (gi === 0 ? -(markerRadius + 3) : (markerRadius + 3));
+                var cy = barTop - lineH - markerRadius;
+                var g  = svg.append("g").attr("class", "milestone-marker").attr("opacity", 0);
+
+                g.append("line")
+                    .attr("x1", cx).attr("x2", cx)
+                    .attr("y1", barTop - 2).attr("y2", cy + markerRadius)
+                    .attr("stroke", MARKER_COLOR).attr("stroke-width", 1.5)
+                    .attr("stroke-dasharray", "2,2");
+
+                g.append("circle")
+                    .attr("cx", cx).attr("cy", cy)
+                    .attr("r", markerRadius).attr("fill", MARKER_COLOR);
+
+                g.append("text")
+                    .attr("x", cx).attr("y", cy)
+                    .attr("text-anchor", "middle")
+                    .attr("dominant-baseline", "central")
+                    .attr("font-family", "sans-serif")
+                    .attr("font-size", fs)
+                    .attr("font-weight", "700")
+                    .attr("fill", "#fff")
+                    .text(m.num);
+            });
+        });
+
+        var rm = PREFERS_REDUCED_MOTION.matches;
+        svg.selectAll(".milestone-marker")
+            .transition().delay(rm ? 0 : (isInitial ? 2900 : 0)).duration(rm ? 0 : 400)
+            .attr("opacity", 1);
+    }
+
+    function lineChartCreate() {
+        updateChartDims();
+        var svg = d3.select(SECTION_ID).append("svg")
+            .attr("viewBox", "0 0 " + width + " " + height)
+            .attr("role", "img")
+            .attr("aria-label", "Stacked bar chart showing retirement savings growth over time, broken down by self contributions, employer contributions, and interest earned");
+        svg.append("title").text("Retirement Savings Projection Chart");
+    }
+
+    // Computes legend item widths and packed x/y positions with row wrapping.
+    // Returns { items: [...with x,y,...], totalHeight }. Items wrap to a new
+    // row when the current row would overflow the chart's right edge.
+    function computeLegendLayout(scenarios) {
+        var lgFs     = isMobile() ? 18 : 10;
+        var lgShort  = { 'Interest': 'Interest', 'Work Contributions': 'Work', 'Self Contributions': 'Self' };
+        var revKeys  = ['Interest', 'Work Contributions', 'Self Contributions'];
+        var itemGap  = isMobile() ? 26 : 16;
+        var swatch   = isMobile() ? 16 : 13;
+        var labelGap = 4;
+        var legendX  = isMobile() ? 14 : 8;
+        var lineW    = isMobile() ? 22 : 18;
+        var rowGap   = isMobile() ? 8 : 6;
+        var rowHeight = swatch + rowGap;
+        var available = width - margin.right - legendX;
+
+        var items = [];
+
+        revKeys.forEach(function(key) {
+            var label = isMobile() ? lgShort[key] : key;
+            var textW = measureTextWidth(label, lgFs);
+            items.push({
+                type: 'bar', key: key, label: label,
+                itemWidth: swatch + labelGap + textW
+            });
+        });
+
+        scenarios.forEach(function(sc) {
+            var textW = measureTextWidth(sc.name, lgFs);
+            items.push({
+                type: 'scenario', sc: sc,
+                itemWidth: lineW + labelGap + 2 + textW
+            });
+        });
+
+        var xOff = 0, yOff = 0;
+        items.forEach(function(item) {
+            // Wrap to a new row if this item won't fit in the current one
+            // (but never wrap the very first item — that would just orphan it).
+            if (xOff > 0 && xOff + item.itemWidth > available) {
+                xOff = 0;
+                yOff += rowHeight;
+            }
+            item.x = xOff;
+            item.y = yOff;
+            xOff += item.itemWidth + itemGap;
+        });
+
+        return {
+            items: items,
+            totalHeight: yOff + swatch,
+            lgFs: lgFs, swatch: swatch, labelGap: labelGap,
+            legendX: legendX, lineW: lineW
+        };
+    }
+
+    function renderLegend(svg, layout) {
+        var legendG = svg.append("g").attr("class", "chart-legend")
+            .attr("font-family", "sans-serif").attr("font-size", layout.lgFs)
+            .attr("transform", "translate(" + layout.legendX + ",0)");
+
+        layout.items.forEach(function(item) {
+            var g = legendG.append("g")
+                .attr("transform", "translate(" + item.x + "," + item.y + ")");
+
+            if (item.type === 'bar') {
+                g.append("rect")
+                    .attr("x", 0).attr("y", 0)
+                    .attr("width", layout.swatch).attr("height", layout.swatch)
+                    .attr("fill", BAR_COLORS[item.key]);
+                g.append("text")
+                    .attr("x", layout.swatch + layout.labelGap)
+                    .attr("y", layout.swatch - 3)
+                    .attr("text-anchor", "start")
+                    .text(item.label);
+            } else {
+                var lineY = Math.floor(layout.swatch / 2);
+                g.append("line")
+                    .attr("x1", 0).attr("y1", lineY)
+                    .attr("x2", layout.lineW).attr("y2", lineY)
+                    .attr("stroke", item.sc.color).attr("stroke-width", 2.5)
+                    .attr("stroke-dasharray", "5,3");
+                g.append("circle")
+                    .attr("cx", layout.lineW).attr("cy", lineY)
+                    .attr("r", 3).attr("fill", item.sc.color);
+                g.append("text")
+                    .attr("x", layout.lineW + layout.labelGap + 2)
+                    .attr("y", layout.swatch - 3)
+                    .attr("fill", "#555")
+                    .attr("text-anchor", "start")
+                    .text(item.sc.name);
+            }
+        });
+    }
+
+    function lineChartUpdate(isInitial) {
+        updateChartDims();
+        d3.select(SECTION_ID).select("svg").attr("viewBox", "0 0 " + width + " " + height);
+        var inp = readInputs();
+        totalArray = computeArray(inp.p, inp.r, inp.t, inp.c, inp.e);
+        updatePanel();
+
+        var maxT = Math.max(
+            inp.t,
+            savedScenarios.reduce(function(m, sc) { return Math.max(m, sc.t); }, 0)
+        );
+
+        // Build grouped x-axis domain; on mobile collapses 10+ year projections into intervals
+        var groupSize    = getMobileGroupSize(maxT);
+        var displayTimes = buildDisplayTimes(maxT, groupSize);
+
+        // Ensure every scenario's endpoint year is in the domain so lines can terminate correctly
+        savedScenarios.forEach(function(sc) {
+            if (displayTimes.indexOf(sc.t) === -1) displayTimes.push(sc.t);
+        });
+        if (displayTimes.indexOf(inp.t) === -1) displayTimes.push(inp.t);
+        displayTimes.sort(function(a, b) { return a - b; });
+        displayTimesCache = displayTimes;
+
+        // Bars use current-scenario data sampled at displayTimes checkpoints
+        var barTimes    = displayTimes.filter(function(t) { return t <= inp.t; });
+        var displayData = barTimes.map(function(t) { return totalArray[t]; });
+
+        var series = d3.stack().keys(KEYS)(displayData);
+
+        var yMax = d3.max(series, function(s) { return d3.max(s, function(d) { return d[1]; }); });
+        savedScenarios.forEach(function(sc) {
+            var peak = sc.totalArray[sc.totalArray.length - 1].amount;
+            if (peak > yMax) yMax = peak;
+        });
+
+        // Pre-compute legend layout (item widths + row positions) before scales
+        // are built. If the legend wraps to more rows than fit in the default
+        // margin.top, we bump margin.top so the chart pushes down to make room.
+        var legendLayout = computeLegendLayout(savedScenarios);
+        var legendNeededTop = legendLayout.totalHeight + 6;
+        if (legendNeededTop > margin.top) margin.top = legendNeededTop;
+
+        var x = d3.scaleBand()
+            .domain(displayTimes)
+            .range([margin.left, width - margin.right])
+            .padding(PADDING);
+
+        var y = d3.scaleLinear()
+            .domain([0, yMax * Y_MAX_PAD])
+            .rangeRound([height - margin.bottom, margin.top]);
+
+        var colorFn = d3.scaleOrdinal().domain(KEYS)
+            .range(KEYS.map(function(k) { return BAR_COLORS[k]; }));
+
+        var xAxis = function(g) {
+            g.attr("transform", "translate(0," + (height - margin.bottom) + ")")
+             .call(d3.axisBottom(x).tickFormat(d3.format("d")).tickSizeOuter(0));
+        };
+
+        var yAxis = function(g) {
+            g.attr("transform", "translate(" + margin.left + ",0)")
+             .call(d3.axisLeft(y).ticks(5).tickFormat(function(d) { return d === 0 ? '$0' : d3.format('$,.3s')(d); }))
+             .call(function(g) { g.selectAll(".domain").remove(); });
+        };
+
+        var svg = d3.select(SECTION_ID).select("svg");
+
+        var ANIM_MS = PREFERS_REDUCED_MOTION.matches ? 0 : 3000;
+
+        if (isInitial) {
+            // Draw bars at their final positions immediately
+            var groups = svg.selectAll("g.bar-group")
+                .data(series)
+                .join(function(enter) { return enter.append("g").attr("class", "bar-group"); })
+                .attr("fill", function(d) { return colorFn(d.key); });
+
+            var bars = groups.selectAll("rect").data(function(d) { return d; })
+                .join("rect")
+                .attr("x",      function(d) { return x(d.data.time); })
+                .attr("width",  x.bandwidth())
+                .attr("y",      function(d) { return y(d[1]); })
+                .attr("height", function(d) { return y(d[0]) - y(d[1]); });
+
+            attachTooltip(bars);
+            setupBarHighlight(bars);
+
+            // White cover rect sits over the bars and shrinks upward, revealing them
+            // from the baseline up. Axes/legend are appended after this in SVG order
+            // so they remain visible on top throughout. This approach avoids SVG
+            // clipPath url() references which break on iOS Safari when ancestors
+            // have CSS transforms (our mobile sheet does).
+            var coverRect = svg.append("rect")
+                .attr("class", "bar-cover")
+                .attr("x",      margin.left)
+                .attr("y",      margin.top)
+                .attr("width",  width - margin.left - margin.right)
+                .attr("height", height - margin.top - margin.bottom)
+                .attr("fill",   COVER_COLOR);
+
+            coverRect.transition().duration(ANIM_MS)
+                .attr("height", 0)
+                .on("end", function() { coverRect.remove(); });
+
+            // Count-up hero number — same duration as bar animation
+            var numFmt = d3.format(",d");
+            d3.select("#result").transition().duration(ANIM_MS)
+                .tween("text", function() {
+                    var el = d3.select(this);
+                    var interp = d3.interpolateNumber(0, yMax);
+                    return function(t) { el.text("$" + numFmt(interp(t))); };
+                });
+
+        } else {
+            // Interrupt any in-progress bar-reveal animation before rebuilding
+            svg.selectAll(".bar-cover").interrupt().remove();
+            svg.selectAll("g.bar-group rect").interrupt();
+
+            var gs = svg.selectAll("g.bar-group").data(series)
+                .join(function(enter) { return enter.append("g").attr("class", "bar-group"); })
+                .attr("fill", function(d) { return colorFn(d.key); });
+
+            var rects = gs.selectAll("rect").data(function(d) { return d; })
+                .join("rect")
+                .attr("x",      function(d) { return x(d.data.time); })
+                .attr("width",  x.bandwidth())
+                .attr("y",      function(d) { return y(d[1]); })
+                .attr("height", function(d) { return y(d[0]) - y(d[1]); });
+
+            attachTooltip(rects);
+            setupBarHighlight(rects);
+        }
+
+        // Saved scenario lines — sampled at the same displayTimes checkpoints as the bars
+        svg.selectAll(".sc-line").remove();
+        savedScenarios.forEach(function(sc) {
+            var scTimes      = displayTimes.filter(function(t) { return t <= sc.t; });
+            var scData       = scTimes.map(function(t) { return sc.totalArray[t]; });
+
+            var lineGen = d3.line()
+                .x(function(d) { return x(d.time) + x.bandwidth() / 2; })
+                .y(function(d) { return y(d.amount); });
+
+            svg.append("path")
+                .attr("class", "sc-line")
+                .datum(scData)
+                .attr("fill", "none")
+                .attr("stroke", sc.color)
+                .attr("stroke-width", 2.5)
+                .attr("stroke-dasharray", "7,4")
+                .attr("d", lineGen);
+
+            var last = scData[scData.length - 1];
+            svg.append("circle").attr("class", "sc-line")
+                .attr("cx", x(last.time) + x.bandwidth() / 2)
+                .attr("cy", y(last.amount))
+                .attr("r", 4).attr("fill", sc.color);
+        });
+
+        // Structural elements
+        svg.selectAll(".x-axis, .y-axis, .chart-legend, .axisLabel").remove();
+        svg.append("g").call(xAxis).attr("class", "x-axis axis");
+        svg.append("g").call(yAxis).attr("class", "y-axis axis");
+
+        // Render legend using positions pre-computed by computeLegendLayout()
+        renderLegend(svg, legendLayout);
+
+        var yLabelY = isMobile() ? (height - margin.bottom + 52) : (height + margin.top + 2);
+        svg.append("text")
+            .attr("transform", "translate(" + (width / 2) + "," + yLabelY + ")")
+            .style("text-anchor", "middle").attr("class", "axisLabel").text("Years");
+
+        var chartInsights = computeInsights(inp, totalArray);
+        drawMilestoneMarkers(svg, x, y, displayTimes, inp, totalArray, chartInsights, isInitial);
+        renderInsights(chartInsights, isInitial);
+    }
+
+    // ── Input-label info icons ───────────────────────────
+    // Appends an "ⓘ" button next to each input label and wires it to the same
+    // tooltip infrastructure used by the insight cards.
+    function wireInputInfoButtons() {
+        var inputInfoMap = {
+            p: 'Starting Amount',
+            r: 'Rate (%)',
+            t: 'Years',
+            c: 'Self Contribution',
+            e: 'Employer Contribution',
+            s: 'Yearly Spend'
+        };
+        Object.keys(inputInfoMap).forEach(function(id) {
+            var title = inputInfoMap[id];
+            if (!INFO_DEFINITIONS[title]) return;
+            var label = document.querySelector('label[for="' + id + '"]');
+            var input = document.getElementById(id);
+            if (!label || !input) return;
+
+            // Wrap the existing label text (the first text node before reqMark)
+            // in an explicit span, then point the input at it via aria-labelledby.
+            // This restricts the input's accessible name to JUST the label text,
+            // so the info button's aria-label and the SR-only description don't
+            // get duplicated when the input itself is focused.
+            var labelTextId = 'lbl-' + id;
+            var firstNode = label.firstChild;
+            if (firstNode && firstNode.nodeType === 3 /* TEXT_NODE */) {
+                var textSpan = document.createElement('span');
+                textSpan.id = labelTextId;
+                textSpan.textContent = firstNode.nodeValue.trim();
+                label.replaceChild(textSpan, firstNode);
+                // Preserve the trailing space that originally separated the
+                // label text from the required-marker asterisk.
+                label.insertBefore(document.createTextNode(' '), textSpan.nextSibling);
+                input.setAttribute('aria-labelledby', labelTextId);
+            }
+
+            var btn = document.createElement('button');
+            var descId = 'def-input-' + id;
+            btn.type = 'button';
+            btn.className = 'ic-info input-info';
+            btn.setAttribute('aria-label', 'What does ' + title + ' mean?');
+            btn.setAttribute('aria-describedby', descId);
+            btn.innerHTML =
+                '<svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true" focusable="false">' +
+                '<circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.4"/>' +
+                '<rect x="6.3" y="5.8" width="1.4" height="4.2" rx="0.5" fill="currentColor"/>' +
+                '<circle cx="7" cy="3.9" r="0.85" fill="currentColor"/>' +
+                '</svg>';
+            label.appendChild(document.createTextNode(' '));
+            label.appendChild(btn);
+
+            // SR-only description (paired with aria-describedby above)
+            var srDesc = document.createElement('span');
+            srDesc.id = descId;
+            srDesc.className = 'sr-only';
+            srDesc.textContent = INFO_DEFINITIONS[title];
+            label.appendChild(srDesc);
+
+            btn.addEventListener('mouseenter', function() { showInfoTooltip(btn, title); });
+            btn.addEventListener('mouseleave', hideInfoTooltip);
+            btn.addEventListener('focus',      function() { showInfoTooltip(btn, title); });
+            btn.addEventListener('blur',       hideInfoTooltip);
+            btn.addEventListener('click', function(e) {
+                // Stop the click bubbling to the label (which would otherwise focus the input)
+                e.preventDefault();
+                e.stopPropagation();
+                if (activeInfoBtn === btn) hideInfoTooltip();
+                else showInfoTooltip(btn, title);
+            });
+        });
+    }
+
+    // ── Init ──────────────────────────────────────────────
+    setupMobileInputs();
+    wireInputInfoButtons();
+    lineChartCreate();
+    lineChartUpdate(true);
+    updateSaveBtn();
+
+    // Live updates + validation
+    var debounceTimer;
+    function scheduleUpdate() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(function() {
+            // Guard: only update the chart when all required fields are valid,
+            // otherwise computeArray receives NaN and the UI shows "$NaN".
+            var areRequiredFieldsValid = ['p', 'r', 't'].every(function(id) {
+                return fieldError(id) === '';
+            });
+            if (areRequiredFieldsValid) {
+                lineChartUpdate(false);
+                if (window.CalcAnalytics) window.CalcAnalytics.calculation();
+            }
+        }, 400);
+    }
+    ['p','r','t','c','e','s'].forEach(function(id) {
+        document.getElementById(id).addEventListener('input', function() {
+            scheduleUpdate();
+            // Clear error as soon as the field becomes valid (don't add new errors while typing)
+            if (fieldError(id) === '') clearFieldError(id);
+            updateSaveBtn();
+            if (id === 's' && this.value.trim() !== '' && window.CalcAnalytics) {
+                window.CalcAnalytics.coastFiUsed(+this.value);
+            }
+        });
+        document.getElementById(id).addEventListener('blur', function() {
+            showFieldError(id);
+            updateSaveBtn();
+        });
+    });
+
+    // Save scenario
+    document.getElementById("saveBtn").addEventListener("click", function() {
+        if (savedScenarios.length >= MAX_SAVED) return;
+        // Validate all fields and surface any errors before saving
+        var areInputsValid = ['p', 'r', 't', 'c', 'e', 's'].reduce(function(isValid, id) {
+            return showFieldError(id) && isValid;
+        }, true);
+        if (!areInputsValid) { updateSaveBtn(); return; }
+
+        var nameEl = document.getElementById("scenarioName");
+        var name   = nameEl.value.trim();
+        if (!name) {
+            nameEl.classList.add("error");
+            nameEl.focus();
+            setTimeout(function() { nameEl.classList.remove("error"); }, 1200);
+            return;
+        }
+        var inp = readInputs();
+        savedScenarios.push({
+            name: name,
+            p: inp.p, r: inp.r, t: inp.t, c: inp.c, e: inp.e,
+            totalArray: computeArray(inp.p, inp.r, inp.t, inp.c, inp.e),
+            color: SC_COLORS[savedScenarios.length]
+        });
+        nameEl.value = "";
+        renderSavedSection();
+        lineChartUpdate(false);
+        if (window.CalcAnalytics) window.CalcAnalytics.scenarioSaved(name, inp);
+    });
+
+    document.getElementById("scenarioName").addEventListener("keydown", function(e) {
+        if (e.key === "Enter") document.getElementById("saveBtn").click();
+    });
+
+    // ── Mobile sheet controls ─────────────────────────────
+    document.getElementById("mobileConfigBtn").addEventListener("click", openSheet);
+    document.getElementById("sheetDoneBtn").addEventListener("click", closeSheet);
+    document.getElementById("mobileOverlay").addEventListener("click", closeSheet);
+
+    // ── Resize: re-run layout and redraw in place ────────
+    // Do NOT remove/recreate the SVG — that would kill any in-progress animation.
+    // lineChartUpdate already updates the viewBox and redraws all content.
+    var resizeTimer;
+    window.addEventListener("resize", function() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function() {
+            setupMobileInputs();
+            lineChartUpdate(false);
+        }, 200);
+    });
+</script>
+
+<script src="assets/config.js"></script>
+<script>
+// ── Consent banner ─────────────────────────────────────────────────────────
+// Shows on first visit, persists choice in localStorage. Analytics module
+// reads `calc_analytics_consent` and only fires events when it's 'accepted'.
+// We dispatch a 'calc:consent' CustomEvent so analytics.js can init lazily
+// when the user accepts after the page is already loaded.
+(function () {
+    var KEY = 'calc_analytics_consent';
+    var banner = document.getElementById('consentBanner');
+    if (!banner) return;
+
+    function getConsent() {
+        try { return localStorage.getItem(KEY); } catch (e) { return null; }
+    }
+    function setConsent(val) {
+        try { localStorage.setItem(KEY, val); } catch (e) {}
+        window.dispatchEvent(new CustomEvent('calc:consent', { detail: val }));
+    }
+    function hide() { banner.classList.remove('visible'); }
+    function show() { banner.classList.add('visible'); }
+
+    if (getConsent() === null) {
+        // Defer so it doesn't block initial paint
+        setTimeout(show, 600);
+    }
+
+    document.getElementById('consentAccept').addEventListener('click', function () {
+        setConsent('accepted');
+        hide();
+    });
+    document.getElementById('consentDecline').addEventListener('click', function () {
+        setConsent('declined');
+        hide();
+    });
+})();
+</script>
+<script src="assets/analytics.js"></script>
+</body>
+
+</html>

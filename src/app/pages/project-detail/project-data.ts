@@ -176,7 +176,7 @@ export const PROJECT_MAP: Record<string, Project> = {
     description: 'A retirement calculator built to replace the overwhelming, question-heavy tools that make you want to close the tab. Clean inputs, a chart that means something, and insights that surface the milestones your money is quietly working toward.',
     image: 'assets/calculator-v2.png',
     buttons: [
-      { label: 'View v2 Calculator', url: 'https://amandarae220.github.io/Calculator2.0/' },
+      { label: 'View v2 Calculator', url: '/calculator-v2/' },
     ],
     versions: [
       {
@@ -196,7 +196,7 @@ export const PROJECT_MAP: Record<string, Project> = {
         label: 'A Tool Worth Using',
         year: '2026',
         image: 'assets/calculator-v2.png',
-        url: 'https://amandarae220.github.io/Calculator2.0/',
+        url: '/calculator-v2/',
         highlights: [
           'Key Insights panel automatically surfaces financial milestones from the data',
           'Coast FI, Die with Zero, and Skim the Top withdrawal modeling built in',

@@ -16,6 +16,16 @@
     <changefreq>monthly</changefreq>
   </url>
   <url>
+    <loc>https://www.amandarae.dev/calculator-v2/</loc>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://www.amandarae.dev/calculator-v2/privacy.html</loc>
+    <priority>0.3</priority>
+    <changefreq>yearly</changefreq>
+  </url>
+  <url>
     <loc>https://www.amandarae.dev/project/saux</loc>
     <priority>0.7</priority>
     <changefreq>monthly</changefreq>

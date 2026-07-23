@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Privacy Policy | Retirement Savings Calculator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Privacy policy for the Retirement Savings Calculator — what data is collected, why, where it's stored, and how to opt out.">
+    <meta name="theme-color" content="#5a38e0">
+
+    <link rel="canonical" href="https://www.amandarae.dev/calculator-v2/privacy.html">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --brand-primary: #5a38e0;
+            --brand-accent:  #7657f4;
+            --tag-text-purple: #6042e3;
+            --bg:            #fcfcff;
+            --text:          #1a1a2e;
+            --text-muted:    #6c6c6c;
+            --border:        #e5e1f5;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: sans-serif;
+            font-size: 15px;
+            line-height: 1.65;
+            color: var(--text);
+            background: var(--bg);
+            min-height: 100vh;
+        }
+
+        .shell {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 48px 24px 96px;
+        }
+
+        .eyebrow {
+            font-family: 'Oswald', sans-serif;
+            font-size: 12px;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--brand-primary);
+            margin-bottom: 8px;
+        }
+
+        .backToPortfolio {
+            font-family: 'Oswald', sans-serif;
+            font-size: 12px;
+            font-weight: 400;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 24px;
+            transition: color 0.15s ease;
+        }
+        .backToPortfolio:hover,
+        .backToPortfolio:focus-visible {
+            color: var(--brand-primary);
+        }
+
+        h1 {
+            font-family: 'Oswald', sans-serif;
+            font-size: 36px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            line-height: 1.15;
+            padding-top: 0.05em;
+            margin-bottom: 8px;
+        }
+
+        .updated {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 36px;
+        }
+
+        h2 {
+            font-family: 'Oswald', sans-serif;
+            font-size: 22px;
+            font-weight: 600;
+            margin: 36px 0 12px;
+            padding-left: 12px;
+            border-left: 3px solid var(--brand-accent);
+            line-height: 1.2;
+            padding-top: 0.05em;
+        }
+
+        p { margin-bottom: 14px; }
+
+        ul {
+            list-style: none;
+            margin: 0 0 14px 0;
+            padding: 0;
+        }
+
+        li {
+            position: relative;
+            padding-left: 20px;
+            margin-bottom: 8px;
+        }
+
+        li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.65em;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--brand-accent);
+        }
+
+        a {
+            color: var(--brand-primary);
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+
+        a:hover { color: var(--brand-accent); }
+        a:focus-visible { outline: 2px solid var(--brand-accent); outline-offset: 2px; border-radius: 2px; }
+
+        code {
+            font-family: ui-monospace, 'JetBrains Mono', monospace;
+            font-size: 13px;
+            background: #f0edff;
+            padding: 1px 6px;
+            border-radius: 4px;
+            color: var(--brand-primary);
+        }
+
+        .optout-card {
+            margin-top: 36px;
+            padding: 20px 24px;
+            background: #f4f2ff;
+            border-left: 3px solid var(--brand-accent);
+            border-radius: 8px;
+        }
+
+        .optout-card h2 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            padding-left: 0;
+            border-left: none;
+        }
+
+        .optout-btn {
+            margin-top: 12px;
+            background: var(--brand-primary);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 10px 18px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: sans-serif;
+        }
+
+        .optout-btn:hover { opacity: 0.92; }
+        .optout-btn:focus-visible { outline: 2px solid #fff; outline-offset: -3px; box-shadow: 0 0 0 4px var(--brand-accent); }
+        .optout-btn[disabled] {
+            background: var(--text-muted);
+            cursor: not-allowed;
+            opacity: 0.8;
+        }
+
+        .optout-status {
+            margin-top: 12px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 48px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+<main class="shell">
+
+    <a class="backToPortfolio" href="/project/calculator" aria-label="Back to portfolio project page">← Back to portfolio</a>
+    <p class="eyebrow">Retirement Savings Calculator</p>
+    <h1>Privacy Policy</h1>
+    <p class="updated">Last updated June 18, 2026</p>
+
+    <p>This is a personal project I built to visualize compound interest and retirement projections. To understand how people are using the tool and to improve it over time, I collect a small amount of anonymous analytics. This page explains exactly what gets collected, why, where it lives, and how you can opt out.</p>
+
+    <h2>What I collect</h2>
+    <p>When you use the calculator, the following data is sent to my analytics backend:</p>
+    <ul>
+        <li><strong>Anonymous visitor ID</strong> — a random UUID generated in your browser, stored locally for 30 days. No name, email, or account is attached.</li>
+        <li><strong>The calculator inputs you save</strong> — starting amount, rate, years, contributions, and yearly spend, but only if you click the Save button. Typing in the inputs without saving is not stored.</li>
+        <li><strong>Scenario names you save</strong> — the label you give a saved scenario.</li>
+        <li><strong>Device and browser type</strong> — whether you're on touch or mouse, and which browser family (Chrome, Safari, etc.). Not your exact device model.</li>
+        <li><strong>Referrer hostname</strong> — where you arrived from (e.g. <code>github.com</code>), but not the full URL.</li>
+        <li><strong>Page interaction events</strong> — page view, page exit duration, recalculations, insight cards focused, and mobile sheet opened.</li>
+    </ul>
+
+    <h2>What I don't collect</h2>
+    <ul>
+        <li>Your name, email, IP address, or any personally identifying information.</li>
+        <li>Anything you type into the calculator that you don't explicitly save.</li>
+        <li>Cookies for tracking across other sites.</li>
+        <li>Data from any third-party advertising or marketing network — there are no ads here.</li>
+    </ul>
+
+    <h2>Why I collect it</h2>
+    <p>To understand:</p>
+    <ul>
+        <li>Which of the financial insights (Lift Off, Coast FI, Lean FI, etc.) people find most useful.</li>
+        <li>How long visitors spend with the tool before leaving.</li>
+        <li>What proportion of visitors are on mobile vs. desktop, so I know which experiences to polish.</li>
+        <li>How many people make it through to actually saving a scenario.</li>
+    </ul>
+    <p>That's it. The data informs improvements to the tool — it's not sold, shared, or used for marketing.</p>
+
+    <h2>Where it's stored</h2>
+    <p>Events are stored in a <a href="https://supabase.com">Supabase</a> database hosted in the United States. Access is restricted to me (the developer) via authenticated login. The database is governed by Supabase's own privacy and security practices.</p>
+
+    <h2>How long it's kept</h2>
+    <ul>
+        <li>Your local <strong>visitor ID</strong> expires from your browser after 30 days. After that, you become indistinguishable from a brand-new visitor.</li>
+        <li><strong>Event records</strong> in the database are kept indefinitely so I can look at long-term trends. They can't be tied back to you personally once your visitor ID rotates.</li>
+    </ul>
+
+    <h2>What's stored on your device</h2>
+    <p>Two values are written to your browser's <code>localStorage</code> (not cookies):</p>
+    <ul>
+        <li><code>calc_visitor_id</code> — the anonymous UUID.</li>
+        <li><code>calc_visitor_id_issued_at</code> — when the UUID was generated, for the 30-day rotation.</li>
+        <li><code>calc_analytics_consent</code> — your tracking preference (accepted or declined).</li>
+    </ul>
+
+    <h2>Your rights</h2>
+    <p>You can:</p>
+    <ul>
+        <li><strong>Opt out</strong> using the button below. Once declined, no further events will be sent.</li>
+        <li><strong>Erase your local identifier</strong> by clearing your browser's site data for this domain.</li>
+        <li><strong>Request deletion of past events</strong> by emailing me. Provide your visitor ID (or approximate visit timeframe) and I'll remove matching records.</li>
+    </ul>
+
+    <div class="optout-card">
+        <h2>Opt out of analytics</h2>
+        <p>Click the button to disable analytics for this browser. The page will reload and no events will be sent from this device until you clear your site data.</p>
+        <button id="optoutBtn" class="optout-btn" type="button">Disable analytics</button>
+        <p class="optout-status" id="optoutStatus" aria-live="polite"></p>
+    </div>
+
+    <h2>Contact</h2>
+    <p>If you have questions about this policy or want past events deleted, email me at <a href="mailto:amandaraedev@gmail.com">amandaraedev@gmail.com</a>.</p>
+
+    <h2>Source code</h2>
+    <p>The full source code (including the analytics implementation) is public at <a href="https://github.com/amandarae220/Calculator2.0">github.com/amandarae220/Calculator2.0</a>. If you want to verify what's described above is what actually runs, the relevant file is <code>assets/analytics.js</code>.</p>
+
+    <a href="index.html" class="back-link">← Back to the calculator</a>
+
+</main>
+
+<script>
+(function () {
+    var btn = document.getElementById('optoutBtn');
+    var status = document.getElementById('optoutStatus');
+
+    function getConsent() {
+        try { return localStorage.getItem('calc_analytics_consent'); }
+        catch (e) { return null; }
+    }
+
+    function syncUI() {
+        var consent = getConsent();
+        if (consent === 'declined') {
+            btn.disabled = true;
+            btn.textContent = 'Analytics disabled';
+            status.textContent = 'Analytics are currently disabled on this device.';
+        } else {
+            btn.disabled = false;
+            btn.textContent = 'Disable analytics';
+            status.textContent = consent === 'accepted'
+                ? 'Analytics are currently enabled on this device.'
+                : 'You have not yet made a choice. Disabling here will opt you out.';
+        }
+    }
+
+    btn.addEventListener('click', function () {
+        try {
+            localStorage.setItem('calc_analytics_consent', 'declined');
+        } catch (e) {}
+        syncUI();
+    });
+
+    syncUI();
+})();
+</script>
+</body>
+</html>
