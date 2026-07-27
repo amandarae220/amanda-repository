@@ -11,6 +11,11 @@
     <changefreq>monthly</changefreq>
   </url>
   <url>
+    <loc>https://www.amandarae.dev/resume/</loc>
+    <priority>0.9</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
     <loc>https://www.amandarae.dev/project/calculator</loc>
     <priority>0.8</priority>
     <changefreq>monthly</changefreq>

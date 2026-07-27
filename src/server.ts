@@ -58,6 +58,15 @@ app.use(
   }),
 );
 
+app.use(
+  '/resume',
+  express.static(resolve(browserDistFolder, 'resume'), {
+    maxAge: '1y',
+    index: 'index.html',
+    redirect: false,
+  }),
+);
+
 /**
  * Serve static files from /browser
  */

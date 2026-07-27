@@ -111,7 +111,7 @@ export const PROJECT_MAP: Record<string, Project> = {
     description: `A resume that IS the portfolio piece. Three iterations, from Tableau to D3.js to pure Angular, each one more purposefully built than the last. v3 is fully dynamic, accessibility tested, and designed for every screen from the start.`,
     image: 'assets/resume-hero-img.png',
     buttons: [
-      { label: 'View v3 Resume', url: 'https://amandarae-web-resume.dev/' },
+      { label: 'View v3 Resume', url: '/resume/' },
     ],
     versions: [
       {
@@ -145,7 +145,7 @@ export const PROJECT_MAP: Record<string, Project> = {
         label: 'Architecture Over Tooling',
         year: '2026',
         image: 'assets/resume-v3.png',
-        url: 'https://amandarae-web-resume.dev/',
+        url: '/resume/',
         highlights: [
           'Dropped D3.js in favor of pure Angular/CSS timeline positioning math',
           'Nested project-based role descriptions within parent roles to better showcase the work and skills within each project',
