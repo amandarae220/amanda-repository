@@ -49,6 +49,15 @@ app.use(
   }),
 );
 
+app.use(
+  '/sudoku',
+  express.static(resolve(browserDistFolder, 'sudoku'), {
+    maxAge: '1y',
+    index: 'index.html',
+    redirect: false,
+  }),
+);
+
 /**
  * Serve static files from /browser
  */

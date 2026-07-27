@@ -102,7 +102,7 @@ export const PROJECT_MAP: Record<string, Project> = {
                   This version utilizes React and Typescript.`,
     image: 'assets/sudoku.png',
     buttons: [
-      { label: 'View Puzzle', url: 'https://amandarae220.github.io/sudoku/' },
+      { label: 'View Puzzle', url: '/sudoku/' },
     ]
   },
   resume: {
