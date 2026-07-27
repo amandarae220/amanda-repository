@@ -92,7 +92,7 @@ export const PROJECT_MAP: Record<string, Project> = {
     description: `I'd rather be playing Dungeons & Dragons, but since I can't always be doing that, I built a mini-game that simulates a D&D encounter. This project showcases my skills in HTML, CSS, and JavaScript.`,
     image: 'assets/D&D.png',
     buttons: [
-      { label: 'Play Game', url: 'https://amandarae220.github.io/DungeonsAndDragons/' },
+      { label: 'Play Game', url: '/dnd/' },
     ]
   },
   sudoku: {
