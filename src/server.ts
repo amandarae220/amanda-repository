@@ -27,13 +27,49 @@ const angularApp = new AngularNodeAppEngine();
  */
 
 /**
- * Static embedded sub-app (Calculator2.0). Resolves /calculator-v2/ to its
- * index.html; must precede the root static-serve so directory-index behavior
- * doesn't leak into the Angular shell.
+ * Static embedded sub-apps. Each mounts with directory-index resolution so
+ * `/subapp/` resolves to `index.html`; must precede the root static-serve so
+ * directory-index behavior doesn't leak into the Angular shell.
  */
+app.use(
+  '/calculator-v1',
+  express.static(resolve(browserDistFolder, 'calculator-v1'), {
+    maxAge: '1y',
+    index: 'index.html',
+    redirect: false,
+  }),
+);
+
 app.use(
   '/calculator-v2',
   express.static(resolve(browserDistFolder, 'calculator-v2'), {
+    maxAge: '1y',
+    index: 'index.html',
+    redirect: false,
+  }),
+);
+
+app.use(
+  '/dnd',
+  express.static(resolve(browserDistFolder, 'dnd'), {
+    maxAge: '1y',
+    index: 'index.html',
+    redirect: false,
+  }),
+);
+
+app.use(
+  '/sudoku',
+  express.static(resolve(browserDistFolder, 'sudoku'), {
+    maxAge: '1y',
+    index: 'index.html',
+    redirect: false,
+  }),
+);
+
+app.use(
+  '/resume',
+  express.static(resolve(browserDistFolder, 'resume'), {
     maxAge: '1y',
     index: 'index.html',
     redirect: false,

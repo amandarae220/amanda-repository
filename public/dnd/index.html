@@ -1,0 +1,3255 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<title>D&amp;D Pixel Crawler | Browser Dungeon Roguelike</title>
+<meta name="description" content="A browser-based pixel-art dungeon crawler. You're the last hire on a cut-rate contract — finish what the others started and find out why no one came back.">
+<meta name="keywords" content="d&d game, pixel crawler, browser roguelike, dungeon game, javascript game, pixel art game, retro game">
+<meta name="author" content="Amanda Anderson">
+<meta name="theme-color" content="#181a20">
+
+<link rel="canonical" href="https://www.amandarae.dev/dnd/">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="D&amp;D Pixel Crawler">
+<meta property="og:description" content="A browser-based pixel-art dungeon crawler. You're the last hire on a cut-rate contract — finish what the others started.">
+<meta property="og:url" content="https://www.amandarae.dev/dnd/">
+<meta property="og:image" content="https://www.amandarae.dev/assets/D%26D.png">
+<meta property="og:image:alt" content="D&amp;D Pixel Crawler dungeon game screenshot.">
+<meta property="og:site_name" content="D&amp;D Pixel Crawler">
+<meta property="og:locale" content="en_US">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="D&amp;D Pixel Crawler">
+<meta name="twitter:description" content="A browser-based pixel-art dungeon crawler. You're the last hire on a cut-rate contract — finish what the others started.">
+<meta name="twitter:image" content="https://www.amandarae.dev/assets/D%26D.png">
+<meta name="twitter:image:alt" content="D&amp;D Pixel Crawler dungeon game screenshot.">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "D&D Pixel Crawler",
+  "description": "A browser-based pixel-art dungeon crawler. You're the last hire on a cut-rate contract — finish what the others started and find out why no one came back.",
+  "url": "https://www.amandarae.dev/dnd/",
+  "applicationCategory": "GameApplication",
+  "operatingSystem": "Web",
+  "inLanguage": "en",
+  "image": "https://www.amandarae.dev/assets/D%26D.png",
+  "author": {
+    "@type": "Person",
+    "name": "Amanda Anderson",
+    "url": "https://github.com/amandarae220"
+  },
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  }
+}
+</script>
+
+<style>
+
+/* =========================================================
+   THEME & GLOBALS
+   ========================================================= */
+:root{
+  --grid-w: 15;
+  --grid-h: 13;
+
+  --scale: 3;
+  --cell: calc(16px * var(--scale));
+  --gap:  calc(1px * var(--scale));
+
+  --bg: #181a20;
+  --panel: #13151b;
+  --hud: #101218;
+  --ink: #e9eef7;
+  --muted: #a7b0be;
+  --border: #2b2f3a;
+
+  --accent: #7fd962;   /* loot / green */
+  --info:   #7fb7ff;   /* dialog / blue */
+  --warn:   #ffd166;   /* door / yellow */
+  --bad:    #ff6b6b;   /* combat / red */
+  --sys:    #9aa3ae;   /* system / gray */
+
+  --hdr-h: 56px;
+
+  --hp-font: clamp(12px, calc(var(--cell) * 0.36), 20px);
+  --hp-vpad: clamp(4px,  calc(var(--cell) * 0.12), 10px);
+
+  --side-min: 360px;
+}
+
+/* Reset-ish */
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { height:100%; }
+body {
+  margin:0; color:var(--ink); background:var(--bg);
+  font: 15px/1.4 ui-monospace, Menlo, Monaco, "Cascadia Mono", Consolas, monospace;
+  -webkit-text-size-adjust:100%;
+  padding-top: calc(var(--hdr-h) + env(safe-area-inset-top));
+
+  overflow: hidden;
+}
+
+/* =========================================================
+   APP BAR
+   ========================================================= */
+.appbar{
+  position:fixed; z-index:1200;
+  top:env(safe-area-inset-top); left:0; right:0;
+  height:var(--hdr-h);
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  padding:8px 12px;
+  background:#0f1117; border-bottom:1px solid var(--border);
+}
+.appbar-left{ display:flex; align-items:center; gap:12px; min-width:0; }
+.appbar-title{ font-weight:900; letter-spacing:.02em; }
+.appbar-actions{ display:flex; gap:8px; }
+.backToPortfolio{
+  font: inherit;
+  color: var(--muted);
+  text-decoration: none;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  transition: color .15s ease, border-color .15s ease;
+  white-space: nowrap;
+}
+.backToPortfolio:hover,
+.backToPortfolio:focus-visible{
+  color: var(--ink);
+  border-color: var(--ink);
+  outline: none;
+}
+@media (max-width: 480px){
+  .backToPortfolio{ padding: 4px 8px; font-size: 12px; }
+  .appbar-title{ font-size: 14px; }
+}
+.btn{
+  font:inherit; color:var(--ink);
+  background:#0f1117; border:1px solid var(--border);
+  border-radius:10px; padding:8px 12px; cursor:pointer;
+}
+.btn:hover{ background:#151b24; }
+
+/* Compact header for small phones */
+@media (max-width: 600px){
+  :root{ --hdr-h: 52px; }
+  .appbar{ padding:6px 8px; }
+  .appbar-title{ font-size:16px; line-height:1.1; }
+  .appbar-actions{ gap:6px; }
+  .appbar-actions .btn{
+    padding:6px 8px;
+    font-size:14px;
+    line-height:1.15;
+    white-space:nowrap;
+  }
+}
+/* Ultra-narrow phones: stack title and buttons */
+@media (max-width: 380px){
+  :root{ --hdr-h: 60px; }
+  .appbar{ flex-wrap:nowrap; row-gap:0; padding:6px 8px; align-items:center; }
+  .appbar-title{ flex:1 1 auto; font-size:18px; line-height:1.05; }
+  .appbar-actions{ width:auto; justify-content:flex-end; }
+  .appbar-actions .btn{
+    width:auto; min-width:44px;
+    text-align:center;
+    white-space:nowrap;
+    line-height:1.1;
+    padding:6px 8px;
+  }
+}
+
+/* =========================================================
+   MAIN GRID LAYOUT
+   ========================================================= */
+.wrap{
+  display:grid; gap:12px; padding:12px;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-areas: "hud map side";
+  overflow-x:hidden;
+  align-items:start;
+  height: calc(100svh - var(--hdr-h));
+}
+.panel{
+  background:var(--panel); border:1px solid var(--border);
+  border-radius:12px; padding:10px;
+  min-width:0;
+}
+.hud{ grid-area:hud; background:var(--hud); }
+.map{
+  grid-area:map; background:#0b0d12; padding:8px;
+  border:2px solid var(--border); border-radius:12px;
+  image-rendering:pixelated; position:relative; overflow:hidden;
+  width:100%;
+}
+.side{ grid-area:side; display:flex; flex-direction:column; min-width:0; }
+
+#grid[data-room="tavern"] .floor{ background:#2a2214; }
+
+.grid-wrap{ width:100%; display:flex; flex-direction:column; align-items:center; }
+.grid{
+  display:grid;
+  grid-template-columns: repeat(var(--grid-w), var(--cell));
+  grid-template-rows:    repeat(var(--grid-h), var(--cell));
+  gap: var(--gap);
+  user-select:none; -webkit-user-select:none;
+  width:max-content;
+}
+
+/* ====== Grid Legend ====== */
+.legend{
+  display:flex; flex-wrap:wrap; gap:8px; margin-top:6px;
+  font-size:13px; color:var(--muted);
+  width:100%;
+  justify-content:center;
+  padding:4px 6px 0;
+  box-sizing:border-box;
+}
+.legend .key{
+  display:inline-flex; align-items:center; gap:6px;
+  padding:4px 8px; border:1px solid var(--border);
+  background:#0f1117; border-radius:8px;
+}
+.legend .sw{
+  width:14px; height:14px; border-radius:3px;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.35);
+}
+.legend .sw.player  { background: var(--warn);   } /* yellow */
+.legend .sw.ally    { background: #ff9bf3;       } /* pink   */
+.legend .sw.npc     { background: var(--info);   } /* blue   */
+.legend .sw.item    { background: var(--accent); } /* green  */
+.legend .sw.monster { background: var(--bad);    } /* red    */
+.legend .sw.door    { background: #3b2b1a;       } /* brown  */
+.legend .sw.wall    { background: #1e2430;       } /* slate  */
+
+.cell{
+  width:var(--cell); height:var(--cell);
+  background:#0f1218;
+  border-radius:calc(9px * var(--scale) / 3);
+  box-shadow: inset 0 0 0 calc(1px * var(--scale)) #06070a;
+  position:relative;
+}
+.floor  { background:#171a22; }
+
+/* Door visuals */
+.cell.door{
+  background: #3b2b1a !important;
+  background-image: none !important;
+  box-shadow:
+    inset 0 0 0 2px #000,
+    inset 0 0 10px rgba(0,0,0,.6),
+    0 0 0 2px rgba(240, 180, 80, .18);
+  position: relative;
+}
+.cell.door::after{
+  content:"";
+  position:absolute;
+  inset: 22% 38%;
+  background:#8a6a3a;
+  border-radius: 2px;
+  box-shadow: 0 0 10px rgba(240,180,80,.55);
+  animation: doorPulse 1.2s ease-in-out infinite;
+}
+@keyframes doorPulse { 0%,100%{transform:scale(.96);opacity:.8} 50%{transform:scale(1.02);opacity:1} }
+
+/* Stone tiles */
+.cell.wall {
+  background-color: #1e2430;
+  background-size: cover;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  border-radius: 2px;
+}
+
+/* Variants (9 total) using GitHub PNGs */
+.cell.wall.t0 { background-image: url("./stone_0.png"); }
+.cell.wall.t1 { background-image: url("./stone_1.png"); }
+.cell.wall.t2 { background-image: url("./stone_2.png"); }
+.cell.wall.t3 { background-image: url("./stone_3.png"); }
+.cell.wall.t4 { background-image: url("./stone_4.png"); }
+.cell.wall.t5 { background-image: url("./stone_5.png"); }
+.cell.wall.t6 { background-image: url("./stone_6.png"); }
+.cell.wall.t7 { background-image: url("./stone_7.png"); }
+.cell.wall.t8 { background-image: url("./stone_8.png"); }
+
+
+/* HP bar */
+.hpbar{
+  width: calc(var(--cell) * var(--grid-w) + (var(--grid-w) - 1) * var(--gap));
+  height: calc(var(--hp-font) + var(--hp-vpad) * 2);
+  background:#121621; border:1px solid var(--border);
+  border-radius:999px; margin:0 0 8px; position:relative; overflow:hidden;
+}
+.hpbar-fill{
+  position:absolute; inset:0 auto 0 0; width:60%;
+  background:linear-gradient(90deg,#28c76f,#24a36f);
+  transition: width .2s ease, background .2s ease;
+}
+.hpbar-text{
+  position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  font-size:var(--hp-font); font-weight:800; color:#fff; text-shadow:0 1px 0 rgba(0,0,0,.6);
+}
+
+/* Fog-of-war */
+.fog-unseen{ filter:brightness(0.2) saturate(0.5); }
+.fog-seen  { filter:brightness(0.55); }
+
+/* Entities */
+.grid .cell.player::after,
+.grid .cell.ally::after,
+.grid .cell.npc::after,
+.grid .cell.item::after,
+.grid .cell.monster::after{
+  content:"";
+  position:absolute;
+  inset:20%;
+  border-radius:calc(2px * var(--scale));
+}
+.player::after  { background:var(--warn); box-shadow:0 0 0 calc(2px * var(--scale)) rgba(0,0,0,.25); }
+.ally::after    { background:#ff9bf3; }
+.npc::after     { background:var(--info); }
+.item::after    { background:var(--accent); }
+.monster::after { background:var(--bad); }
+
+.legend .sw.player::after,
+.legend .sw.ally::after,
+.legend .sw.npc::after,
+.legend .sw.item::after,
+.legend .sw.monster::after{ content:none !important; }
+
+@keyframes pulse { 0%{outline-color:#d9ff76} 50%{outline-color:transparent} 100%{outline-color:#d9ff76} }
+.cursor{ outline:calc(2px * var(--scale)) solid #d9ff76; outline-offset:calc(-3px * var(--scale)); animation:pulse 1s ease-in-out infinite; }
+
+/* =========================================================
+   HUD / STATS / QUESTS
+   ========================================================= */
+.section-title{ color:var(--muted); font-size:12px; margin:2px 0 6px; letter-spacing:.1em; text-transform:uppercase; }
+.stats-row{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:8px; }
+.stat-chip{ display:inline-flex; align-items:center; gap:6px; padding:6px 10px;
+  border-radius:999px; background:#1a1e29; border:1px solid #37425b; font-size:13px; }
+.stat-chip b{ font-weight:800; opacity:.9; }
+
+.inv{ display:flex; flex-wrap:wrap; gap:6px; }
+.tag{ display:inline-flex; align-items:center; padding:6px 12px; border-radius:999px;
+  background:#1a1e29; border:1px solid #37425b; color:#f4f6ff; font-size:13px; }
+.tag.gold{ background:linear-gradient(180deg,#3b2d14,#2b2212); border-color:#7a5a1e; color:#ffeaa7; }
+.tag.inv-item{ cursor:pointer; }
+.tag.inv-item:hover{ background:#21283a; }
+
+.quest-list .quest{ display:flex; align-items:center; gap:8px; margin:6px 0; }
+.quest .qdot{ width:8px; height:8px; border-radius:50%; background:var(--info); }
+.quest.completed .qdot{ background:var(--accent); }
+.quest .qtitle{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.quest .qstatus{ margin-left:auto; opacity:.7; }
+
+/* =========================================================
+   SCRIPT (right)
+   ========================================================= */
+#sideCol{ display:flex; flex-direction:column; min-height:0; }
+#logPanel{
+  display:flex; flex-direction:column; min-height:0;
+  max-height: none;
+  overflow:hidden;
+  margin-top: .4rem;
+}
+#log{
+  flex:1 1 auto;
+  min-height:0;
+  overflow: scroll;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-gutter: stable;
+}
+.log{ padding-bottom:6px; }
+
+.entry { display:flex; gap:8px; align-items:flex-start; margin:8px 0; }
+.portrait{
+  width:18px; height:18px; flex:0 0 18px; min-width:18px; border-radius:3px;
+  background:#555;
+  align-self: center;
+}
+.bubble{
+  flex:1 1 auto; min-width:0; word-break:break-word;
+  border:1px solid var(--border);
+  padding:12px 14px; border-radius:12px;
+  background:#11161f;
+}
+.entry.dialog  .portrait{ background:var(--info); }
+.entry.loot    .portrait{ background:var(--accent); }
+.entry.combat  .portrait{ background:var(--bad); }
+.entry.door    .portrait{ background:var(--warn); }
+.entry.system  .portrait{ background:var(--sys); }
+
+.entry.dialog .bubble { background:#141b28; border-color:#2f3b52; }
+.entry.combat .bubble { background:#24171b; border-color:#4a2a31; }
+.entry.loot   .bubble { background:#152116; border-color:#2f3a2f; }
+.entry.door   .bubble { background:#18180f; border-color:#4b4420; }
+.entry.system .bubble { background:#15181d; border-color:#2a2f39; }
+
+#logTitle.pulse{ text-shadow:0 0 8px rgba(217,255,118,.85); }
+
+/* =========================================================
+   MOBILE TABS (shown on small screens)
+   ========================================================= */
+.mobile-tabs{ display:none; gap:8px; }
+.mobile-tabs .tab{
+  flex:1; text-align:center; padding:5px 12px; border-radius:10px;
+  border:1px solid var(--border); background:#0f1117; color:#f4f6ff; font:inherit;
+  font-size: 16px;
+}
+.mobile-tabs .tab.active{ background:#172234; border-color:#3b4b6b; }
+
+/* =========================================================
+   D-PAD
+   ========================================================= */
+#dpad{ grid-area:dpad; display:none; gap:12px; align-items:flex-start; }
+.pad-arrows{ display:flex; flex-direction:column; align-items:center; gap:6px; }
+.d-row{ display:flex; justify-content:center; gap:8px; }
+.d-btn{
+  min-width:48px; min-height:48px;
+  padding:12px 14px; color:var(--ink); font:inherit;
+  background:#0f1117; border:1px solid var(--border); border-radius:12px; cursor:pointer;
+}
+.d-big{ min-width:96px; }
+.pad-actions{ display:flex; flex-direction:column; gap:8px; }
+.act-btn{
+  min-width:125px; min-height:48px; padding:10px 12px;
+  color:var(--ink); background:#0f1117; border:1px solid var(--border); border-radius:12px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;
+}
+.act-btn small{ color:var(--muted); font-size:12px; margin-top:2px; }
+
+#dpad, #dpad .d-btn, #dpad .act-btn{ touch-action:manipulation; -webkit-user-select:none; user-select:none; }
+#dpad .d-btn, #dpad .act-btn{ font-size:16px; line-height:1.1; position:relative; }
+#dpad .d-btn::after, #dpad .act-btn::after{ content:""; position:absolute; inset:-10px; }
+
+.map{
+  position: relative;     
+  z-index: 5;
+}
+
+#dpad{
+  position: relative;      
+  z-index: 1;             
+}
+
+/* =========================================================
+   BANNERS
+   ========================================================= */
+.banners{
+  position:fixed; left:50%; transform:translateX(-50%);
+  top: calc(env(safe-area-inset-top) + var(--hdr-h) + 8px);
+  z-index:4000; width:min(92vw,640px); display:grid; gap:8px; pointer-events:none;
+}
+.banner{
+  pointer-events:auto; display:flex; gap:10px; align-items:flex-start;
+  background:#0f1117; border:1px solid var(--border); border-radius:12px; padding:8px 12px;
+  box-shadow:0 6px 16px rgba(0,0,0,.35);
+}
+.banner .dot{ width:10px; height:10px; border-radius:50%; margin-top:4px; }
+.banner .txt{ font-size:13px; line-height:1.25; }
+.banner .close{ margin-left:auto; background:transparent; border:0; color:#999; cursor:pointer; }
+.banner.dialog{ border-color:#2f3b52; } .banner.dialog .dot{ background:var(--info); }
+.banner.combat{ border-color:#4a2a31; } .banner.combat .dot{ background:var(--bad); }
+.banner.loot{ border-color:#2f3a2f; }   .banner.loot .dot{ background:var(--accent); }
+
+/* =========================================================
+   MODALS
+   ========================================================= */
+.overlay{
+  position:fixed; inset:0; z-index:3000; display:none;
+  align-items:center; justify-content:center; background:rgba(0,0,0,.55);
+  padding:20px;
+  backdrop-filter: none;          /* Keep banners crisp when a modal is open */
+  -webkit-backdrop-filter: none;
+}
+.overlay.show{ display:flex; }
+.overlay .card{
+  width:min(92vw,680px); max-height:80vh; overflow:auto;
+  background:#0f1117; border:1px solid var(--border); border-radius:14px; padding:16px;
+}
+.overlay .choices{ display:grid; gap:8px; margin-top:8px; }
+.choice-btn{
+  text-align:left; padding:10px 12px; border:1px solid var(--border); border-radius:10px;
+  background:#151b24; color:#e9eef7; cursor:pointer;
+}
+.choice-btn:hover{ background:#192132; }
+.overlay .actions{ display:flex; justify-content:flex-end; gap:8px; margin-top:12px; }
+
+/* Instructions accordion */
+details.accordion{border:1px solid var(--border);border-radius:10px;background:#0f1117;margin-top:10px}
+details.accordion>summary{list-style:none;cursor:pointer;padding:10px 12px;font-weight:600;color:#f4f6ff}
+details.accordion[open]>summary{border-bottom:1px solid var(--border)}
+.accordion-body{padding:10px 12px;color:#d7d9e0;font-size:13px;line-height:1.35}
+
+/* ====== ENDING / CREDITS OVERLAY ====== */
+#ending .card{ overflow:hidden }
+
+.hi5{
+  position:relative; height:120px; margin:6px 0 10px;
+  background:#0f1117; border:1px dashed var(--border); border-radius:10px;
+  overflow:hidden;
+}
+.hi5 .p{
+  position:absolute; top:50%; transform:translateY(-50%);
+  width:38px; height:38px; border-radius:8px;
+  box-shadow:0 2px 8px rgba(0,0,0,.35);
+}
+.hi5 .hero{ left:10%; background:var(--warn); }
+.hi5 .ally{ right:10%; background:#ff9bf3; }
+.hi5 .star{
+  position:absolute; left:50%; top:50%; transform:translate(-50%,-50%) scale(0);
+  font-size:30px; text-shadow:0 2px 8px rgba(0,0,0,.45);
+}
+
+/* play the slow-mo → freeze */
+.hi5.play .hero{ animation: heroSlide 1.25s ease forwards; }
+.hi5.play .ally{ animation: allySlide 1.25s ease forwards; }
+.hi5.play .star{ animation: starPop 1.25s ease forwards; }
+
+@keyframes heroSlide { 0%{left:10%} 70%{left:44%} 100%{left:44%} }
+@keyframes allySlide { 0%{right:10%} 70%{right:44%} 100%{right:44%} }
+@keyframes starPop{
+  0%{ transform:translate(-50%,-50%) scale(0); opacity:0 }
+  72%{ transform:translate(-50%,-50%) scale(1.6); opacity:1 }
+  100%{ transform:translate(-50%,-50%) scale(1.15); opacity:1 }
+}
+
+.hi5[data-has-ally="0"] .ally{ display:none }
+
+/* credits list*/
+.credits{ max-height:40vh; overflow:auto; border-top:1px dashed var(--border); padding-top:10px; }
+.credits .line{ display:flex; justify-content:space-between; margin:2px 0; opacity:.96;
+  animation: rollIn .42s ease both; }
+.credits .line:nth-child(n){ --d: calc((var(--i,0)) * .06s); animation-delay: var(--d); }
+@keyframes rollIn{ from{ transform:translateY(6px); opacity:.0 } to{ transform:none; opacity:1 } }
+
+.credits .hows{ margin:8px 0 0 18px; padding:0; }
+.credits .hows li{ margin:6px 0 }
+
+/* Freeze-frame credits: film roll */
+.credits{
+  height:40vh;
+  overflow:hidden;         
+  position:relative;
+  border-top:1px dashed var(--border);
+  padding-top:10px;
+}
+.credits-inner{
+  position:absolute;
+  left:0; right:0;
+  will-change:transform;
+  animation: creditsRoll var(--rollDur, 22s) linear both; 
+}
+@keyframes creditsRoll{
+  from{ transform: translateY(100%); }
+  to{   transform: translateY(-100%); }
+}
+
+
+/* Combat feed inside the modal */
+.combat-feed{
+  margin-top:10px; max-height:140px; overflow:auto;
+  border:1px solid var(--border); border-radius:10px; padding:8px;
+  background:#14161b; font-size:13px; line-height:1.25;
+}
+.combat-feed .line{ margin:4px 0; }
+.combat-feed .hit     { color:#d7ffe0; }  /* your hit */
+.combat-feed .crit    { color:#fff1a6; font-weight:700; }
+.combat-feed .miss    { color:#a9b2c3; }
+.combat-feed .enemy   { color:#ffc2c2; }
+.combat-feed .system  { color:#b7c1d4; }
+
+#combatFeed { display:none; }      
+#combatFeed.show { display:block; }   
+
+#combatFeed:empty { display:none; } 
+
+.dialog-status{ display:none; margin-top:0; padding:0; border:0; background:transparent; }
+.dialog-status.show{ display:block; margin-top:10px; padding:10px 12px; border-radius:10px; border:1px solid var(--border); background:#11161f; }
+.dialog-status.hit   { background:#152116; border-color:#2f3a2f; color:#dff5df; }
+.dialog-status.miss  { background:#24171b; border-color:#4a2a31; color:#ffd8d8; }
+.dialog-status.system{ background:#15181d; border-color:#2a2f39; color:#e9eef7; }
+
+.snapshot-row{ display:flex; gap:12px; justify-content:space-between; margin-top:8px; }
+.snap-col b{ opacity:.95; }
+.hp-badge{ display:inline-block; margin-left:6px; padding:2px 6px; border-radius:999px; font-size:12px; border:1px solid var(--border); background:#0f1117; }
+.hp-badge.ok{    background:#132017; border-color:#244a2f; }
+.hp-badge.warn{  background:#2a2414; border-color:#5b4a2f; }
+.hp-badge.danger{background:#2a1717; border-color:#5b2f2f; }
+
+/* --- Combat: Versus Card --- */
+.versus {
+  margin: 10px 0 6px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #0f1117;
+}
+
+.v-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 6px 0;
+}
+
+.v-name {
+  font-weight: 800;
+  min-width: 0;
+  max-width: 38%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.v-bar {
+  flex: 1 1 auto;
+  height: 12px;
+  border: 1px solid var(--border);
+  background: #0b0f16;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.v-fill {
+  height: 100%;
+  width: 0%;
+  transition: width .25s ease;
+}
+
+.v-badge {
+  min-width: 78px;
+  text-align: right;
+  font-weight: 800;
+  opacity: .9;
+}
+
+.v-last {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+.v-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: #121722;
+  font-size: 12px;
+}
+
+.choice-btn:empty { display:none !important; padding:0; border:0; }
+
+
+/* =========================================================
+   RESPONSIVE: Phones Portrait
+   ========================================================= */
+@media (max-width: 900px) and (orientation: portrait){
+  .wrap{
+    grid-template-columns: minmax(0,1fr);
+    grid-template-areas:
+      "map"
+      "dpad"
+      "side";
+    padding:8px 10px 14px;
+  }
+  #hudPanel{ display:none !important; }
+  #hudPanelSide{ display:block; }
+  .mobile-tabs{ display:flex; }
+  #dpad{ display:flex; justify-content:center; }
+  #log{ max-height:40vh; }
+  
+:root{ --dpad-h: 260px; } 
+#dpad{
+  position: relative;
+  z-index: 3;                
+  height: fit-content;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+  .map{
+    position: relative;
+    z-index: 1;
+    /* Let content size naturally so legend stays visible; page can scroll */
+    max-height: none;
+    overflow: visible;
+    padding:6px; /* prevent bleed to edges on very small screens */
+    padding-bottom:12px; /* keep legend visible */
+    margin-bottom:12px; /* space above D-pad */
+  }
+
+  .wrap{
+    grid-template-rows: auto max-content 1fr;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE: Phones Landscape (Map | Side | D-pad)
+   ========================================================= */
+@media (orientation: landscape) and (max-height: 500px){
+  :root{ --dpad-scale: .78; }
+  .wrap{
+    height: calc(100svh - var(--hdr-h));
+    grid-template-columns: var(--mapW,auto) var(--sideW,320px) var(--dpadW,220px);
+    grid-template-areas: "map side dpad";
+    align-items:stretch; gap:8px; padding:6px;
+  }
+  #hudPanel{ display:none !important; }
+  #hudPanelSide{ display:block; }
+  .mobile-tabs{ display:flex; margin-bottom:8px; }
+
+  #sideCol{ display:flex; flex-direction:column; min-height:0; }
+  #logPanel{ display:flex; flex-direction:column; min-height:0; height:100%; overflow:hidden; }
+  #log{ flex:1; min-height:0; overflow:auto; }
+
+  #dpad{
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    transform:scale(var(--dpad-scale)); transform-origin:center;
+  }
+    
+  .pad-arrows{ margin-bottom:8px; }
+  .pad-actions{ display:flex; flex-direction:row; gap:8px; width:100%; justify-content:center; }
+  .act-btn{ min-width:0; padding:8px 10px; min-height:40px; font-size:16px; flex:0 1 33%; }
+  .act-btn small{ font-size:11px; }
+  .d-btn{ padding:8px 10px; min-width:60px; min-height:6 0px; font-size:16px; }
+  .d-big{ min-width:72px; }
+
+  .map{ align-self:stretch; height:100%; width:auto; max-width:none; --gap:1px; }
+  .hpbar{ width: calc(var(--cell)*var(--grid-w) + (var(--grid-w) - 1)*var(--gap)); margin:0 0 8px; }
+  h3#logTitle { font-size: 14px;}
+  header.appbar { font-size: 14px; }
+  }
+
+/* =========================================================
+   TABLETS (e.g., iPad): wider map + right rail
+   ========================================================= */
+@media (min-width: 768px) and (max-width: 1180px){
+  :root{
+    --sideW: 360px;
+  }
+  .wrap{
+    max-width: 1200px;
+    margin: 0 auto;
+    grid-template-columns: minmax(0,1.5fr) minmax(0,1fr);
+    grid-template-rows: auto auto auto;
+    grid-template-areas:
+      "map bag"
+      "map dpad"
+      "log log";
+    padding:16px;
+    gap:12px 16px;
+    align-items:start;
+  }
+  /* Use the compact HUD/side column; hide left HUD */
+  #hudPanel{ display:none !important; }
+  #sideCol{ display:contents; }
+  #hudPanelSide{
+    display:block !important; /* override inline display:none */
+    grid-area: bag;
+    align-self:start;
+    width:100%;
+    max-width:420px;
+    margin-top:0;
+  }
+  /* Hide Codex button in tablet bag column to compact the card */
+  #hudPanelSide #codexBtn_s,
+  #hudPanel #codexBtn{ display:none !important; }
+  #mobileTabs{ display:none !important; }
+  #logPanel{
+    grid-area: log;
+    display:flex;
+    flex-direction:column;
+    min-height:0;
+    overflow:auto;
+    margin-top:0;
+    min-height:40vh;
+  }
+  #log{ flex:1 1 auto; min-height:0; }
+  /* Map fills height nicely */
+  .map{
+    align-self:stretch;
+    height: fit-content;
+    max-height: 64vh;
+    padding:12px;
+    width: 100%;
+    grid-area: map;
+  }
+  /* Show on-screen D-pad for touch users, scaled down */
+  #dpad{
+    display:flex !important;
+    grid-area: dpad;
+    justify-content:center;
+    align-items:flex-start;
+    transform: scale(.82);
+    transform-origin: top left;
+    padding:6px 0 0;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .mobile-tabs{ display:flex; margin-bottom:8px; }
+}
+
+/* =========================================================
+   DESKTOP/LAPTOP: Equal heights
+   ========================================================= */
+@media (min-width: 901px){
+  .wrap{ align-items: stretch; min-height: calc(100svh - var(--hdr-h) - 24px); }
+  #hudPanel, .map, #logPanel{ height: 100%; }
+  #logPanel{ display:inline-flex; flex-direction:column; min-height:0; overflow:scroll; }
+  #log{ flex:1; min-height:0; overflow:auto; max-height:unset; }
+  #hudPanel{ display:flex; flex-direction:column; overflow:auto; min-height:0; }
+}
+
+/* ---------- Room themes ---------- */
+body[data-room="shop"] .floor   { background:#2b2320; }
+body[data-room="shop"] .cell.door::after{ box-shadow:0 0 10px rgba(255,220,140,.65); }
+
+/* ===== Welcome FX ===== */
+.card.welcome {
+  position: relative;
+  overflow: hidden;
+  background: radial-gradient(1200px 600px at 10% -20%, rgba(127,215,98,.08), transparent),
+              radial-gradient(900px 300px at 120% 20%, rgba(127,183,255,.06), transparent),
+              #0f1117;
+}
+.card.welcome::before{
+  /* soft spotlight sweep */
+  content:"";
+  position:absolute; inset:-40% -20%;
+  background: radial-gradient(60% 30% at 20% 10%, rgba(255,255,255,.08), transparent 60%);
+  transform: rotate(-8deg);
+  animation: welcomeSweep 5.5s ease-in-out infinite;
+  pointer-events:none;
+}
+@keyframes welcomeSweep{
+  0%,100%{ transform: translateX(-6%) rotate(-8deg) }
+  50%    { transform: translateX(6%)  rotate(-8deg) }
+}
+.fx-stars{
+  pointer-events:none;
+  position:absolute; inset:0;
+  background:
+    radial-gradient(2px 2px at 10% 20%, rgba(255,255,255,.55), transparent 50%),
+    radial-gradient(1.5px 1.5px at 40% 70%, rgba(255,255,200,.6), transparent 50%),
+    radial-gradient(1.8px 1.8px at 75% 35%, rgba(200,255,255,.6), transparent 50%),
+    radial-gradient(1.5px 1.5px at 88% 15%, rgba(255,255,255,.55), transparent 50%),
+    radial-gradient(1.2px 1.2px at 22% 88%, rgba(255,255,255,.5), transparent 50%);
+  opacity:.85;
+  animation: twinkle 2.4s ease-in-out infinite;
+  filter: drop-shadow(0 0 6px rgba(255,255,255,.25));
+}
+@keyframes twinkle{
+  0%,100%{ opacity:.85; transform: translateY(0) }
+  50%    { opacity:.55; transform: translateY(-1px) }
+}
+.welcome-grid{
+  display:grid; gap:10px; margin:8px 0 2px;
+}
+.welcome-grid .tip{
+  display:flex; align-items:center; gap:8px;
+  padding:8px 10px; border:1px solid var(--border);
+  border-radius:10px; background:#11161f; font-size:14px;
+}
+.welcome-actions{
+  display:flex; gap:8px; justify-content:flex-end; align-items:center;
+}
+.btn.cta{
+  position:relative; font-weight:800;
+  box-shadow:0 6px 16px rgba(0,0,0,.35);
+  animation: ctaPop 1.2s ease-in-out infinite;
+}
+@keyframes ctaPop{
+  0%,100%{ transform: translateY(0) }
+  50%    { transform: translateY(-1px) }
+}
+
+.lead {
+  margin: 10px 0 8px;
+  font-size: 16px;
+  line-height: 1.4;
+  color: #e2e7f2;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+}
+
+/* === Welcome modal === */
+#welcome .card{ max-width:700px; height: fit-content; max-height: 80vh; padding: 2rem;}
+#welcome h2{
+  margin:0 0 8px;
+  color: #9ad68e;          
+  letter-spacing:.02em;
+  font-weight:800;
+}
+#welcome .lead{
+  margin:8px 0 14px;
+  color:#e3e9f4;
+  line-height:1.4;
+}
+#welcome .section-title{
+  margin: 2rem 0 1rem;
+  font-size:13px;
+  font-weight:700;
+  text-transform:uppercase;
+  color:#9ad68e;
+  letter-spacing:.08em;
+}
+#welcome .legend-grid{
+  display:grid; gap:6px;
+}
+#welcome .legend-grid .row{
+  display:grid; grid-template-columns: 160px 1fr; gap:10px;
+  padding:8px 10px;
+  border:1px solid var(--border);
+  border-radius:10px;
+  background:#121722;
+}
+#welcome .legend-grid .row b{
+  font-weight:800; color:#e9eef7;
+}
+#welcome .tips{
+  margin:8px 0 0 16px; padding:0;
+  font-size:14px; line-height:1.4; color:#d7dce6;
+}
+#welcome .welcome-actions{
+  display:flex; gap:8px; justify-content:flex-end; margin-top:18px;
+}
+#welcome .welcome-actions .btn{
+  padding:8px 14px; border-radius:10px;
+  background:#151b24; border:1px solid var(--border);
+}
+#welcome .welcome-actions .btn.cta{
+  background:#7fd962; color:#0b0f16; font-weight:800;
+  border-color:#6bc650;
+}
+
+</style>
+</head>
+
+<body>
+<header class="appbar">
+  <div class="appbar-left">
+    <a class="backToPortfolio" href="/project/dnd" aria-label="Back to portfolio project page">← Portfolio</a>
+    <div class="appbar-title">D&D Pixel Crawler</div>
+  </div>
+  <div class="appbar-actions">
+    <button id="settingsBtn" class="btn" aria-haspopup="dialog" aria-controls="settings">...</button>
+    <!-- Appears after Lich is defeated -->
+    <button id="tavernBtn" class="btn" style="display:none">🏮 Tavern</button>
+  </div>
+</header>
+
+<!-- Top notifications -->
+<div id="banners" class="banners" aria-live="polite" aria-atomic="true"></div>
+
+<div class="wrap">
+  <!-- LEFT: HUD -->
+  <div id="hudPanel" class="panel hud">
+    <h3 class="section-title">Character Stats</h3>
+    <div id="stats" class="stats-row"></div>
+
+    <h3 class="section-title" style="margin-top:10px;">Inventory</h3>
+    <div id="inventory" class="inv"></div>
+
+    <h3 class="section-title" style="margin-top:10px;">Quests</h3>
+    <div id="quests" class="quest-list"></div>
+
+    <div style="margin-top:8px"><button id="codexBtn" class="btn">📖 Codex</button></div>
+
+    <details class="accordion" style="margin-top:10px">
+      <summary>Instructions</summary>
+      <div class="accordion-body">
+        <strong>Move:</strong> Arrow Keys or D-pad.<br/>
+        <strong>Use/Talk:</strong> E<br/>
+        <strong>Pick Up:</strong> Space<br/>
+        <strong>Fight:</strong> F <br/>
+        <strong>Heal:</strong> H<br/>
+        Tap a potion in your Bag to heal outside combat.
+      </div>
+    </details>
+  </div>
+
+  <!-- CENTER: MAP -->
+  <div class="map" aria-label="Map">
+    <div class="grid-wrap">
+      <div class="hpbar"><div id="hpfill" class="hpbar-fill"></div><div id="hptext" class="hpbar-text">HP 10/10</div></div>
+      <div id="grid" class="grid" aria-label="Dungeon grid"></div>
+
+        <!-- Color Legend -->
+        <div id="legend" class="legend" aria-label="Map legend">
+        <div class="key"><span class="sw player"></span> Player</div>
+        <div class="key"><span class="sw ally"></span> Ally</div>
+        <div class="key"><span class="sw npc"></span> NPC</div>
+        <div class="key"><span class="sw item"></span> Item</div>
+        <div class="key"><span class="sw monster"></span> Monster</div>
+        </div>
+
+    </div>
+  </div>
+
+  <!-- RIGHT: SCRIPT (and HUD clone for mobile tabs) -->
+  <div class="side" id="sideCol">
+    <div id="mobileTabs" class="mobile-tabs" role="tablist" aria-label="Panels">
+      <button class="tab active" data-tab="log" role="tab" aria-selected="true" aria-controls="logPanel">Script</button>
+      <button class="tab" data-tab="bag" role="tab" aria-selected="false" aria-controls="hudPanelSide">Bag</button>
+    </div>
+
+    <div id="logPanel" class="panel">
+      <h3 id="logTitle" class="section-title">Script</h3>
+      <div id="log" class="log"></div>
+    </div>
+
+    <!-- Hidden on desktop; shown on mobile via tabs -->
+    <div id="hudPanelSide" class="panel hud" style="display:none">
+      <h3 class="section-title">Hero</h3>
+      <div id="stats_s" class="stats-row"></div>
+
+      <h3 class="section-title" style="margin-top:10px;">Inventory</h3>
+      <div id="inventory_s" class="inv"></div>
+
+      <h3 class="section-title" style="margin-top:10px;">Quests</h3>
+      <div id="quests_s" class="quest-list"></div>
+
+      <div style="margin-top:8px"><button id="codexBtn_s" class="btn">📖 Codex</button></div>
+    </div>
+  </div>
+
+  <!-- D-PAD (used in mobile landscape; hidden otherwise) -->
+  <div id="dpad" aria-hidden="true">
+    <div class="pad-arrows">
+      <div class="d-row"><button class="d-btn" data-a="up" aria-label="Up">▲</button></div>
+      <div class="d-row">
+        <button class="d-btn" data-a="left" aria-label="Left">◀</button>
+        <button class="d-btn d-big" data-a="use" aria-label="Use">Use (E)</button>
+        <button class="d-btn" data-a="right" aria-label="Right">▶</button>
+      </div>
+      <div class="d-row"><button class="d-btn" data-a="down" aria-label="Down">▼</button></div>
+    </div>
+    <div class="pad-actions">
+      <button class="act-btn" data-a="fight">Fight <small>(F)</small></button>
+      <button class="act-btn" data-a="pick">Pick Up <small>(Space)</small></button>
+      <button class="act-btn" data-a="heal">Heal <small>(H)</small></button>
+    </div>
+  </div>
+</div>
+
+<!-- DIALOG MODAL -->
+<div id="dialog" class="overlay" role="dialog" aria-modal="true">
+  <div class="card">
+    <h2 id="dialog-title">Conversation</h2>
+    <div id="dialog-text" class="bubble" style="margin:8px 0"></div>
+    <div id="dialog-choices" class="choices"></div>
+    <div id="dialog-status" class="dialog-status" aria-live="polite" aria-atomic="true"></div>
+    <div class="actions"><button id="dialog-leave" class="btn">Close</button></div>
+  </div>
+</div>
+
+<!-- LEVEL UP MODAL -->
+<div id="lvlup" class="overlay" role="dialog" aria-modal="true">
+  <div class="card">
+    <h2>Level Up!</h2>
+    <p id="lvlup-details"></p>
+    <div class="actions"><button id="lvlup-continue" class="btn">Continue →</button></div>
+  </div>
+</div>
+
+<!-- VICTORY MODAL -->
+<div id="victory" class="overlay" role="dialog" aria-modal="true">
+  <div class="card">
+    <h2>🏆 Victory!</h2>
+    <p id="victory-details">You defeated the Budget Lich!</p>
+    <div class="actions">
+      <button id="vict-stay" class="btn">Keep Exploring</button>
+      <button id="vict-tavern" class="btn">Celebrate at the Tavern</button>
+      <button id="vict-replay" class="btn">Replay (New Run)</button>
+    </div>
+  </div>
+</div>
+
+<!-- DEFEAT MODAL -->
+<div id="death" class="overlay" role="dialog" aria-modal="true">
+  <div class="card">
+    <h2>💀 You Died</h2>
+    <p id="death-details">Your run has ended. Ready to try again?</p>
+    <div class="actions">
+      <button id="death-restart" class="btn">Restart Run</button>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div id="settings" class="overlay" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+  <div class="card">
+    <h2 id="settings-title">Settings</h2>
+
+    <div class="choices" style="margin-top:6px">
+      <label class="choice-btn" style="display:flex;align-items:center;gap:10px;">
+        <input id="soundToggle" type="checkbox" />
+        <span>Sound effects</span>
+      </label>
+    </div>
+
+    <div class="actions">
+      <button id="settings-close" class="btn">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- WELCOME MODAL -->
+<div id="welcome" class="overlay" role="dialog" aria-modal="true" aria-labelledby="welcome-title">
+  <div class="card">
+    <h2 id="welcome-title">Unfinished Business</h2>
+    <p class="lead">
+      You’re the last hire on a cut-rate contract: finish what the others started and find out why no one came back.
+    </p>
+
+    <p class="section-title">How to Play (for newbs)</p>
+    <div class="legend-grid" aria-label="Controls legend">
+      <div class="row"><b>Move</b><span>Arrow Keys / WASD</span></div>
+      <div class="row"><b>Use / Talk</b><span>E</span></div>
+      <div class="row"><b>Pick Up</b><span>Space</span></div>
+      <div class="row"><b>Fight</b><span>F</span></div>
+      <div class="row"><b>Heal</b><span>H</span></div>
+    </div>
+
+    <p class="section-title">Tips for Playing</p>
+    <ul class="tips">
+      <li>Save healing until combat ends; potions don’t refund.</li>
+      <li>Talk before you fight—some enemies can be convinced or bribed.</li>
+    </ul>
+
+    <div class="welcome-actions">
+      <button id="welcome-mute" class="btn">Start Adventure</button>
+      <!--button id="welcome-start" class="btn cta" title="Start and play background music">Start Adventure</button-->
+    </div>
+  </div>
+</div>
+
+<!-- FREEZE-FRAME ENDING -->
+<div id="ending" class="overlay" role="dialog" aria-modal="true">
+  <div class="card">
+    <h2 id="end-title">🎬 The Freeze-Frame High-Five</h2>
+    <div id="hi5" class="hi5" data-has-ally="1">
+      <div class="p hero"></div><div class="p ally"></div><div class="star">✶</div>
+    </div>
+    <div id="credits" class="credits"></div>
+    <div class="actions">
+      <button id="end-keep" class="btn">Keep Exploring</button>
+      <button id="end-replay" class="btn">Replay (New Run)</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   UTILITIES & STATE
+   ========================================================= */
+const W=15,H=13;
+const key=(x,y)=>`${x},${y}`;
+const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
+const rand=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const withSign=n=>(n>=0?"+":"")+n;
+const escapeHTML=s=>String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+function vib(ms=30){ if(navigator.vibrate) try{navigator.vibrate(ms)}catch(e){} }
+
+// --- input timing guards ---
+let __lastUseAt = 0;
+function justPressedUse(debounceMs=180){
+  const now = performance.now();
+  if (now - __lastUseAt < debounceMs) return true;
+  __lastUseAt = now;
+  return false;
+}
+
+// Blocks movement/use for a moment after goTo() to prevent "leaked" key repeats
+let __roomLockUntil = 0;
+function roomLocked(){ return performance.now() < __roomLockUntil; }
+
+const TYPE_COLOR = {
+  dialog:'#7fb7ff',
+  loot:'#7fd962',
+  combat:'#ff6b6b',
+  door:'#ffd166',
+  system:'#9aa3ae'
+};
+const FOCUSABLE_SELECTOR = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+
+const pick = (arr)=>arr[Math.floor(Math.random()*arr.length)];
+const QUIP = {
+  wall:[
+    "You bonk the wall. No damage, but your pride fails its Dex save.",
+    "Ouch. That’s a natural 1 on ‘door detection’.",
+    "The wall remains undefeated. You, however, are very brave."
+  ],
+  move:[
+    "Your boots squeak like a goblin violin.",
+    "You stride forth, heroically… at walking speed.",
+    "Your steps echo like dice in a tower."
+  ],
+  miss:[
+    "You swing, crit the atmosphere, and deal 12 bludgeoning to your dignity.",
+    "Your sword whooshes majestically past everything important.",
+    "That was a warning swing. For morale. Theirs."
+  ],
+  hit:[
+    "Solid hit! Somewhere, a rules lawyer nods in approval.",
+    "Nice! That’ll leave a mark on the encounter budget.",
+    "Direct hit! The DM sighs and erases HP."
+  ],
+  crit:[
+    "CRIT! Bards will write a sea shanty about that one.",
+    "Natural 20! You gain inspiration* (*emotional only).",
+    "Critical! Even the dice are impressed."
+  ],
+  enemyMiss:[
+    "The monster whiffs like a bard throwing a javelin.",
+    "They miss! Your AC politely declines the attack.",
+    "The blow glances off your plot armor."
+  ],
+  heal:[
+    "You feel better. Placebo? Maybe. Effective? Also yes.",
+    "Glug glug! You regain hit points and questionable aftertaste.",
+    "A long sip, a short rest for the soul."
+  ],
+  loot:[
+    "Shiny acquired. The economy quivers.",
+    "Loot secured! Try not to read the cursed runes.",
+    "Your backpack groans in approval."
+  ]
+};
+
+const logEl=document.getElementById('log'), logTitle=document.getElementById('logTitle');
+
+const state={
+  level:1, hpMax:10, hp:10, ac:12, str:+2, dex:+1, atk:+4, cha:+1,
+  pos:{x:2,y:2}, lastDir:{x:0,y:0}, gold:0,
+  inventory:[{id:'potion',name:'Healing Potion',qty:1,type:'potion'}],
+  codex:[], ally:null,
+  allyPos: null,
+  musicOn:true, soundOn:true,
+  room:'level1', seen:{},
+  quests:[{id:'goblin',title:'Defeat the Goblin',status:'active'}],
+  monstersDefeated:0,
+  profSocial:2,
+  flags:{ bridgeCleared:false, pagesCollected:0, lichDefeated:false },
+  aggroCooldown: 0,
+  inebriation: 0
+};
+
+/* =========================================================
+   QUEST / LEVEL GATING HELPERS
+   ========================================================= */
+function ensureQuest(id, title){
+  if(!state.quests.find(q=>q.id===id)){
+    state.quests.push({id, title, status:'active'});
+    renderQuests();
+  }
+}
+function hasQuestDone(id){
+  const q = state.quests.find(q=>q.id===id);
+  return !!q && q.status === 'completed';
+}
+function isLevelComplete(roomId){
+  if(roomId === 'level1') return hasQuestDone('goblin');
+  if(roomId === 'level2') return hasQuestDone('ogre');
+  if(roomId === 'shop')   return true;
+  if(roomId === 'level3') return state.flags.bridgeCleared === true;
+  if(roomId === 'level4') return (state.flags.pagesCollected || 0) >= 3;
+  if(roomId === 'level5') return state.flags.lichDefeated === true;
+  return true;
+}
+
+/* =========================================================
+   SOCIAL CHECK HELPERS
+   ========================================================= */
+function rollD20(){ return Math.floor(Math.random()*20)+1; }
+function rollWithAdvantage(){ return Math.max(rollD20(), rollD20()); }
+function skillCheck(kind, { dc, advantage=false }){
+  let mod = 0;
+  if (kind === 'intimidation') mod = state.str + state.profSocial;
+  if (kind === 'persuasion')   mod = state.cha + state.profSocial;
+  if (kind === 'deception')    mod = state.cha + state.profSocial;
+
+  const r = advantage ? rollWithAdvantage() : rollD20();
+  const total = r + mod;
+  const ok = total >= dc;
+
+  banner(ok ? 'dialog' : 'combat',
+    `${kind.toUpperCase()}: d20 ${advantage?'(adv) ':''}= ${r} ${withSign(mod)} → ${total} vs DC ${dc} ${ok? '✓ success' : '✗ fail'}`);
+
+  return ok;
+}
+
+/* =========================================================
+   COMBAT HELPERS
+   ========================================================= */
+
+function ensureCombatFeed(){
+  let feed = document.getElementById('combatFeed');
+  if(!feed){
+    const box = document.createElement('div');
+    box.id = 'combatFeed';
+    box.className = 'combat-feed show'; // default to visible during combat
+    box.setAttribute('aria-live','polite');
+    dialogChoices.insertAdjacentElement('afterend', box);
+    feed = box;
+  } else {
+    feed.classList.add('show');
+  }
+  return feed;
+}
+
+function clearCombatFeed(){
+  const feed = document.getElementById('combatFeed');
+  if(feed){
+    feed.innerHTML = '';
+    feed.classList.remove('show');
+  }
+}
+
+function combatLine(text, cls='system'){
+  const feed = ensureCombatFeed();
+  const div = document.createElement('div');
+  div.className = `line ${cls}`;
+  div.textContent = text;
+  feed.appendChild(div);
+  feed.classList.add('show');
+  while(feed.childElementCount > 40) feed.removeChild(feed.firstChild);
+  feed.scrollTop = feed.scrollHeight;
+  logEntry(cls === 'enemy' ? 'combat' : 'system', text);
+}
+
+const statusEl = document.getElementById('dialog-status');
+function clearDialogStatus(){ statusEl.className='dialog-status'; statusEl.textContent=''; }
+function setDialogStatus(lines, tone='system'){
+  statusEl.className = `dialog-status show ${tone}`;
+  statusEl.innerHTML = (Array.isArray(lines) ? lines : [lines])
+    .map(s=>`<div>${s}</div>`).join('');
+}
+
+function hpBadge(curr, max){
+  const pct = Math.max(0, Math.min(100, Math.round((curr/max)*100)));
+  const danger = (curr/max) <= 0.34 ? 'danger' : (curr/max) <= 0.6 ? 'warn' : 'ok';
+  return `<span class="hp-badge ${danger}">${curr}/${max} (${pct}%)</span>`;
+}
+
+function combatSnapshot(mon){
+  if (mon._maxhp == null) mon._maxhp = mon.hp;
+  return [
+    `<div class="snapshot-row">`,
+      `<div class="snap-col"><b>You</b> ${hpBadge(state.hp, state.hpMax)}</div>`,
+      `<div class="snap-col"><b>${escapeHTML(mon.name)}</b> ${hpBadge(mon.hp, mon._maxhp)}</div>`,
+    `</div>`
+  ].join('');
+}
+
+/* =========================================================
+   ROOMS
+   ========================================================= */
+function level1(){
+  const walls=new Set();
+  for(let x=0;x<W;x++){walls.add(key(x,0));walls.add(key(x,H-1))}
+  for(let y=0;y<H;y++){walls.add(key(0,y));walls.add(key(W-1,y))}
+  [[5,2],[6,2],[7,2],[8,2],[8,3],[8,4],[9,5],[3,6],[4,6],[5,7],[6,7],[7,8],[3,9],[4,9],[5,9]]
+    .forEach(([x,y])=>walls.add(key(x,y)));
+  const doors=new Set([key(W-1,5)]); 
+
+  const npcs={
+    [key(4,4)]:{
+      id:'sage', name:'Sage', portrait:'#7fb7ff',
+      script:(say,choose)=>{
+        say("Sage: Traveler, welcome. There’s a goblin to the east—red, rude, and squishy. Remove it.","dialog");
+        choose([
+          {
+            label:"Give me a quest.",
+            hint:"Main plot hook, very official.",
+            action:()=>{
+              say("Sage: Quill says ‘Quest accepted.’ Aim true, and don’t lick the dungeon walls.","dialog");
+              ensureQuest('goblin','Defeat the Goblin');
+              logEntry('loot',"Quest updated: Defeat the Goblin.");
+            }
+          },
+          { label:"Any advice?", hint:"Pro tips & table talk.",
+            action:()=>say("Sage: Roll high, eat snacks. Doors open with ‘E’, not shoulder charges.","dialog") },
+          { label:"What’s my backstory again?", hint:"Lore speed-run.",
+            action:()=>say("Sage: You’re Level 1, full of hope, and fiscally motivated. Classic build.","dialog") }
+        ]);
+      }
+    },
+[key(2,7)]: {
+  id: 'bard',
+  name: 'Lost Bard',
+  portrait: '#7fa7ff',
+  script: (say, choose) => {
+    say(`Bard: Hey there, traveler. Don't mind me—just tuning up. My party... well, they went on without me. Long story.`, "dialog");
+
+    const main = () => choose([
+      {
+        label: "What happened to your party?",
+        hint: "He seems touchy about it.",
+        action: () => {
+          say(`Bard: They said I kept "killing the vibe" during battles. Apparently singing *Wonderwall* mid-combat isn’t “tactically sound.”`, "dialog");
+          say(`Bard: So they left. Which is fine. I prefer solo acts anyway.`, "dialog");
+          main();
+        }
+      },
+      {
+        label: "Play me something inspiring.",
+        hint: "Gain +1 Attack.",
+        action: () => {
+          say(`Bard: Alright, this one’s called *Ballad of the Brave-ish Adventurer.*`, "dialog");
+          say(`Bard: It’s got heart, a few wrong notes, and a surprisingly catchy chorus.`, "dialog");
+          logEntry('loot', `You feel inspired! You pocket a Lute Pick (+1 attack).`);
+          banner('loot','Bardic inspiration! ATK +1 (Lute Pick).');
+          state.inventory.push({ id: 'lute_pick', name: 'Lute Pick (+1 attack)', type: 'charm' });
+          state.atk += 1; renderHUD();
+          main();
+        }
+      },
+      {
+        label: "So… you play alone now?",
+        hint: "Curious.",
+        action: () => {
+          say(`Bard: Yep! Just me, my lute, and this weird echo that sometimes harmonizes. I call it “stage presence.”`, "dialog");
+          main();
+        }
+      },
+      {
+        label: "That’s rough—did they make it?",
+        hint: "Ask carefully.",
+        action: () => {
+          say(`Bard: Last I heard, the rogue was alive and working on a solo career too. We don’t talk much—creative differences.`, "dialog");
+          main();
+        }
+      },
+      {
+        label: "Good luck out here.",
+        hint: "Leave the conversation.",
+        action: () => {
+          say(`Bard: Thanks! If you hear music on the wind, that’s me. Or possibly a banshee. Hard to say from a distance.`, "dialog");
+          dialogEl.classList.remove('show');
+        }
+      }
+    ]);
+    main();
+  }
+}
+};
+
+  const items={
+    [key(6,4)]:{
+      id:'charm', name:'Sage Charm (+1 attack)', type:'charm',
+      onPick:()=>{ state.atk+=1; addCodex('Sage Charm (+1 attack)'); banner('loot',pick(QUIP.loot)+" (Sage Charm +1 ATK)"); }
+    }
+  };
+
+  const monsters={
+    [key(12,4)]:{
+      id:'goblin', name:'Red Goblin', ac:11, hp:6, atk:+3,
+      onDefeat:()=>{
+        markQuestDone('goblin'); state.monstersDefeated++;
+        banner('combat','The red goblin is no more! The initiative tracker breathes easier.');
+        if(state.monstersDefeated>=1 && state.level===1) setTimeout(showLevelUp,350);
+      }
+    }
+  };
+
+  return {walls,doors,npcs,items,monsters};
+}
+
+function level2(){
+  const walls=new Set();
+  for(let x=0;x<W;x++){walls.add(key(x,0));walls.add(key(x,H-1))}
+  for(let y=0;y<H;y++){walls.add(key(0,y));walls.add(key(W-1,y))}
+  [[1,6],[2,6],[3,6],[7,3],[8,3],[9,3],[9,4],[9,5],[4,9],[5,9],[6,9],[10,8]]
+    .forEach(([x,y])=>walls.add(key(x,y)));
+  const doors=new Set([key(1,5), key(W-1,5)]); 
+
+  const npcs={
+    [key(5,5)]:{
+      id:'nyx', name:'Nyx', portrait:'#ff9bf3',
+      script:(say,choose)=>{
+        say("Nyx: I’m Nyx. You swing, I flank. We split the coin, you keep the glory. Deal?","dialog");
+        choose([
+          { label:"What do I gain?", hint:"+advantage on attacks (flanking)",
+            action:()=>say("Nyx: Advantage on your strikes. Two d20s. Pick the better one. Feels like cheating; isn’t.","dialog") },
+          { label:"What’s the catch?", hint:"Always a catch…",
+            action:()=>say("Nyx: 50g reward? We split it. Math is the real monster.","dialog") },
+          { label:"Deal. Join my party.", hint:"Enable advantage.",
+            action:()=>{
+              state.ally='nyx';
+              const spot = freeAdjTo(state.pos.x, state.pos.y);
+              state.allyPos = spot ? spot : {x:state.pos.x, y:state.pos.y};
+              removeNPCById('level2','nyx');
+              say("Nyx: Sweet. I’ll be on your right—dramatic lighting side.","dialog");
+              banner('dialog',"Nyx joins! Flanking advantage enabled.");
+              render();
+            }
+          },
+          { label:"No thanks. Soloing for style points.", hint:"No ally.",
+            action:()=>say("Nyx: Bold. If you die, call it a ‘character arc’.","dialog") }
+        ]);
+      }
+    }
+  };
+
+  const items={ [key(9,6)]:{ id:'potion', name:'Healing Potion', type:'potion' } };
+  const monsters={
+    [key(11,6)]:{
+      id:'ogre', name:'Grumpy Ogre', ac:13, hp:10, atk:+4,
+      onDefeat:()=>{
+        banner('combat','Ogre down! Nyx: “Told you teamwork slaps.”');
+        if(state.ally==='nyx'){
+          logEntry('dialog',"Nyx: Split the bounty? I’ll even carry the heavy narrative.");
+        }
+        markQuestDone('ogre');
+      }
+    }
+  };
+
+  return {walls,doors,npcs,items,monsters};
+}
+
+// --- Inventory counting helpers ---
+function countInv(predicate){
+  return state.inventory.reduce((sum, it) => sum + (predicate(it) ? (it.qty || 1) : 0), 0);
+}
+const countById = (id) => countInv(it => it.id === id);
+const countPages = () => countInv(it => /Arcane Page/i.test(it.name));
+
+
+function shop(){
+  const walls=new Set();
+  for(let x=0;x<W;x++){walls.add(key(x,0));walls.add(key(x,H-1))}
+  for(let y=0;y<H;y++){walls.add(key(0,y));walls.add(key(W-1,y))}
+  [[3,2],[4,2],[5,2],[6,2],[7,2],[8,2],[9,2],[10,2]].forEach(([x,y])=>walls.add(key(x,y)));
+  const doors = new Set([ key(1,5), key(W-1,5) ]);
+
+  const npcs = {
+    [key(7,5)]: {
+      id:'shopkeep',
+      name:'Shopkeep',
+      portrait:'#bfa055',
+      script:(say,choose)=>{
+        say("Shopkeep: Welcome! Buy, sell, or trade—no refunds on cursed items.","dialog");
+
+        const main = ()=>{
+          choose([
+            { label:"🛒 Buy",  hint:"Potions, weapons, armor", action:showBuy },
+            { label:"💰 Sell", hint:"Unload pages or gear",    action:showSell },
+            { label:"🔁 Trade",hint:"Convert items",           action:showTrade },
+            { label:"Leave",    hint:"Come back anytime",       action:()=>dialogEl.classList.remove('show') },
+          ]);
+        };
+
+        const backBtn = ()=>[{ label:"↩ Back", hint:"To main menu", action:main }];
+
+        function showBuy(){
+          say("Shopkeep: What’ll it be?","dialog");
+          choose([
+            { label:"🧴 Healing Potion (10g)", hint:"Heals 5 HP",
+              action:()=>{
+                if(state.gold>=10){
+                  state.gold-=10;
+                  const p=state.inventory.find(i=>i.id==='potion');
+                  if(p) p.qty=(p.qty||1)+1; else state.inventory.push({id:'potion',name:'Healing Potion',qty:1,type:'potion'});
+                  renderHUD(); logEntry('loot','Purchased Healing Potion.'); banner('loot','Purchased Healing Potion (10g).');
+                } else { logEntry('system','Not enough gold.'); banner('system','Not enough gold for that purchase.'); }
+                showBuy();
+              }
+            },
+            { label:"🗡 Dagger (+1 ATK) (30g)", hint:"Light weapon",
+              action:()=>{
+                if(state.gold>=30){
+                  state.gold-=30; state.atk+=1;
+                  state.inventory.push({id:'dagger',name:'Dagger (+1 ATK)',type:'weapon'});
+                  renderHUD(); logEntry('loot','Purchased Dagger. ATK +1.'); banner('loot','Purchased Dagger (+1 ATK).');
+                } else { logEntry('system','Not enough gold.'); banner('system','Not enough gold for that purchase.'); }
+                showBuy();
+              }
+            },
+            { label:"🛡 Leather Armor (+1 AC) (35g)", hint:"A bit tougher",
+              action:()=>{
+                if(state.gold>=35){
+                  state.gold-=35; state.ac+=1;
+                  state.inventory.push({id:'leather',name:'Leather Armor (+1 AC)',type:'armor'});
+                  renderHUD(); logEntry('loot','Purchased Leather Armor. AC +1.'); banner('loot','Purchased Leather Armor (+1 AC).');
+                } else { logEntry('system','Not enough gold.'); banner('system','Not enough gold for that purchase.'); }
+                showBuy();
+              }
+            },
+            ...backBtn()
+          ]);
+        }
+
+ function showSell(){
+  const pages  = countPages();
+  const daggers = countById('dagger');
+  const picks   = countById('lute_pick');
+
+  say(
+    "Shopkeep: What are you parting with?\n\n" +
+    `You have → 📜 Pages ×${pages} • 🗡 Daggers ×${daggers} • 🪬 Lute Picks ×${picks}`,
+    "dialog"
+  );
+
+  choose([
+    {
+      label: `📜 Arcane Page (+15g) — You have ${pages}`,
+      hint: "Sells one Arcane Page",
+      action: () => {
+        if (pages > 0) {
+          const idx = state.inventory.findIndex(i => /Arcane Page/i.test(i.name));
+          if (idx >= 0) {
+            const it = state.inventory[idx];
+            if (it.qty && it.qty > 1) { it.qty--; }
+            else { state.inventory.splice(idx, 1); }
+            state.gold += 15;
+            renderHUD();
+            logEntry('loot', 'Sold 1 Arcane Page for 15g.');
+            banner('loot','Sold an Arcane Page (+15g).');
+          }
+        } else {
+          logEntry('system', 'You have no Arcane Pages to sell.');
+          banner('system','No Arcane Pages to sell.');
+        }
+        showSell();
+      }
+    },
+    {
+      label: `🗡 Dagger (sell for 15g) — You have ${daggers}`,
+      hint: "Half back",
+      action: () => {
+        if (daggers > 0) {
+          const idx = state.inventory.findIndex(i => i.id === 'dagger');
+          if (idx >= 0) {
+            state.inventory.splice(idx, 1);
+            state.gold += 15;
+            state.atk = Math.max(state.atk - 1, +0 + state.str + 2);
+            renderHUD();
+            logEntry('loot', 'Sold Dagger for 15g.');
+            banner('loot','Sold Dagger (+15g).');
+          }
+        } else {
+          logEntry('system', 'You have no Dagger to sell.');
+          banner('system','No Dagger to sell.');
+        }
+        showSell();
+      }
+    },
+    {
+      label: `🪬 Lute Pick (sell for 10g) — You have ${picks}`,
+      hint: "From the bard",
+      action: () => {
+        if (picks > 0) {
+          const idx = state.inventory.findIndex(i => i.id === 'lute_pick');
+          if (idx >= 0) {
+            state.inventory.splice(idx, 1);
+            state.gold += 10;
+            state.atk = Math.max(state.atk - 1, +0 + state.str + 2);
+            renderHUD();
+            logEntry('loot', 'Sold Lute Pick for 10g.');
+            banner('loot','Sold Lute Pick (+10g).');
+          }
+        } else {
+          logEntry('system', 'You have no Lute Pick to sell.');
+          banner('system','No Lute Pick to sell.');
+        }
+        showSell();
+      }
+    },
+    { label: "↩ Back", hint: "To main menu", action: main }
+  ]);
+}
+        function showTrade(){
+          say("Shopkeep: I can make you a deal…","dialog");
+          choose([
+            { label:"2 Potions → 1 Elixir", hint:"Elixir heals 10 HP",
+              action:()=>{
+                const p=state.inventory.find(i=>i.id==='potion' && (i.qty||1)>=2);
+                if(p){
+                  p.qty-=2; if(p.qty<=0) state.inventory = state.inventory.filter(i=>i!==p);
+                  const ex=state.inventory.find(i=>i.id==='elixir');
+                  if(ex) ex.qty=(ex.qty||1)+1; else state.inventory.push({id:'elixir',name:'Elixir (10 HP)',qty:1,type:'potion10'});
+                  renderHUD(); logEntry('loot','Traded 2 Potions for 1 Elixir.'); banner('loot','Trade complete: 2 Potions → 1 Elixir.');
+                } else { logEntry('system','You need 2 potions.'); banner('system','Need 2 potions to trade.'); }
+                showTrade();
+              }
+            },
+            ...backBtn()
+          ]);
+        }
+
+        main();
+      }
+    }
+  };
+
+  const items = {};
+  const monsters = {};
+  return { walls, doors, npcs, items, monsters };
+}
+
+/* -------- Level 3 -------- */
+function level3(){
+  const walls=new Set();
+  for(let x=0;x<W;x++){walls.add(key(x,0));walls.add(key(x,H-1))}
+  for(let y=0;y<H;y++){walls.add(key(0,y));walls.add(key(W-1,y))}
+  for(let y=1;y<H-1;y++){ walls.add(key(8,y)); }
+  const doors=new Set([ key(1,5), key(W-1,5) ]); 
+
+  const npcs={
+    [key(7,5)]:{
+      id:'grozl',
+      name:'Sgt. Grozl',
+      portrait:'#c77f4a',
+      script:(say,choose)=>{
+        say("Grozl: Toll bridge. Pay the fee or convince me you’re not trouble.","dialog");
+        choose([
+          { label:"🗣 Persuasion (CHA) — We just need to pass.", hint:"DC 12",
+            action:()=>{
+              const ok = skillCheck('persuasion',{dc:12,advantage:false});
+              if(ok){ say("Grozl: Hmph. Fine. Take this token and move along.","dialog"); grantBridgeClear(); }
+              else { escalateToFight(); }
+            }
+          },
+          { label:"😈 Intimidation (STR) — Move. Now.", hint:"DC 13 (adv with Nyx)",
+            action:()=>{
+              const adv = state.ally === 'nyx';
+              const ok = skillCheck('intimidation',{dc:13,advantage:adv});
+              if(ok){ say("Grozl: ...Right. Proceed.","dialog"); grantBridgeClear(); }
+              else { escalateToFight(); }
+            }
+          },
+          { label:"🎭 Deception (CHA) — Official inspection.", hint:"DC 14",
+            action:()=>{
+              const ok = skillCheck('deception',{dc:14,advantage:false});
+              if(ok){ say("Grozl: Paperwork checks out… somehow. Go.","dialog"); grantBridgeClear(); }
+              else { escalateToFight(); }
+            }
+          },
+          { label:"💰 Pay 10 gold", hint:"Auto pass",
+            action:()=>{ if(state.gold>=10){ state.gold-=10; renderHUD(); say("Grozl: Efficient. Don’t drop the token in the river.","dialog"); grantBridgeClear(); }
+                        else { say("Grozl: That’s not 10g. That’s pocket lint and optimism.","dialog"); } }
+          },
+          { label:"Fight me instead", hint:"Skip the talk.", action:()=>escalateToFight() }
+        ]);
+
+        function grantBridgeClear(){
+          state.inventory.push({id:'bridge_token', name:'Bridge Token', type:'key'});
+          renderHUD();
+          banner('loot','Bridge Token acquired; gate unlocked!');
+          removeNPCById('level3','grozl');
+          openGateAt(8,5);
+          state.flags.bridgeCleared = true;
+          ensureQuest('bridge','Resolve the Bridge');
+          markQuestDone('bridge');
+          dialogEl.classList.remove('show');
+          render();
+        }
+
+        function escalateToFight(){
+          say("Grozl: That’s a no. Boys?","dialog");
+          const R=rooms['level3'];
+          R.monsters[key(7,5)] = { id:'hob_capt', name:'Hobgoblin Captain', ac:13, hp:10, atk:+4,
+            onDefeat:()=>{
+              banner('combat','Captain defeated! The bridge guard breaks ranks.');
+              openGateAt(8,5);
+              state.flags.bridgeCleared = true;
+              ensureQuest('bridge','Resolve the Bridge');
+              markQuestDone('bridge');
+            }
+          };
+          R.monsters[key(6,5)] = { id:'gob',  name:'Goblin', ac:11, hp:5, atk:+3 };
+          R.monsters[key(9,5)] = { id:'gob2', name:'Goblin', ac:11, hp:5, atk:+3 };
+          removeNPCById('level3','grozl');
+          dialogEl.classList.remove('show');
+          banner('combat',"Negotiations collapsed. Initiative, anyone?");
+          render();
+        }
+      }
+    }
+  };
+
+  const items={};
+  const monsters={};
+
+  return {walls,doors,npcs,items,monsters};
+}
+
+/* -------- Level 4 -------- */
+function level4(){
+  const walls=new Set();
+  for(let x=0;x<W;x++){walls.add(key(x,0));walls.add(key(x,H-1))}
+  for(let y=0;y<H;y++){walls.add(key(0,y));walls.add(key(W-1,y))}
+  [[3,3],[4,3],[5,3],[9,3],[10,3],[11,3],[5,7],[6,7],[7,7],[8,7]]
+    .forEach(([x,y])=>walls.add(key(x,y)));
+
+  const doors=new Set([ key(1,5), key(W-1,5) ]); 
+
+  const pagePick = (id)=>()=>{ 
+    state.flags.pagesCollected = (state.flags.pagesCollected||0)+1;
+    banner('loot',`Arcane Page collected (${state.flags.pagesCollected}/3)`);
+    logEntry('loot','Picked up Arcane Page.');
+    ensureQuest('pages','Collect 3 Arcane Pages');
+    if(state.flags.pagesCollected>=3) markQuestDone('pages');
+    renderHUD();
+  };
+
+  const npcs={};
+  const items={
+    [key(2,2)]:{id:'page1', name:'Arcane Page', type:'quest', onPick:pagePick('page1')},
+    [key(7,5)]:{id:'page2', name:'Arcane Page', type:'quest', onPick:pagePick('page2')},
+    [key(12,8)]:{id:'page3', name:'Arcane Page', type:'quest', onPick:pagePick('page3')}
+  };
+
+  const monsters={
+    [key(10,6)]:{ id:'paper', name:'Paper Elemental', ac:12, hp:8, atk:+3,
+      onDefeat:()=>banner('combat','The Paper Elemental confetti-fies heroically.') }
+  };
+
+  return {walls,doors,npcs,items,monsters};
+}
+
+/* -------- Level 5: Lich -------- */
+function level5(){
+  const walls=new Set();
+  for(let x=0;x<W;x++){walls.add(key(x,0));walls.add(key(x,H-1))}
+  for(let y=0;y<H;y++){walls.add(key(0,y));walls.add(key(W-1,y))}
+  [[5,4],[9,4],[5,8],[9,8]].forEach(([x,y])=>walls.add(key(x,y)));
+
+  const doors=new Set([ key(1,5), key(W-1,5) ]);
+
+  const npcs={};
+  const items={ [key(2,2)]:{id:'potion', name:'Healing Potion', type:'potion'} };
+
+  const monsters={
+    [key(12,6)]:{
+      id:'lich', name:'Budget Lich', ac:14, hp:16, atk:+5,
+      onDefeat:()=>{
+        state.flags.lichDefeated = true;
+        ensureQuest('lich','Defeat the Budget Lich'); markQuestDone('lich');
+        banner('loot','Victory! The procurement department reclaims the Budget Lich.');
+        logEntry('dialog','Nyx: Can we expense this? Asking for a friend.','#ff9bf3');
+        showVictory();
+        updateTavernFastTravel(); 
+      }
+    }
+  };
+  return {walls,doors,npcs,items,monsters};
+}
+
+function epilogueLines(){
+  const L=[], n = state.inebriation||0;
+
+  // Drinking consequences
+  if(n >= 6) L.push("After The Incident with the mead, you swore off alcohol. Your investigation checks have been razor-sharp ever since.");
+  else if(n >= 3) L.push("You learned to pace your mead. You now remember where you left the key items. Usually.");
+  else L.push("You and moderation are on speaking terms. The barkeep nods with professional respect.");
+
+  // Ally / choices / flags
+  if(state.ally==='nyx') L.push("You and Nyx formed a duo called “Advantage.” You still argue about the split, but the high-fives slap.");
+  else L.push("You insist soloing is a style choice. The coat rack agrees.");
+
+  if((state.flags.pagesCollected||0) >= 3) L.push("Your Arcane Page collection became a boutique zine: *Paper Elemental Quarterly*.");
+  if(state.flags.bridgeCleared) L.push("The bridge is toll-free now. For everyone else it’s double. Long story.");
+  if(state.flags.lichDefeated) L.push("Procurement re-hired the Budget Lich as an auditor. You keep your receipts now.");
+  if(state.gold >= 100) L.push("You bought 5% of the tavern. Dividends arrive as pretzels.");
+  if(state.gold === 0) L.push("You left a generous tip: advice.");
+
+  return L;
+}
+
+function showFreezeFrameEnding(){
+  // Show the ending overlay (this was missing)
+  const endingEl = document.getElementById('ending');
+  endingEl.classList.add('show');
+
+  // Stage: show ally or not, restart animation
+  const stage = document.getElementById('hi5');
+  stage.dataset.hasAlly = state.ally ? "1" : "0";
+  stage.classList.remove('play'); void stage.offsetWidth; stage.classList.add('play');
+
+  // “Stats as credits”
+  const pairs = [
+    ['Level', state.level],
+    ['Gold', `${state.gold}g`],
+    ['HP', `${state.hp}/${state.hpMax}`],
+    ['AC', state.ac],
+    ['ATK', withSign(state.atk)],
+    ['Ally', state.ally ? 'Nyx' : 'None'],
+    ['Potions', countPotions()],
+    ['Pages', state.flags.pagesCollected||0],
+    ['Bridge', state.flags.bridgeCleared ? 'Resolved' : 'Unresolved'],
+    ['Boss', state.flags.lichDefeated ? 'Budget Lich (defeated)' : '—'],
+  ];
+
+  const lines = pairs.map((p,i)=>(
+    `<div class="line" style="--i:${i}"><span>${p[0]}</span><span>${escapeHTML(String(p[1]))}</span></div>`
+  )).join('');
+
+  const ep = epilogueLines().map(s=>`<li>${escapeHTML(s)}</li>`).join('');
+
+  const creditsHost = document.getElementById('credits');
+  const innerHTML =
+    `${lines}
+     <h3 class="section-title" style="margin-top:12px">How they’re doing now</h3>
+     <ul class="hows">${ep}</ul>`;
+
+  creditsHost.innerHTML = `<div class="credits-inner" id="creditsInner">${innerHTML}</div>`;
+
+  // After mount, compute a sensible roll duration based on content height
+  requestAnimationFrame(()=>{
+    const inner = document.getElementById('creditsInner');
+    const hostH = creditsHost.getBoundingClientRect().height;
+    const innerH = inner.getBoundingClientRect().height;
+    const pxPerSec = 36;
+    const dur = Math.max(14, Math.min(60, (innerH + hostH) / pxPerSec));
+    creditsHost.style.setProperty('--rollDur', `${dur}s`);
+  });
+}
+
+// Ending buttons
+document.getElementById('end-keep').onclick = ()=>{ document.getElementById('ending').classList.remove('show'); };
+document.getElementById('end-replay').onclick = ()=>{
+  document.getElementById('ending').classList.remove('show');
+  resetGame();
+};
+
+/* -------- Tavern -------- */
+function tavern(){
+  const walls=new Set();
+  for(let x=0;x<W;x++){walls.add(key(x,0));walls.add(key(x,H-1))}
+  for(let y=0;y<H;y++){walls.add(key(0,y));walls.add(key(W-1,y))}
+  [[4,4],[5,4],[9,4],[10,4],[6,7],[8,7]].forEach(([x,y])=>walls.add(key(x,y)));
+  const doors = new Set([ key(1,5) ]);
+
+  const npcs = {
+    [key(6,5)]:{
+      id:'barkeep', name:'Barkeep', portrait:'#d2a56f',
+      script:(say,choose)=>{
+        say("Barkeep: Mead? Gossip? Both come with consequences.","dialog");
+        const main=()=>choose([
+          { label:"🍺 Mead (5g)", hint:"+2 HP (no overheal)",
+            action:()=>{
+              if(state.gold>=5){
+              state.inebriation = (state.inebriation||0) + 1;
+                state.gold-=5;
+                const before=state.hp;
+                state.hp=Math.min(state.hpMax,state.hp+2);
+                renderHUD(); updateHP();
+                logEntry('loot',`You enjoy a mead (+${state.hp-before} HP).`);
+              } else logEntry('system','Not enough gold for mead.');
+              main();
+            }
+          },
+          { label:"🗣 Rumors", hint:"Hear a lead",
+            action:()=>{
+              say("Barkeep: Traveler spoke of a crypt beyond the old bridge. Sounds… lucrative.","dialog");
+              ensureQuest('rumor','Follow the Tavern Lead');
+              logEntry('dialog','New lead added to your quests.');
+              main();
+            }
+          },
+          { label:"🎬 Call it a Night", hint:"End run with credits & epilogue",
+  action:()=>{ dialogEl.classList.remove('show'); showFreezeFrameEnding(); } 
+        },
+          { label:"Leave bar", hint:"Back to mingling", action:()=>dialogEl.classList.remove('show') }
+        ]);
+        main();
+      }
+    },
+    [key(3,3)]:{
+      id:'minstrel', name:'Minstrel', portrait:'#7fa7ff',
+      script:(say,choose)=>{
+        say("Minstrel: Requests? I only play bardcore.","dialog");
+        choose([{label:"🎶 Play something lively",hint:"Vibes",action:()=>say("Minstrel: *lute intensifies*","dialog")}]);
+      }
+    },
+    [key(11,6)]:{
+      id:'drunk', name:'Town Drunk', portrait:'#aa7744',
+      script:(say,choose)=>{
+        say("Drunk: Yer a hero! Or a very shiny mirage.","dialog");
+        choose([{label:"Buy him a drink (3g)",hint:"Be nice",action:()=>{
+          if(state.gold>=3){ state.gold-=3; renderHUD(); say("Drunk: Yer alright. Watch for bridges with tolls.","dialog"); }
+          else say("Drunk: Stingy *hic*.","dialog");
+        }}]);
+      }
+    },
+    [key(12,3)]:{
+      id:'traveler', name:'Weary Traveler', portrait:'#9bbad9',
+      script:(say,choose)=>{
+        say("Traveler: Headed to the wilds? Stock up first—shops close when goblins raid.","dialog");
+        choose([{label:"Thanks for the tip.",hint:"Noted",action:()=>say("Traveler: Fortune favor you.","dialog")}]);
+      }
+    }
+  };
+
+  const items = {};
+  const monsters = {};
+  return { walls, doors, npcs, items, monsters };
+}
+
+const rooms={
+  level1: level1(),
+  level2: level2(),
+  shop:   shop(),
+  level3: level3(),
+  level4: level4(),
+  level5: level5(),
+  tavern: tavern()
+};
+
+/* =========================================================
+   MAP HELPERS
+   ========================================================= */
+function removeNPCById(roomId, npcId){
+  const npcs = rooms[roomId].npcs;
+  for(const k in npcs){ if(npcs[k].id === npcId){ delete npcs[k]; return; } }
+}
+function isBlockedForAlly(x,y){
+  if(!inBounds(x,y) || isWall(x,y)) return true;
+  if(state.pos.x===x && state.pos.y===y) return true;
+  const R = rooms[state.room];
+  if(R.monsters[key(x,y)]) return true;
+  return false;
+}
+function freeAdjTo(x,y){
+  const dirs=[[0,1],[0,-1],[1,0],[-1,0]];
+  for(const [dx,dy] of dirs){
+    const nx=x+dx, ny=y+dy;
+    if(!isBlockedForAlly(nx,ny)) return {x:nx,y:ny};
+  }
+  return null;
+}
+function stepTowards(from, to){
+  const dx = Math.sign(to.x - from.x), dy = Math.sign(to.y - from.y);
+  const tryOrder = [
+    {x: from.x + dx, y: from.y}, {x: from.x, y: from.y + dy},
+  ];
+  for(const p of tryOrder){ if(!isBlockedForAlly(p.x,p.y)) return p; }
+  return {x:from.x, y:from.y};
+}
+function openGateAt(x,y){
+  const k = key(x,y);
+  if(rooms['level3'].walls.has(k)){ rooms['level3'].walls.delete(k); render(); }
+}
+
+/* =========================================================
+   INVENTORY HELPERS
+   ========================================================= */
+function addToInventory(item){
+  const ex = state.inventory.find(i=>i.id===item.id);
+  if(ex){ ex.qty = (ex.qty||1) + (item.qty||1); }
+  else { item.qty = item.qty||1; state.inventory.push(item); }
+  renderHUD();
+}
+function removeOneFromInventory(id){
+  const i = state.inventory.findIndex(it=>it.id===id && (it.qty||1)>0);
+  if(i<0) return false;
+  const it = state.inventory[i];
+  it.qty = (it.qty||1)-1;
+  if(it.qty<=0) state.inventory.splice(i,1);
+  renderHUD();
+  return true;
+}
+
+/* =========================================================
+   MONSTER AGGRO HELPERS
+   ========================================================= */
+function chebDist(ax, ay, bx, by){ return Math.max(Math.abs(ax-bx), Math.abs(ay-by)); }
+function tileOccupied(x,y){
+  if(!inBounds(x,y) || isWall(x,y)) return true;
+  const R = rooms[state.room];
+  const k = key(x,y);
+  if(R.monsters[k]) return true;
+  if(R.npcs[k]) return true;
+  if(state.pos.x===x && state.pos.y===y) return true;
+  if(state.allyPos && state.allyPos.x===x && state.allyPos.y===y) return true;
+  return false;
+}
+function moveMonster(oldKey, nx, ny){
+  const R=rooms[state.room];
+  const m=R.monsters[oldKey]; if(!m) return null;
+  delete R.monsters[oldKey];
+  R.monsters[key(nx,ny)] = m;
+  return m;
+}
+function stepTowardsFree(from, to){
+  const dx = Math.sign(to.x - from.x), dy = Math.sign(to.y - from.y);
+  const candidates = [
+    {x: from.x + dx, y: from.y}, 
+    {x: from.x, y: from.y + dy}
+  ];
+  for(const p of candidates){ if(!tileOccupied(p.x,p.y)) return p; }
+  return {x: from.x, y: from.y};
+}
+
+function monsterFirstStrike(mon){
+  const mr = rollD20(), mh = mr + mon.atk;
+  if(mr===20 || mh>=state.ac){
+    const dmg = rand(1,4)+2;
+    state.hp = Math.max(0, state.hp - dmg);
+    logEntry('combat',`${mon.name} ambushes and hits you for ${dmg}.`);
+    renderVersusCard(mon, mon.name, `${mon.name} ambushes and hits you for ${dmg}.`);
+    if(state.hp <= 0){ handlePlayerDeath('ambush'); return; }
+  } else {
+    logEntry('combat',`${mon.name} lunges first but misses!`);
+    renderVersusCard(mon, null, `${mon.name} lunges first but misses!`);
+  }
+}
+
+function handlePlayerDeath(reason='defeat'){
+  logEntry('combat','You collapse! The run restarts from the beginning.');
+  banner('combat','You are defeated. Restarting the run...');
+  hideVersusCard();
+  document.querySelectorAll('.overlay').forEach(o=>o.classList.remove('show'));
+  const dialogElLocal = document.getElementById('dialog');
+  if(dialogElLocal){
+    dialogElLocal.classList.remove('show');
+    dialogChoices.innerHTML = '';
+    dialogText.textContent = '';
+  }
+  showDeathModal(reason);
+}
+
+function checkAggro(){
+  if(state.aggroCooldown>0){ state.aggroCooldown--; return; }
+  const R = rooms[state.room];
+  const px = state.pos.x, py = state.pos.y;
+  for(const oldK in R.monsters){
+    const [mx, my] = oldK.split(',').map(Number);
+    const d = chebDist(mx,my,px,py);
+    if(d <= 2){
+      const adj = [[px+1,py],[px-1,py],[px,py+1],[px,py-1]];
+      let dest = null;
+      for(const [ax,ay] of adj){ if(!tileOccupied(ax,ay)) { dest = {x:ax, y:ay}; break; } }
+      let mon;
+      let newKey = oldK;
+      if(dest){
+        mon = moveMonster(oldK, dest.x, dest.y);
+        newKey = key(dest.x,dest.y);
+        banner('combat',`The ${mon.name} lunges into melee and swings first!`);
+        monsterFirstStrike(mon);
+        state.aggroCooldown = 2;
+      }else{
+        const step = stepTowardsFree({x:mx,y:my},{x:px,y:py});
+        if(step.x!==mx || step.y!==my){
+          mon = moveMonster(oldK, step.x, step.y);
+          newKey = key(step.x,step.y);
+          banner('combat',`The ${mon.name} closes in!`);
+          if(chebDist(step.x,step.y,px,py)===1){
+            monsterFirstStrike(mon);
+            state.aggroCooldown = 2;
+          }
+        }
+      }
+      const T = R.monsters[newKey];
+      if(T && chebDist(px,py,...newKey.split(',').map(Number))===1){
+        setTimeout(()=>openCombatMenu(newKey, T), 80);
+      }
+      break;
+    }
+  }
+}
+
+/* =========================================================
+   RENDERING
+   ========================================================= */
+const gridEl=document.getElementById('grid'),
+      hpFill=document.getElementById('hpfill'),
+      hpText=document.getElementById('hptext');
+
+function ensureSeenSet(){ if(!state.seen[state.room]) state.seen[state.room]=new Set(); }
+function inBounds(x,y){ return x>=0 && y>=0 && x<W && y<H; }
+function isWall(x,y){ return rooms[state.room].walls.has(key(x,y)); }
+function isDoor(x,y){ return rooms[state.room].doors.has(key(x,y)); }
+function entityAt(x,y){
+  const R=rooms[state.room], k=key(x,y);
+  if(R.monsters[k]) return {type:'monster',data:R.monsters[k]};
+  if(R.npcs[k])     return {type:'npc',data:R.npcs[k]};
+  if(R.items[k])    return {type:'item',data:R.items[k]};
+  return null;
+}
+function reveal(x,y){
+  ensureSeenSet(); const seen=state.seen[state.room];
+  for(let yy=y-2;yy<=y+2;yy++) for(let xx=x-2;xx<=x+2;xx++) if(inBounds(xx,yy)) seen.add(key(xx,yy));
+}
+
+function render(){
+  ensureSeenSet();
+  gridEl.innerHTML = '';
+  const R = rooms[state.room];
+
+  for (let y = 0; y < H; y++){
+    for (let x = 0; x < W; x++){
+      const c = document.createElement('div');
+      const k = key(x,y);
+
+      if (isDoor(x,y)) {
+        c.className = 'cell door';
+      } else if (isWall(x,y)) {
+        const variants = 9;
+        const idx = ( (x * 13 + y * 7) % variants + variants ) % variants;
+        c.className = `cell wall t${idx}`;
+      } else {
+        c.className = 'cell floor';
+      }
+
+      const e = entityAt(x,y);
+      if (e){
+        if (e.type === 'npc')     c.classList.add('npc');
+        if (e.type === 'item')    c.classList.add('item');
+        if (e.type === 'monster') c.classList.add('monster');
+      }
+
+      if (state.allyPos && state.allyPos.x === x && state.allyPos.y === y) c.classList.add('ally');
+      if (state.pos.x === x && state.pos.y === y) c.classList.add('player','cursor');
+
+      const seen = state.seen[state.room];
+      const vis = seen.has(k);
+      if (!vis) c.classList.add('fog-unseen');
+      else if (!(state.pos.x === x && state.pos.y === y)) c.classList.add('fog-seen');
+
+      gridEl.appendChild(c);
+    }
+  }
+
+  updateHP(); renderHUD(); renderQuests();
+
+  if (state.room==='level2') ensureQuest('ogre','Defeat the Ogre');
+  if (state.room==='level3') ensureQuest('bridge','Resolve the Bridge');
+  if (state.room==='level4') ensureQuest('pages','Collect 3 Arcane Pages');
+  if (state.room==='level5') ensureQuest('lich','Defeat the Budget Lich');
+
+  gridEl.dataset.room = state.room;
+  updateTavernFastTravel();
+}
+
+function updateHP(){
+  const p = Math.max(0, Math.min(1, state.hp/state.hpMax));
+  hpFill.style.width = (p*100) + '%';
+  hpFill.style.background = p < .34 ? '#c0392b' : 'linear-gradient(90deg,#28c76f,#24a36f)';
+  hpText.textContent = `HP ${state.hp}/${state.hpMax}`;
+}
+
+function hpColor(p){              // p = 0..1
+  if(p >= .60) return '#2ecc71';  // green
+  if(p >= .34) return '#f1c40f';  // amber
+  return '#e74c3c';               // red
+}
+
+function ensureMaxHP(mon){
+  if(mon && mon._maxhp == null) mon._maxhp = Math.max(1, mon.hp);
+}
+
+function hpRowHTML(label, curr, max){
+  const pct = Math.max(0, Math.min(1, max ? curr/max : 0));
+  const w = Math.round(pct * 100);
+  const color = hpColor(pct);
+  const pill = `${curr}/${max} (${Math.round(pct*100)}%)`;
+  return `
+    <div class="v-row" role="group" aria-label="${escapeHTML(label)} HP">
+      <div class="v-name">${escapeHTML(label)}</div>
+      <div class="v-bar" aria-hidden="true">
+        <div class="v-fill" style="width:${w}%; background:${color}"></div>
+      </div>
+      <div class="v-badge" aria-label="${pill}">${pill}</div>
+    </div>`;
+}
+
+function getOrMakeCombatHUD(){
+  let box = document.getElementById('combatHUD');
+  if(!box){
+    box = document.createElement('div');
+    box.id = 'combatHUD';
+    box.className = 'versus';
+    dialogText.insertAdjacentElement('afterend', box);
+  }
+  return box;
+}
+
+function renderVersusCard(mon, lastBy=null, lastLine=null){
+  if(!dialogEl.classList.contains('show')) return; // safety
+  ensureMaxHP(mon);
+  const box = getOrMakeCombatHUD();
+  const you = hpRowHTML('You', state.hp, state.hpMax);
+  const foe = hpRowHTML(mon.name, mon.hp, mon._maxhp);
+  const last = (lastBy && lastLine)
+    ? `<div class="v-last"><span class="v-label">${escapeHTML(lastBy)} dealt the last hit</span><span style="margin-left:8px">${escapeHTML(lastLine)}</span></div>`
+    : '';
+  box.innerHTML = you + foe + last;
+}
+
+function hideVersusCard(){
+  const box = document.getElementById('combatHUD');
+  if(box) box.remove();
+}
+
+function doorUnderOrAdjacent(pos){
+  const {x,y} = pos;
+  const R = rooms[state.room];
+  const checks = [
+    {x,   y,    side:'on'},   // ← NEW: standing on the door tile
+    {x:x+1,y,   side:'east'},
+    {x:x-1,y,   side:'west'},
+    {x,   y:y+1,side:'south'},
+    {x,   y:y-1,side:'north'}
+  ];
+  for (const p of checks){
+    if (R.doors.has(key(p.x,p.y))) return p;
+  }
+  return null;
+}
+
+function tryUse(){
+  const { x, y } = state.pos;
+
+  // 1) If you are standing ON an NPC, talk to them
+  const npcHere = rooms[state.room].npcs[key(x, y)];
+  if (npcHere){
+    openDialog(npcHere.name,'');
+    const say=(t,type='dialog')=>{ dialogText.textContent=t; logEntry(type,t,npcHere.portrait); };
+    const choose=(arr)=>{ dialogChoices.innerHTML=''; arr.forEach(o=>addChoice(o.label,o.hint,()=>o.action())); };
+    npcHere.script(say,choose);
+    return;
+  }
+
+  // 2) Otherwise, if an NPC is adjacent, also allow talking
+  for (const [cx,cy] of [[x+1,y],[x-1,y],[x,y+1],[x,y-1]]){
+    const npc = rooms[state.room].npcs[key(cx,cy)];
+    if (npc){
+      openDialog(npc.name,'');
+      const say=(t,type='dialog')=>{ dialogText.textContent=t; logEntry(type,t,npc.portrait); };
+      const choose=(arr)=>{ dialogChoices.innerHTML=''; arr.forEach(o=>addChoice(o.label,o.hint,()=>o.action())); };
+      npc.script(say,choose);
+      return;
+    }
+  }
+
+  // 3) Door handling (same as before)
+  const door = doorUnderOrAdjacent(state.pos);
+
+  // If standing ON a door tile, force the player to step off and face it.
+  if (!door){
+    logEntry('system','There is nothing obvious to use here.');
+    return;
+  }
+
+  // Decide side based on actual door coordinate (works even if you're standing ON it).
+  const isRightDoor = (door.x === W-1);
+  const isLeftDoor  = (door.x === 0 || door.x === 1);
+  const isTopDoor   = (door.y === 0 || door.y === 1);
+  const isBotDoor   = (door.y === H-1);
+
+  // Gate forward progression on objectives
+  const forwardBlocked =
+    (isRightDoor && !isLevelComplete(state.room)) ||
+    (isBotDoor   && !isLevelComplete(state.room));
+
+  if (forwardBlocked){
+    banner('dialog',"The door won’t budge. Finish your current objective first.");
+    return;
+  }
+
+  logEntry('door',"You pass through a creaky door.");
+  AudioEngine.door();
+  banner('dialog', pick(["Door: Speak ‘E’ and enter.","Door: *creaks in Common*","Door: Beyond lies plot."]));
+
+  // Router: use exact door coordinate and spawn INSIDE the room (never ON the door)
+  const r = state.room;
+
+  if (r==='level1' && isRightDoor)            return goTo('level2', {x:2,     y:5});
+  if (r==='level2' && isLeftDoor)             return goTo('level1', {x:W-2,   y:5});
+  if (r==='level2' && isRightDoor)            return goTo('shop',   {x:2,     y:5});
+  if (r==='shop'   && isLeftDoor)             return goTo('level2', {x:W-2,   y:5});
+  if (r==='shop'   && isRightDoor)            return goTo('level3', {x:2,     y:5});
+  if (r==='level3' && isLeftDoor)             return goTo('shop',   {x:W-2,   y:5});
+  if (r==='level3' && isRightDoor)            return goTo('level4', {x:2,     y:5});
+  if (r==='level4' && isLeftDoor)             return goTo('level3', {x:W-2,   y:5});
+  if (r==='level4' && isRightDoor)            return goTo('level5', {x:2,     y:5});
+  if (r==='level5' && isLeftDoor)             return goTo('level4', {x:W-2,   y:5});
+  if (r==='level5' && isRightDoor)            return goTo('tavern', {x:2,     y:5});
+  if (r==='tavern' && isLeftDoor)             return goTo('level5', {x:W-2,   y:5});
+
+  banner('system','The door is stubborn. It probably leads back.');
+}
+
+function monsterLastWords(mon){
+  const pools = {
+    goblin: [
+      [`"Tell… the others I was the *red* one…"`,
+       "The goblin strikes a dramatic pose, then remembers it’s not in the union and keels over."]
+    ],
+    ogre: [
+      [`"Club… heavy…"`,
+       "The ogre sets the club down carefully, then forgets to keep standing."]
+    ],
+    lich: [
+      [`"Budget… cuts…"`,
+       "The lich audits the floor at close range. The floor passes."]
+    ],
+    generic: [
+      [`"I regret… the monologue…"`,
+       "They attempt a villain exit, trip on the plot, and go very still."],
+      [`"Treasure… under… the other rock…"`,
+       "They flop in a way physicians would call ‘narratively convenient.’"],
+      [`"Tell my accountant… never mind."`,
+       "With a sigh, they fold like a badly written expense report."]
+    ]
+  };
+  const key = (mon && pools[mon.id]) ? mon.id : 'generic';
+  return pick(pools[key]);
+}
+
+
+/* =========================================================
+   HUD (and HUD clone)
+   ========================================================= */
+function statsHTML(){
+  return `
+    <span class="stat-chip"><b>LV</b> ${state.level}</span>
+    <span class="stat-chip"><b>AC</b> ${state.ac}</span>
+    <span class="stat-chip"><b>STR</b> ${withSign(state.str)}</span>
+    <span class="stat-chip"><b>DEX</b> ${withSign(state.dex)}</span>
+    <span class="stat-chip"><b>ATK</b> ${withSign(state.atk)}</span>
+  `;
+}
+function renderHUD(){
+  document.querySelectorAll('#stats,#stats_s').forEach(el=>el.innerHTML=statsHTML());
+
+  ['inventory','inventory_s'].forEach(id=>{
+    const el=document.getElementById(id); if(!el) return;
+    el.innerHTML='';
+    const gold=document.createElement('span'); gold.className='tag gold'; gold.innerHTML=`🟡 ${state.gold}g`; el.appendChild(gold);
+    for(const it of state.inventory){
+      const chip=document.createElement('button');
+      chip.className='tag inv-item';
+      chip.innerHTML = `${escapeHTML(it.name)}${it.qty>1?` ×${it.qty}`:''}`;
+      if(it.type==='potion') chip.title='Use potion';
+      if(it.type==='potion') chip.addEventListener('click',usePotion);
+      el.appendChild(chip);
+    }
+  });
+}
+function renderQuests(){
+  ['quests','quests_s'].forEach(id=>{
+    const el=document.getElementById(id); if(!el) return;
+    el.innerHTML='';
+    for(const q of state.quests){
+      const row=document.createElement('div'); row.className=`quest ${q.status}`;
+      const dot=document.createElement('span'); dot.className='qdot';
+      const title=document.createElement('span'); title.className='qtitle'; title.textContent=q.title;
+      const st=document.createElement('span'); st.className='qstatus'; st.textContent=q.status;
+      row.append(dot,title,st); el.appendChild(row);
+    }
+  });
+}
+function markQuestDone(id){ const q=state.quests.find(q=>q.id===id); if(q){ q.status='completed'; renderQuests(); } }
+function renderCombatFeed(html){
+  const box = document.getElementById('combatFeed');
+  box.innerHTML = (html || '').trim();          
+  box.classList.toggle('show', box.innerHTML !== '');
+}
+/* =========================================================
+   SCRIPT LOG + BANNERS
+   ========================================================= */
+const MAX_LOG_ITEMS = 150;
+
+function logEntry(type,text,portrait){
+  const e=document.createElement('div'); e.className=`entry ${type}`;
+  const p=document.createElement('div'); p.className='portrait';
+  p.style.background = portrait || TYPE_COLOR[type] || '#666';
+  const b=document.createElement('div'); b.className='bubble'; b.textContent=text;
+  e.append(p,b);
+
+  if(logEl.firstChild) logEl.insertBefore(e, logEl.firstChild); else logEl.appendChild(e);
+
+  logTitle.classList.remove('pulse'); void logTitle.offsetWidth; logTitle.classList.add('pulse');
+
+  while(logEl.childElementCount > MAX_LOG_ITEMS){ logEl.removeChild(logEl.lastChild); }
+}
+function banner(type,text){
+  const host=document.getElementById('banners');
+  const b=document.createElement('div'); b.className=`banner ${type}`;
+  b.innerHTML=`<div class="dot"></div><div class="txt">${escapeHTML(text)}</div><button class="close">✕</button>`;
+  b.querySelector('.close').onclick=()=>b.remove();
+  host.appendChild(b); setTimeout(()=>b.remove(), 4500);
+}
+
+/* =========================================================
+   DIALOG SYSTEM
+   ========================================================= */
+const dialogEl=document.getElementById('dialog'),
+      dialogText=document.getElementById('dialog-text'),
+      dialogChoices=document.getElementById('dialog-choices');
+document.getElementById('dialog-leave').onclick=()=>dialogEl.classList.remove('show');
+
+document.getElementById('dialog-leave').onclick=()=>{
+  dialogEl.classList.remove('show');
+  hideVersusCard();
+};
+
+function openDialog(title,text){
+  // Opening any dialog should clear previous combat feed to avoid stale logs
+  clearCombatFeed();
+  document.getElementById('dialog-title').textContent=title||'Conversation';
+  dialogText.textContent=text||'';
+  dialogChoices.innerHTML='';
+  dialogFocusIdx = 0;
+  dialogEl.classList.add('show');
+  // If there are no choices yet, focus the close button for keyboard users.
+  const closeBtn = document.getElementById('dialog-leave');
+  requestAnimationFrame(()=>{
+    const firstChoice = dialogChoices.querySelector('.choice-btn');
+    if(firstChoice){ firstChoice.focus({preventScroll:true}); }
+    else closeBtn?.focus({preventScroll:true});
+  });
+}
+function addChoice(label,hint,cb){
+  const b=document.createElement('button'); b.className='choice-btn';
+  b.textContent=label; if(hint) b.title=hint; b.onclick=()=>cb();
+  dialogChoices.appendChild(b);
+  // When the dialog first opens, focus the first choice for keyboard users.
+  if(dialogChoices.childElementCount === 1){
+    requestAnimationFrame(()=>b.focus({preventScroll:true}));
+  }
+}
+
+/* =========================================================
+   ACTIONS
+   ========================================================= */
+function tryMove(dx,dy){
+  if (roomLocked()) return;
+
+  const nx = clamp(state.pos.x+dx, 0, W-1);
+  const ny = clamp(state.pos.y+dy, 0, H-1);
+
+  // treat doors like walls for movement
+  if (isDoor(nx,ny)){
+    banner('dialog','Door: Press E to use.');
+    AudioEngine.door();
+    return;
+  }
+
+  if (isWall(nx,ny)){
+    logEntry('system', pick(QUIP.wall));
+    AudioEngine.wall();
+    return;
+  }
+
+  const prev = {x: state.pos.x, y: state.pos.y};
+  state.pos.x = nx; state.pos.y = ny;
+  state.lastDir = { x: dx, y: dy };
+  vib(10); reveal(nx,ny);
+  AudioEngine.step();
+
+  // Absolute safety: if something put us ON a door, pop back
+  if (isDoor(state.pos.x, state.pos.y)){
+    state.pos = prev;
+    return;
+  }
+
+  if(state.ally && state.allyPos){
+    if(!isBlockedForAlly(prev.x, prev.y)) state.allyPos = {x:prev.x, y:prev.y};
+    else state.allyPos = stepTowards(state.allyPos, prev);
+  }
+
+  checkAggro();
+  render();
+}
+
+function doorCoordNearPlayer(){
+  const {x,y}=state.pos;
+  const R=rooms[state.room];
+  for(const [dx,dy] of [[0,0],[1,0],[-1,0],[0,1],[0,-1]]){
+    const k=key(x+dx,y+dy);
+    if(R.doors.has(k)) return {x:x+dx,y:y+dy};
+  }
+  return null;
+}
+
+function goTo(roomId, pos){
+  __roomLockUntil = performance.now() + 220;
+  state.room = roomId;
+  if(!state.seen[state.room]) state.seen[state.room]=new Set();
+  logEntry('system',`You enter ${roomId}.`);
+  state.pos = {x:pos.x, y:pos.y};
+  reveal(state.pos.x,state.pos.y);
+
+  if(state.ally && state.allyPos){
+    const spot = freeAdjTo(state.pos.x, state.pos.y);
+    state.allyPos = spot ? spot : {x:state.pos.x, y:state.pos.y};
+  }
+  applyRoomTheme();
+  //playMusicFor(state.room);
+  render();
+  updateTavernFastTravel();
+
+  if (isDoor(state.pos.x, state.pos.y)){
+    state.pos.x = clamp(state.pos.x - 1, 0, W-1);
+  }
+  state.lastDir = {x:-1, y:0};
+}
+
+function tryPick(){
+  const k=key(state.pos.x,state.pos.y);
+  const it=rooms[state.room].items[k];
+  if(!it){ logEntry('system','You scoop up a handful of air. Tastes like pixels.'); return; }
+  delete rooms[state.room].items[k];
+
+  // --- GOLD POUCHES: auto add to gold
+  if(it.type === 'gold'){
+    if(typeof it.onPick === 'function') it.onPick();
+    renderHUD(); render();
+    return;
+  }
+
+  const ex=state.inventory.find(i=>i.id===it.id);
+  if(ex) ex.qty=(ex.qty||1)+1; else { it.qty=1; state.inventory.push(it); }
+  if(typeof it.onPick==='function') it.onPick();
+  banner('loot', pick(QUIP.loot)+` (${it.name})`);
+  logEntry('loot', `Picked up ${it.name}.`);
+  renderHUD(); render();
+  AudioEngine.pickup();                
+  renderHUD(); render();
+}
+
+/* ---- Combat Menu ---- */
+function tryFight(){
+  const adj=[[0,0],[1,0],[-1,0],[0,1],[0,-1]].map(([dx,dy])=>({x:state.pos.x+dx,y:state.pos.y+dy}));
+  let targetKey,target; for(const p of adj){const m=rooms[state.room].monsters[key(p.x,p.y)]; if(m){ targetKey=key(p.x,p.y); target=m; break; }}
+  if(!target){ logEntry('combat', pick(QUIP.miss)); banner('combat','No monsters in range.'); return; }
+  openCombatMenu(targetKey,target);
+}
+function openCombatMenu(tKey, target){
+  openDialog(`Combat: ${target.name}`,"Choose your action:");
+  renderVersusCard(target, null, null);
+  clearDialogStatus(); 
+
+  const feed = ensureCombatFeed();
+  feed.innerHTML = "";  
+  feed.classList.add('show');
+
+  addChoice("🏃 Flee (provokes)", "Attempt to flee; foe gets a free swing.", ()=>{
+    const mr=rollD20(), mh=mr+target.atk;
+    if(mr===20 || mh>=state.ac){
+      const dmg=rand(1,4)+2; state.hp=Math.max(0,state.hp-dmg);
+      combatLine(`${target.name} hits you for ${dmg}. (You: ${state.hp}/${state.hpMax})`,'enemy');
+      AudioEngine.hurt();
+      banner('combat',`${target.name} hits you as you flee (-${dmg} HP).`);
+      if(state.hp<=0){ handlePlayerDeath('flee'); return; }
+    } else {
+      combatLine(`${target.name} swings and misses as you retreat.`,'miss');
+      banner('combat',`${target.name} misses your retreat.`);
+    }
+    dialogEl.classList.remove('show');
+    render();
+  });
+  addChoice("✊ Unarmed strike", "Punch/slap; low damage.", ()=>{
+    playerAttack(tKey,target,{toHitMod:state.atk-2, dmg:[1,3], tag:"(unarmed)"});
+  });
+  addChoice("🗡 Weapon strike", "Your regular attack.", ()=>{
+    playerAttack(tKey,target,{toHitMod:state.atk, dmg:[2,5], tag:"(weapon)"});
+  });
+  addChoice("✨ Cantrip", "Simple spell; modest damage, arcane flair.", ()=>{
+    playerAttack(tKey,target,{toHitMod:state.atk, dmg:[1,4], extra:"arcane sparks"});
+  });
+}
+
+function playerAttack(tKey,target,opts){
+  const advRoll = state.ally ? Math.max(rollD20(), rollD20()) : rollD20();
+  const toHit = advRoll + (opts.toHitMod ?? state.atk);
+
+  let lastLine = '';
+  let youHit = false;
+
+  if(advRoll===20){
+    target.hp = 0;
+    youHit = true;
+    lastLine = `Critical! You deal massive damage.`;
+    logEntry('combat', `CRIT! ${opts?.tag||''} ${pick(QUIP.crit)}`);
+    combatLine(`CRIT! You obliterate ${target.name}.`, 'crit');
+    AudioEngine.hit();
+  } else if(toHit>=target.ac){
+    const dmg = rand(opts.dmg[0],opts.dmg[1]) + state.str;
+    target.hp -= Math.max(1,dmg);
+    youHit = true;
+    lastLine = `Hit ${opts?.tag||''}: d20=${advRoll} → ${toHit} vs AC ${target.ac}. You deal ${Math.max(1,dmg)}.`;
+    logEntry('combat', lastLine);
+    combatLine(`You hit ${target.name} for ${Math.max(1,dmg)}. (Roll ${advRoll} → ${toHit} vs AC ${target.ac})`, 'hit');
+    banner('combat',`You hit ${target.name} for ${Math.max(1,dmg)}.`);
+    AudioEngine.hit();
+    if(opts.extra) logEntry('combat', `Your ${opts.extra} singe the air.`);
+  } else {
+    lastLine = `Miss: d20=${advRoll} → ${toHit} vs AC ${target.ac}.`;
+    logEntry('combat', pick(QUIP.miss));
+    combatLine(`You miss ${target.name}. (Roll ${advRoll} → ${toHit} vs AC ${target.ac})`, 'miss');
+  }
+
+  renderVersusCard(target, youHit ? 'You' : null, lastLine);
+
+  if(target.hp <= 0){
+    const [quote, narr] = monsterLastWords(target);
+    renderVersusCard(target, 'You', `Final blow! ${quote} ${narr}`);
+    killMonsterAndDrop(tKey,target);      
+    dialogEl.classList.remove('show');    
+    hideVersusCard();
+    render();
+    return;
+  }
+
+  const mr=rollD20(), mh=mr+target.atk;
+  if(mr===20 || mh>=state.ac){
+    const dmg=rand(1,4)+2; 
+    state.hp=Math.max(0,state.hp-dmg);
+    const line = `${target.name} hits you for ${dmg}.`;
+    logEntry('combat', line);
+    combatLine(`${target.name} hits you for ${dmg}. (Roll ${mr} → ${mh} vs AC ${state.ac})`, 'enemy');
+    banner('combat',`${target.name} hits you for ${dmg}.`);
+    renderVersusCard(target, target.name, line);
+    if(state.hp<=0){ handlePlayerDeath('combat'); return; }
+  } else {
+    const line = `${target.name} misses!`;
+    logEntry('combat', pick(QUIP.enemyMiss));
+    combatLine(`${target.name} misses you. (Roll ${mr} → ${mh} vs AC ${state.ac})`, 'miss');
+    renderVersusCard(target, null, line);
+  }
+  render();
+}
+
+/* Monster death → drop gold pouch (auto-convert on pickup) */
+function killMonsterAndDrop(targetKey,target){
+  const R = rooms[state.room];
+  delete R.monsters[targetKey];
+  if(typeof target.onDefeat==='function') target.onDefeat();
+  clearCombatFeed();
+
+  R.items[targetKey] = {
+    id: 'coin_pouch_'+Date.now(),
+    name: 'Coin Pouch (+10g)',
+    type: 'gold',
+    onPick: ()=>{ state.gold += 10; banner('loot','You collect 10g.'); renderHUD(); }
+  };
+  logEntry('loot','A pouch drops to the floor. (Pick it up)');
+}
+
+/* =========================================================
+   POTION, LEVEL UP, VICTORY
+   ========================================================= */
+function usePotion(){
+  const p=state.inventory.find(i=>i.id==='potion'&&i.qty>0);
+  if(!p){ banner('system','No potions.'); return; }
+  if(state.hp>=state.hpMax){ banner('system','Already at full health.'); return; }
+  p.qty--; if(p.qty<=0) state.inventory=state.inventory.filter(i=>i!==p);
+  const heal=5; state.hp=Math.min(state.hpMax,state.hp+heal);
+  banner('loot', pick(QUIP.heal)+` (+${heal} HP)`); renderHUD(); render();
+}
+
+function showLevelUp(){
+  const prevHp = state.hp;
+  state.level += 1;
+  state.hpMax  += 5;
+  state.ac     += 1;
+  // Preserve current HP so damage carries across rooms instead of auto-healing
+  state.hp      = Math.min(prevHp, state.hpMax);
+
+  updateHP();       
+  renderHUD();       
+
+  document.getElementById('lvlup-details').textContent =
+    `You reached level ${state.level}! +5 HP, +1 AC.`;
+  const lvlupEl = document.getElementById('lvlup');
+  lvlupEl.classList.add('show');
+  const btn = document.getElementById('lvlup-continue');
+  requestAnimationFrame(()=>btn?.focus({preventScroll:true}));
+}
+
+function uiBlocked(){
+  return document.querySelector('.overlay.show') !== null;
+}
+
+document.getElementById('lvlup-continue').onclick = () => {
+  document.getElementById('lvlup').classList.remove('show');
+  banner('system','Level up! The next area is unlocked — use the door when you’re ready.');
+  // (Optionally keep ensureQuest here if you want the Ogre quest to appear now)
+  // ensureQuest('ogre','Defeat the Ogre');
+};
+
+function countPotions(){ const p=state.inventory.find(i=>i.id==='potion'); return p? (p.qty||1) : 0; }
+function showVictory(){
+  const v=document.getElementById('victory');
+  const allyText = state.ally ? 'Nyx' : 'None';
+  document.getElementById('victory-details').textContent =
+    `You defeated the Budget Lich! Summary → Level ${state.level}, Gold ${state.gold}g, Potions ${countPotions()}, Ally: ${allyText}.`;
+  v.classList.add('show');
+}
+document.getElementById('vict-stay').onclick=()=>{
+  document.getElementById('victory').classList.remove('show');
+  banner('dialog','Tavern unlocked — use the 🏮 Tavern button in the header whenever you’re ready.');
+};
+document.getElementById('vict-tavern').onclick=()=>{
+  document.getElementById('victory').classList.remove('show');
+  goTo('tavern', { x:1, y:5 });
+};
+document.getElementById('vict-replay').onclick=()=>{
+  document.getElementById('victory').classList.remove('show');
+  resetGame();
+  banner('dialog','New run! The dungeon forgot you. Again.');
+};
+
+function showDeathModal(reason='defeat'){
+  const txt = document.getElementById('death-details');
+  if(txt){
+    const msg = (reason === 'ambush')
+      ? 'An ambush drops you to 0 HP.'
+      : 'Your HP hit zero.';
+    txt.textContent = `${msg} The run will restart.`;
+  }
+  document.getElementById('death').classList.add('show');
+}
+document.getElementById('death-restart').onclick=()=>{
+  document.getElementById('death').classList.remove('show');
+  resetGame({ showWelcome:true });
+};
+
+function resetGame(opts={}){
+  state.level=1; state.hpMax=10; state.hp=10; state.ac=12;
+  state.str=+2; state.dex=+1; state.atk=+4; state.cha=+1;   
+  state.gold=0; state.inventory=[{id:'potion',name:'Healing Potion',qty:1,type:'potion'}];
+  state.codex=[]; state.ally=null; state.allyPos=null;
+  state.room='level1'; state.seen={}; state.monstersDefeated=0;
+  state.quests=[{id:'goblin',title:'Defeat the Goblin',status:'active'}];
+  state.flags={ bridgeCleared:false, pagesCollected:0, lichDefeated:false };
+  state.aggroCooldown=0;
+
+  rooms.level1=level1(); rooms.level2=level2(); rooms.shop=shop();
+  rooms.level3=level3(); rooms.level4=level4(); rooms.level5=level5(); rooms.tavern=tavern();
+
+  state.pos={x:2,y:2}; ensureSeenSet(); reveal(state.pos.x,state.pos.y);
+
+  renderHUD(); renderQuests(); render(); fitScale();
+  applyRoomTheme();
+  //playMusicFor(state.room);
+  updateTavernFastTravel();
+  if(opts.showWelcome){
+    document.getElementById('welcome').classList.add('show');
+  }
+}
+
+/* =========================================================
+   CODEX
+   ========================================================= */
+function addCodex(e){ state.codex.push(e); logEntry('loot',`Codex updated: ${e}`); }
+document.getElementById('codexBtn').onclick=()=>{ openDialog('Codex', (state.codex.length? state.codex.join('\n• '):'So empty. Talk to people, pick up shiny things.')); addChoice('Close','',()=>dialogEl.classList.remove('show')); };
+document.getElementById('codexBtn_s').onclick=()=>document.getElementById('codexBtn').click();
+
+/* =========================================================
+   TAVERN FAST-TRAVEL
+   ========================================================= */
+function updateTavernFastTravel(){
+  const btn = document.getElementById('tavernBtn');
+  if(!btn) return;
+  const show = !!state.flags.lichDefeated && state.room !== 'tavern';
+  btn.style.display = show ? 'inline-flex' : 'none';
+}
+document.getElementById('tavernBtn').onclick = () => {
+  if(!state.flags.lichDefeated){
+    banner('dialog','Defeat the Budget Lich to unlock the tavern.');
+    return;
+  }
+  goTo('tavern', { x:1, y:5 });
+};
+
+/* =========================================================
+   INPUTS
+   ========================================================= */
+function bindInputs(){
+  window.addEventListener('keydown', e=>{
+  if (e.repeat) return;             // <- ignore key auto-repeat
+  if (uiBlocked() || roomLocked()) return;
+  if (document.getElementById('dialog').classList.contains('show')) return;
+
+    switch(e.key){
+        case'ArrowUp':case'w':case'W': tryMove(0,-1); break;
+        case'ArrowDown':case's':case'S': tryMove(0, 1); break;
+        case'ArrowLeft':case'a':case'A': tryMove(-1,0); break;
+        case'ArrowRight':case'd':case'D': tryMove(1,0); break;
+        case'e':case'E': tryUse(); break;
+        case' ': tryPick(); e.preventDefault(); break;
+        case'f':case'F': tryFight(); break;
+        case'h':case'H': usePotion(); break;
+        case't':case'T':
+        if(state.flags.lichDefeated && state.room!=='tavern'){ goTo('tavern', {x:1,y:5}); }
+        else if(!state.flags.lichDefeated){ banner('dialog','Beat the Budget Lich to unlock the tavern.'); }
+        break;
+    }
+    });
+
+  const dpadEl = document.getElementById('dpad');
+  let lastPressTs = 0;
+
+  function handleDpadPress(e){
+    if (uiBlocked() || roomLocked()) return;
+    const btn = e.target.closest('[data-a]');
+    if(!btn) return;
+    const now = performance.now();
+    if(e.type === 'click' && now - lastPressTs < 350){ e.preventDefault(); return; }
+    lastPressTs = now;
+
+    e.preventDefault(); e.stopPropagation();
+    const a = btn.dataset.a;
+    if(a==='up') tryMove(0,-1);
+    else if(a==='down') tryMove(0,1);
+    else if(a==='left') tryMove(-1,0);
+    else if(a==='right') tryMove(1,0);
+    else if(a==='use') tryUse();
+    else if(a==='fight') tryFight();
+    else if(a==='pick') tryPick();
+    else if(a==='heal') usePotion();
+  }
+
+  dpadEl.addEventListener('pointerdown', handleDpadPress);
+  dpadEl.addEventListener('click', handleDpadPress);
+
+  let lastTouchTime = 0;
+  dpadEl.addEventListener('touchend', (e)=>{
+    const now = Date.now();
+    if(now - lastTouchTime <= 300){ e.preventDefault(); }
+    lastTouchTime = now;
+  }, {passive:false});
+}
+
+// Dialog keyboard navigation (ArrowUp/ArrowDown + Enter/Space)
+let dialogFocusIdx = 0;
+function dialogChoicesList(){
+  const list = Array.from(dialogChoices.querySelectorAll('.choice-btn'));
+  const closeBtn = document.getElementById('dialog-leave');
+  if(closeBtn) list.push(closeBtn);
+  return list;
+}
+function focusDialogChoice(idx){
+  const list = dialogChoicesList();
+  if(!list.length) return;
+  dialogFocusIdx = ((idx % list.length) + list.length) % list.length;
+  list[dialogFocusIdx].focus({preventScroll:true});
+}
+window.addEventListener('keydown', e=>{
+  if(!dialogEl.classList.contains('show')) return;
+  const list = dialogChoicesList();
+  if(!list.length) return;
+
+  if(e.key === 'ArrowDown'){
+    e.preventDefault();
+    focusDialogChoice(dialogFocusIdx + 1);
+  } else if(e.key === 'ArrowUp'){
+    e.preventDefault();
+    focusDialogChoice(dialogFocusIdx - 1);
+  } else if(e.key === 'Enter' || e.key === ' '){
+    const active = document.activeElement;
+    if(dialogChoices.contains(active)){
+      e.preventDefault();
+      active.click();
+    } else if(active && active.id === 'dialog-leave'){
+      e.preventDefault();
+      active.click();
+    } else {
+      e.preventDefault();
+      focusDialogChoice(dialogFocusIdx);
+      dialogChoicesList()[dialogFocusIdx].click();
+    }
+  } else if(e.key === 'Escape'){
+    e.preventDefault();
+    document.getElementById('dialog-leave')?.click();
+  }
+});
+
+// Modal focus trap: keep tab/arrow focus inside the topmost visible overlay
+function activeOverlay(){
+  return document.querySelector('.overlay.show');
+}
+function focusableWithin(el){
+  return Array.from(el.querySelectorAll(FOCUSABLE_SELECTOR))
+    .filter(n=>!n.disabled && n.offsetParent !== null);
+}
+window.addEventListener('keydown', e=>{
+  const overlay = activeOverlay();
+  if(!overlay) return;
+
+  // Trap Tab focus
+  if(e.key === 'Tab'){
+    const focusables = focusableWithin(overlay);
+    if(!focusables.length){ e.preventDefault(); return; }
+    const idx = focusables.indexOf(document.activeElement);
+    const dir = e.shiftKey ? -1 : 1;
+    const nextIdx = idx === -1 ? (dir === 1 ? 0 : focusables.length-1)
+      : (idx + dir + focusables.length) % focusables.length;
+    e.preventDefault();
+    focusables[nextIdx].focus({preventScroll:true});
+  }
+
+  // If arrow keys would move focus outside, redirect to first focusable
+  if(e.key.startsWith('Arrow')){
+    const focusables = focusableWithin(overlay);
+    if(!overlay.contains(document.activeElement) && focusables.length){
+      e.preventDefault();
+      focusables[0].focus({preventScroll:true});
+    }
+  }
+}, true);
+
+/* =========================================================
+   MOBILE TABS
+   ========================================================= */
+function initMobileTabs(){
+  const tabs=document.getElementById('mobileTabs');
+  function setTab(tab){
+    const log=document.getElementById('logPanel');
+    const bag=document.getElementById('hudPanelSide');
+    bag.style.display = (tab==='bag') ? 'block' : 'none';
+    log.style.display = (tab==='log') ? 'block' : 'none';
+    [...tabs.querySelectorAll('.tab')].forEach(b=>{
+      const on=b.dataset.tab===tab;
+      b.classList.toggle('active', on);
+      b.setAttribute('aria-selected', on?'true':'false');
+    });
+  }
+  tabs.addEventListener('click',e=>{
+    const b=e.target.closest('.tab'); if(b) setTab(b.dataset.tab);
+  });
+  window.addEventListener('resize',()=>setTab('log'),{passive:true});
+  setTab('log');
+}
+
+/* =========================================================
+   AUDIO ENGINE (Music unlock + SFX)
+   ========================================================= */
+const AudioEngine = {
+  ctx: null,
+  unlocked: false,
+  lastStepTs: 0,
+
+  ensure(){ 
+    if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    return this.ctx;
+  },
+
+  unlock(){
+    if (this.unlocked) return;
+    try{
+      this.ensure();
+      this.ctx.resume();
+    }catch(e){}
+    this.unlocked = true;
+  },
+
+  // Simple tone helper
+  tone({freq=440, dur=0.08, type='sine', gain=0.04} = {}){
+    if (!state.soundOn) return;
+    const ctx = this.ensure();
+    const t = ctx.currentTime;
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = type;
+    o.frequency.value = freq;
+    g.gain.value = gain;
+    o.connect(g).connect(ctx.destination);
+
+    // short attack/decay for soft clicks
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.linearRampToValueAtTime(gain, t + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.start(t);
+    o.stop(t + dur + 0.02);
+  },
+
+  // Noise burst for door/impact
+  noise({dur=0.12, gain=0.035, highpass=600} = {}){
+    if (!state.soundOn) return;
+    const ctx = this.ensure();
+    const buffer = ctx.createBuffer(1, ctx.sampleRate * dur, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i=0; i<data.length; i++) data[i] = (Math.random()*2-1) * (1 - i/data.length); 
+
+    const src = ctx.createBufferSource(); src.buffer = buffer;
+    const g = ctx.createGain(); g.gain.value = gain;
+    const hp = ctx.createBiquadFilter(); hp.type='highpass'; hp.frequency.value = highpass;
+
+    src.connect(hp).connect(g).connect(ctx.destination);
+    src.start();
+  },
+
+  // SFX “shortcuts”
+  step(){
+    const now = performance.now();
+    if (now - this.lastStepTs < 90) return; 
+    this.lastStepTs = now;
+
+    // soft two-beat step
+    this.tone({freq: 220, dur: .045, type:'triangle', gain:.025});
+    setTimeout(()=>this.tone({freq: 200, dur:.04, type:'triangle', gain:.022}), 40);
+  },
+  wall(){ this.noise({dur:.08, gain:.03, highpass:400}); this.tone({freq:90, dur:.06, type:'square', gain:.02}); },
+  pickup(){ this.tone({freq: 880, dur:.06, type:'sine', gain:.035}); setTimeout(()=>this.tone({freq:1200, dur:.07, gain:.03}), 60); },
+  door(){ this.noise({dur:.14, gain:.035, highpass:300}); this.tone({freq:160, dur:.12, type:'sawtooth', gain:.02}); },
+  hit(){ this.tone({freq: 320, dur:.07, type:'square', gain:.04}); },
+  hurt(){ this.tone({freq: 160, dur:.09, type:'sawtooth', gain:.04}); }
+};
+
+// One-time gesture unlock hooks 
+['pointerdown','keydown','touchstart'].forEach(ev=>{
+  window.addEventListener(ev, ()=>AudioEngine.unlock(), {once:true, passive:true});
+});
+
+// Settings modal open/close
+document.getElementById('settingsBtn').onclick = ()=>{
+  updateSettingsUI();
+  document.getElementById('settings').classList.add('show');
+};
+
+document.getElementById('settings-close').onclick = ()=>{
+  document.getElementById('settings').classList.remove('show');
+};
+
+// Toggle inputs
+document.getElementById('soundToggle').addEventListener('change', e => setSound(e.target.checked));
+
+function updateSettingsUI(){
+  const st = document.getElementById('soundToggle');
+  if(st) st.checked = !!state.soundOn;
+}
+
+function setSound(on){
+  state.soundOn = !!on;
+  updateSettingsUI();
+}
+
+/* =========================================================
+   ROOM THEMES
+   ========================================================= */
+function applyRoomTheme(){
+  document.body.setAttribute('data-room', state.room);
+}
+
+/* =========================================================
+   RESPONSIVE SIZING
+   ========================================================= */
+function fitScale(){
+  const root = document.documentElement;
+  const appbar = document.querySelector('.appbar');
+  const wrap = document.querySelector('.wrap');
+
+  const hpReserve = 22;
+  const gap = 1;
+
+  const isLandscapePhone = window.matchMedia('(orientation: landscape) and (max-height: 500px)').matches;
+
+  if (isLandscapePhone){
+    const vw = Math.min(window.innerWidth, document.documentElement.clientWidth);
+    const vh = window.innerHeight;
+    const headerH = appbar?.getBoundingClientRect().height || 56;
+
+    const sideW = Math.max(260, Math.round(vw * 0.34));
+    const dpadW = Math.max(190, Math.round(vw * 0.26));
+    const mapAvailW = vw - sideW - dpadW - 16;
+    const mapAvailH = vh - headerH - 10;
+
+    const cellByW = Math.floor((mapAvailW - (W-1)*gap) / W);
+    const cellByH = Math.floor((mapAvailH - hpReserve - (H-1)*gap) / H);
+    const cell = Math.max(10, Math.min(64, Math.min(cellByW, cellByH)));
+
+    root.style.setProperty('--gap', `${gap}px`);
+    root.style.setProperty('--scale','1');
+    root.style.setProperty('--cell', `${cell}px`);
+    root.style.setProperty('--mapW', `${cell*W + gap*(W-1)}px`);
+    root.style.setProperty('--sideW', `${sideW}px`);
+    root.style.setProperty('--dpadW', `${dpadW}px`);
+    return;
+  }
+
+  // Portrait phones
+  root.style.removeProperty('--mapW');
+  root.style.removeProperty('--sideW');
+  root.style.removeProperty('--dpadW');
+
+  const mapOuter = document.querySelector('.map');
+  const dpad = document.getElementById('dpad');
+  const cs = getComputedStyle(mapOuter);
+  const padX = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
+  const borderX = parseFloat(cs.borderLeftWidth) + parseFloat(cs.borderRightWidth);
+  const mapAvailW = Math.max(120, mapOuter.clientWidth - padX - borderX);
+
+  const vh = window.innerHeight;
+  const headerH = appbar?.getBoundingClientRect().height || 56;
+  const wrapCS = getComputedStyle(wrap);
+  const padY = parseFloat(wrapCS.paddingTop) + parseFloat(wrapCS.paddingBottom);
+
+  // Measure the D-pad if it's visible; reserve that space
+  let dpadH = 0;
+  if (window.matchMedia('(max-width: 900px) and (orientation: portrait)').matches && dpad && getComputedStyle(dpad).display !== 'none') {
+    dpadH = Math.ceil(dpad.getBoundingClientRect().height || 0);
+    root.style.setProperty('--dpad-h', `${dpadH}px`);
+  }
+  const buffer = 28;
+
+  const mapAvailH = Math.max(
+    160,
+    vh - headerH - padY - dpadH - buffer
+  );
+
+  const cellByW = Math.floor((mapAvailW - (W-1)*gap) / W);
+  const cellByH = Math.floor((mapAvailH - /* hp bar */ 22 - (H-1)*gap) / H);
+  const cell = Math.max(12, Math.min(64, Math.min(cellByW, cellByH)));
+
+  root.style.setProperty('--gap', `${gap}px`);
+  root.style.setProperty('--scale','1');
+  root.style.setProperty('--cell', `${cell}px`);
+
+}
+
+window.addEventListener('resize', fitScale, {passive:true});
+window.addEventListener('orientationchange', ()=>setTimeout(fitScale, 60), {passive:true});
+const __ro = new ResizeObserver(()=>fitScale());
+__ro.observe(document.body);
+
+/* =========================================================
+   BOOT
+   ========================================================= */
+function bootstrap(){
+  ensureSeenSet(); reveal(state.pos.x,state.pos.y);
+  bindInputs(); initMobileTabs();
+  render(); renderHUD();
+  fitScale();
+  applyRoomTheme();
+  updateTavernFastTravel();
+  document.getElementById('welcome').classList.add('show');
+  setTimeout(()=>AudioEngine.tone({freq:880, dur:.07, type:'sine', gain:.03}), 80);
+  banner('dialog','Welcome! Use arrows/WASD or D-pad. Press E near NPCs/doors.');
+}
+// --- Welcome modal logic ---
+const welcomeEl = document.getElementById('welcome');
+const welcomeStart = document.getElementById('welcome-start');
+const welcomeMute = document.getElementById('welcome-mute');
+
+// Start without music
+welcomeMute.addEventListener('click', () => {
+  updateSettingsUI();
+  welcomeEl.classList.remove('show');
+  logEntry('dialog', 'Sage: A red fiend lurks east. End it.', '#7fb7ff');
+});
+
+bootstrap();
+// Focus the start button on load for keyboard users
+requestAnimationFrame(()=>welcomeMute.focus({preventScroll:true}));
+</script>
+</body>
+</html>

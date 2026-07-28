@@ -92,7 +92,7 @@ export const PROJECT_MAP: Record<string, Project> = {
     description: `I'd rather be playing Dungeons & Dragons, but since I can't always be doing that, I built a mini-game that simulates a D&D encounter. This project showcases my skills in HTML, CSS, and JavaScript.`,
     image: 'assets/D&D.png',
     buttons: [
-      { label: 'Play Game', url: 'https://amandarae220.github.io/DungeonsAndDragons/' },
+      { label: 'Play Game', url: '/dnd/' },
     ]
   },
   sudoku: {
@@ -102,7 +102,7 @@ export const PROJECT_MAP: Record<string, Project> = {
                   This version utilizes React and Typescript.`,
     image: 'assets/sudoku.png',
     buttons: [
-      { label: 'View Puzzle', url: 'https://amandarae220.github.io/sudoku/' },
+      { label: 'View Puzzle', url: '/sudoku/' },
     ]
   },
   resume: {
@@ -111,7 +111,7 @@ export const PROJECT_MAP: Record<string, Project> = {
     description: `A resume that IS the portfolio piece. Three iterations, from Tableau to D3.js to pure Angular, each one more purposefully built than the last. v3 is fully dynamic, accessibility tested, and designed for every screen from the start.`,
     image: 'assets/resume-hero-img.png',
     buttons: [
-      { label: 'View v3 Resume', url: 'https://amandarae-web-resume.dev/' },
+      { label: 'View v3 Resume', url: '/resume/' },
     ],
     versions: [
       {
@@ -145,7 +145,7 @@ export const PROJECT_MAP: Record<string, Project> = {
         label: 'Architecture Over Tooling',
         year: '2026',
         image: 'assets/resume-v3.png',
-        url: 'https://amandarae-web-resume.dev/',
+        url: '/resume/',
         highlights: [
           'Dropped D3.js in favor of pure Angular/CSS timeline positioning math',
           'Nested project-based role descriptions within parent roles to better showcase the work and skills within each project',
@@ -184,7 +184,7 @@ export const PROJECT_MAP: Record<string, Project> = {
         label: 'Proving the Concept',
         year: '2023',
         image: 'assets/retirementCalculator.png',
-        url: 'https://amandarae220.github.io/Calculator2.0/v1/',
+        url: '/calculator-v1/',
         highlights: [
           'Compound interest visualization with a D3.js stacked bar chart',
           'Simple input set: starting amount, rate, years, and contribution',
