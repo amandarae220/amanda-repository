@@ -198,6 +198,25 @@
             color: rgba(255,255,255,0.92);
         }
 
+        .backToPortfolio {
+            font-family: 'Oswald', sans-serif;
+            font-size: 12px;
+            font-weight: 400;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.65);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            align-self: flex-start;
+            transition: color 0.15s ease;
+        }
+        .backToPortfolio:hover,
+        .backToPortfolio:focus-visible {
+            color: #fff;
+        }
+
         /* ── Hero ── */
         #hero {
             display: flex;
@@ -1141,6 +1160,7 @@
 
     <!-- ══ LEFT PANEL ══ -->
     <aside id="leftPanel" aria-label="Calculator inputs and summary">
+        <a class="backToPortfolio" href="/project/calculator" aria-label="Back to portfolio project page">← Back to portfolio</a>
         <h1 class="appTitle">Retirement Savings Calculator</h1>
 
         <section id="hero" aria-label="Total savings summary" aria-live="polite" aria-atomic="true">

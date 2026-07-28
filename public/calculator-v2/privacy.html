@@ -50,6 +50,25 @@
             margin-bottom: 8px;
         }
 
+        .backToPortfolio {
+            font-family: 'Oswald', sans-serif;
+            font-size: 12px;
+            font-weight: 400;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 24px;
+            transition: color 0.15s ease;
+        }
+        .backToPortfolio:hover,
+        .backToPortfolio:focus-visible {
+            color: var(--brand-primary);
+        }
+
         h1 {
             font-family: 'Oswald', sans-serif;
             font-size: 36px;
@@ -172,6 +191,7 @@
 <body>
 <main class="shell">
 
+    <a class="backToPortfolio" href="/project/calculator" aria-label="Back to portfolio project page">← Back to portfolio</a>
     <p class="eyebrow">Retirement Savings Calculator</p>
     <h1>Privacy Policy</h1>
     <p class="updated">Last updated June 18, 2026</p>
