@@ -184,7 +184,7 @@ export const PROJECT_MAP: Record<string, Project> = {
         label: 'Proving the Concept',
         year: '2023',
         image: 'assets/retirementCalculator.png',
-        url: 'https://amandarae220.github.io/Calculator2.0/v1/',
+        url: '/calculator-v1/',
         highlights: [
           'Compound interest visualization with a D3.js stacked bar chart',
           'Simple input set: starting amount, rate, years, and contribution',

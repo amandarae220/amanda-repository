@@ -32,6 +32,15 @@ const angularApp = new AngularNodeAppEngine();
  * directory-index behavior doesn't leak into the Angular shell.
  */
 app.use(
+  '/calculator-v1',
+  express.static(resolve(browserDistFolder, 'calculator-v1'), {
+    maxAge: '1y',
+    index: 'index.html',
+    redirect: false,
+  }),
+);
+
+app.use(
   '/calculator-v2',
   express.static(resolve(browserDistFolder, 'calculator-v2'), {
     maxAge: '1y',
