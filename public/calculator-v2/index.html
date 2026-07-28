@@ -187,6 +187,17 @@
             user-select: none;
         }
 
+        /* ── Page title ── */
+        .appTitle {
+            margin: 0;
+            font-family: 'Oswald', sans-serif;
+            font-size: 20px;
+            font-weight: 500;
+            line-height: 1.2;
+            letter-spacing: 0.01em;
+            color: rgba(255,255,255,0.92);
+        }
+
         /* ── Hero ── */
         #hero {
             display: flex;
@@ -1130,7 +1141,7 @@
 
     <!-- ══ LEFT PANEL ══ -->
     <aside id="leftPanel" aria-label="Calculator inputs and summary">
-        <h1 class="sr-only">Retirement Savings Calculator</h1>
+        <h1 class="appTitle">Retirement Savings Calculator</h1>
 
         <section id="hero" aria-label="Total savings summary" aria-live="polite" aria-atomic="true">
             <p id="heroYears" class="heroEyebrow"></p>
