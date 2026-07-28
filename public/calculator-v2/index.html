@@ -427,16 +427,54 @@
             margin-bottom: 14px;
         }
 
+        .insightCarousel {
+            position: relative;
+        }
+
         #insightCards {
             display: flex;
             align-items: stretch;
             gap: 12px;
             overflow-x: auto;
             padding-bottom: 4px;
+            scroll-behavior: smooth;
             scrollbar-width: none;
         }
 
         #insightCards::-webkit-scrollbar { display: none; }
+
+        .insightNavBtn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 3;
+            width: 34px;
+            height: 34px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            background: rgba(255, 255, 255, 0.96);
+            color: #1a1a2e;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+            cursor: pointer;
+            transition: background 0.15s ease, transform 0.15s ease, opacity 0.15s ease;
+        }
+        .insightNavBtn:hover,
+        .insightNavBtn:focus-visible {
+            background: #fff;
+            outline: none;
+            transform: translateY(-50%) scale(1.05);
+        }
+        .insightNavBtn[hidden] { display: none; }
+        .insightNavBtn--prev { left: 4px; }
+        .insightNavBtn--next { right: 4px; }
+
+        @media (max-width: 640px) {
+            .insightNavBtn { width: 30px; height: 30px; }
+        }
 
         .insightCard {
             flex: 0 0 auto;
@@ -1188,7 +1226,15 @@
 
         <section id="insightsSection" aria-labelledby="insightsHeading">
             <h2 id="insightsHeading" class="insightsSectionTitle">Key Insights</h2>
-            <div id="insightCards" role="list" aria-label="Key insights about your retirement projection" aria-live="polite"></div>
+            <div class="insightCarousel">
+                <button type="button" id="insightPrevBtn" class="insightNavBtn insightNavBtn--prev" aria-label="Scroll insights left" aria-controls="insightCards" hidden>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><polyline points="15 18 9 12 15 6"/></svg>
+                </button>
+                <div id="insightCards" role="list" aria-label="Key insights about your retirement projection" aria-live="polite"></div>
+                <button type="button" id="insightNextBtn" class="insightNavBtn insightNavBtn--next" aria-label="Scroll insights right" aria-controls="insightCards" hidden>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><polyline points="9 18 15 12 9 6"/></svg>
+                </button>
+            </div>
         </section>
 
         <section id="savedSection" aria-labelledby="savedHeading">
@@ -2574,6 +2620,46 @@
         hide();
     });
 })();
+</script>
+<script>
+    // Insight cards carousel: shows left/right nav buttons only when the card
+    // row overflows horizontally, and hides each arrow at its respective scroll
+    // extent. Cards render ~3s after load, so a MutationObserver re-checks
+    // visibility whenever the row's children change.
+    (function initInsightCarousel() {
+        var cards   = document.getElementById('insightCards');
+        var prevBtn = document.getElementById('insightPrevBtn');
+        var nextBtn = document.getElementById('insightNextBtn');
+        if (!cards || !prevBtn || !nextBtn) return;
+
+        var CARD_STEP = 168; // 156px card + 12px gap
+
+        function updateNav() {
+            var maxScroll = cards.scrollWidth - cards.clientWidth;
+            if (maxScroll <= 1) {
+                prevBtn.hidden = true;
+                nextBtn.hidden = true;
+                return;
+            }
+            prevBtn.hidden = cards.scrollLeft <= 0;
+            nextBtn.hidden = cards.scrollLeft >= maxScroll - 1;
+        }
+
+        prevBtn.addEventListener('click', function () {
+            cards.scrollBy({ left: -CARD_STEP, behavior: 'smooth' });
+        });
+        nextBtn.addEventListener('click', function () {
+            cards.scrollBy({ left: CARD_STEP, behavior: 'smooth' });
+        });
+
+        cards.addEventListener('scroll', updateNav, { passive: true });
+        window.addEventListener('resize', updateNav);
+
+        // Cards render async; re-check visibility when children change.
+        new MutationObserver(updateNav).observe(cards, { childList: true });
+
+        updateNav();
+    })();
 </script>
 <script src="assets/analytics.js"></script>
 </body>
