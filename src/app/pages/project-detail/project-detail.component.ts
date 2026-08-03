@@ -1,6 +1,5 @@
 import { Component, OnInit, OnDestroy, inject, ChangeDetectionStrategy } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { Location } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Title, Meta } from '@angular/platform-browser';
 import { AnalyticsService } from '../../services/analytics.service';
 import { Project, PROJECT_MAP } from './project-data';
@@ -25,14 +24,14 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
   private titleSvc  = inject(Title);
   private metaSvc   = inject(Meta);
   private route     = inject(ActivatedRoute);
-  private location  = inject(Location);
+  private router    = inject(Router);
 
   private pageEnteredAt = 0;
   projectId: string | null = null;
   projectData: Project | null = null;
 
   goBack(): void {
-    this.location.back();
+    this.router.navigate(['/'], { fragment: 'work' });
   }
 
   ngOnInit(): void {
