@@ -2,11 +2,12 @@ import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 
 import { Router } from '@angular/router';
 import { AnalyticsService } from '../../services/analytics.service';
+import { RevealDirective } from '../../shared/reveal.directive';
 
 @Component({
   selector: 'app-about',
   standalone: true,
-  imports: [],
+  imports: [RevealDirective],
   templateUrl: './about.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./about.component.scss']

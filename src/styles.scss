@@ -25,7 +25,7 @@ img, svg, video { height: auto; display: block; }
   --motion-fast: 180ms;
   --motion-base: 420ms;
   --ease-out: cubic-bezier(.16, 1, .3, 1);
-  --reveal-shift: 16px;
+  --reveal-shift: 28px;
 }
 section[id] { scroll-margin-top: var(--nav-h); }
 
@@ -37,6 +37,20 @@ section[id] { scroll-margin-top: var(--nav-h); }
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* Scroll-reveal (appReveal directive): fade + rise (+ subtle scale) on entry */
+.reveal {
+  opacity: 0;
+  transform: translateY(var(--reveal-shift)) scale(0.985);
+  transition:
+    opacity var(--motion-base) var(--ease-out) var(--reveal-delay, 0ms),
+    transform var(--motion-base) var(--ease-out) var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+.reveal.is-revealed {
+  opacity: 1;
+  transform: none;
 }
 
 html, body {

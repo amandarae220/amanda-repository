@@ -1,8 +1,8 @@
 <section id="work">
   <div class="work-wrapper">
-    <h2 class="heading">Portfolio Work</h2>
+    <h2 class="heading" appReveal>Portfolio Work</h2>
 
-    <div class="card-grid">
+    <div class="card-grid" appReveal [revealStagger]="90">
       @for (project of projects; track project.id) {
         <div class="card">
           <h3>{{ project.title }}</h3>

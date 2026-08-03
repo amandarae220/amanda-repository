@@ -3,11 +3,12 @@ import { Router } from '@angular/router';
 
 import { AnalyticsService } from '../../services/analytics.service';
 import { HOME_CARDS } from '../../pages/project-detail/project-data';
+import { RevealDirective } from '../../shared/reveal.directive';
 
 @Component({
   selector: 'app-work',
   standalone: true,
-  imports: [],
+  imports: [RevealDirective],
   templateUrl: './work.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./work.component.scss']
