@@ -94,7 +94,7 @@
         color: var(--white);
         letter-spacing: 0.05em;
         text-transform: uppercase;
-        background-color: var(--brand-purple);
+        background-color: var(--accent);
         border-radius: 10px;
         padding: 16px 36px;
         font-family: Roboto, sans-serif;
@@ -105,7 +105,7 @@
         cursor: pointer;
 
         &:hover {
-          background-color: var(--brand-purple-dark);
+          background-color: var(--accent-hover);
         }
       }
     }

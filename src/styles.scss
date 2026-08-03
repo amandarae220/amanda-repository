@@ -17,8 +17,9 @@ img, svg, video { height: auto; display: block; }
 /* Design tokens */
 :root {
   --nav-h: 56px;
-  --brand-purple: #bb7fab;
-  --brand-purple-dark: #9a628d;
+  --accent: #1F2937;
+  --accent-hover: #111827;
+  --bg: #FAFAF9;
 }
 section[id] { scroll-margin-top: var(--nav-h); }
 
@@ -26,6 +27,7 @@ html, body {
     margin: 0;
     scroll-behavior: smooth;
     font-family: 'Inter', sans-serif;
+    background-color: var(--bg);
   }
   
   .scroll-container {
@@ -99,7 +101,7 @@ html, body {
     color: var(--white);
     letter-spacing: 0.05em;
     text-transform: uppercase;
-    background-color: var(--brand-purple);
+    background-color: var(--accent);
     border-radius: 10px;
     margin-top: 30px;
     margin-left: 0%;
@@ -111,7 +113,7 @@ html, body {
     position: relative;
   
     &:hover {
-      background-color: var(--brand-purple-dark);
+      background-color: var(--accent-hover);
     }
   }
 
@@ -164,8 +166,8 @@ html, body {
     transition: color 200ms ease;
     color: var(--black);
 
-    &:hover { color: var(--brand-purple-dark); }
-    &.active { color: var(--brand-purple); }
+    &:hover { color: var(--accent-hover); }
+    &.active { color: var(--accent); }
   }
 }
 

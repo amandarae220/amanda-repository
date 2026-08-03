@@ -111,7 +111,7 @@ h1 {
 .project-buttons a.secondary-button-no-left-padding-copy {
   align-self: start;
   display: inline-block;
-  background-color: var(--brand-purple);
+  background-color: var(--accent);
   border-radius: 5px;
   padding: .5rem 1rem;
   white-space: nowrap;
@@ -120,7 +120,7 @@ h1 {
   text-decoration: none;
   transition: background-color 0.2s;
 
-  &:hover { background-color: var(--brand-purple-dark); }
+  &:hover { background-color: var(--accent-hover); }
 }
 
 // ─── Evolution Timeline ────────────────────────────────────────────────────
@@ -172,7 +172,7 @@ h1 {
   }
 
   .version-badge {
-    background: var(--brand-purple);
+    background: var(--accent);
     color: #fff;
     font-size: 0.7rem;
     font-weight: 700;
@@ -212,7 +212,7 @@ h1 {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--brand-purple-dark);
+    color: var(--accent-hover);
     font-size: 0.85rem;
     letter-spacing: 0.06em;
     font-style: italic;
@@ -249,7 +249,7 @@ h1 {
         content: '—';
         position: absolute;
         left: 0;
-        color: var(--brand-purple);
+        color: var(--accent);
       }
     }
   }
@@ -269,14 +269,14 @@ h1 {
   }
 
   .version-link {
-    color: var(--brand-purple);
+    color: var(--accent);
     font-size: 0.9rem;
     font-weight: 600;
     text-decoration: none;
     transition: color 0.2s;
     font-family: system-ui, sans-serif;
 
-    &:hover { color: var(--brand-purple-dark); }
+    &:hover { color: var(--accent-hover); }
   }
 
   .coming-soon-badge {
