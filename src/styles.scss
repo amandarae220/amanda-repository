@@ -24,6 +24,7 @@ img, svg, video { height: auto; display: block; }
   /* Motion system */
   --motion-fast: 180ms;
   --motion-base: 420ms;
+  --motion-page: 700ms; /* cross-route slide (project ↔ landing) */
   --ease-out: cubic-bezier(.16, 1, .3, 1);
   --reveal-shift: 28px;
 }
@@ -53,9 +54,41 @@ section[id] { scroll-margin-top: var(--nav-h); }
   transform: none;
 }
 
+/* Cross-route view transitions (withViewTransitions in app.config.ts).
+   Progressive enhancement: unsupported browsers navigate normally.
+   Direction classes on <html> (vt-forward / vt-back) are set per navigation. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: var(--motion-page);
+  animation-timing-function: var(--ease-out);
+  animation-fill-mode: both;
+}
+
+/* Forward: landing → project — project enters from the right (push) */
+html.vt-forward::view-transition-old(root) { animation-name: vt-exit-left; }
+html.vt-forward::view-transition-new(root) { animation-name: vt-enter-from-right; }
+
+/* Back: project → landing — reverse, landing enters from the left (pop) */
+html.vt-back::view-transition-old(root) { animation-name: vt-exit-right; }
+html.vt-back::view-transition-new(root) { animation-name: vt-enter-from-left; }
+
+@keyframes vt-enter-from-left  { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+@keyframes vt-exit-right       { from { transform: translateX(0); }     to { transform: translateX(100%); } }
+@keyframes vt-enter-from-right { from { transform: translateX(100%); }  to { transform: translateX(0); } }
+@keyframes vt-exit-left        { from { transform: translateX(0); }     to { transform: translateX(-100%); } }
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important; /* instant swap, no motion */
+  }
+}
+
 html, body {
     margin: 0;
-    scroll-behavior: smooth;
+    /* No global smooth-scroll: it makes the router's scroll-to-top on navigation
+       animate (page appears to scroll up from the bottom). Intentional in-page
+       scrolls pass behavior:'smooth' explicitly in MainLayout.scrollTo(). */
     font-family: 'Inter', sans-serif;
     background-color: var(--bg);
   }
