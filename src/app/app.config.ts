@@ -36,9 +36,11 @@ export const appConfig = {
             root.classList.add('vt-back');
           }
 
-          transition.finished.finally(() => {
-            root.classList.remove('vt-forward', 'vt-back');
-          });
+          // Run cleanup on both fulfilment and rejection (an interrupted or
+          // aborted transition rejects `finished`); passing the same handler as
+          // onRejected consumes it, avoiding an unhandled promise rejection.
+          const cleanup = () => root.classList.remove('vt-forward', 'vt-back');
+          transition.finished.then(cleanup, cleanup);
         },
       })
     )

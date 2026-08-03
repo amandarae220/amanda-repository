@@ -47,6 +47,10 @@ section[id] { scroll-margin-top: var(--nav-h); }
   transition:
     opacity var(--motion-base) var(--ease-out) var(--reveal-delay, 0ms),
     transform var(--motion-base) var(--ease-out) var(--reveal-delay, 0ms);
+}
+/* Hint the compositor only while hidden/animating; dropped once revealed
+   so we don't keep a GPU layer per element for the page's lifetime. */
+.reveal:not(.is-revealed) {
   will-change: opacity, transform;
 }
 .reveal.is-revealed {
