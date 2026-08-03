@@ -184,7 +184,7 @@ h1 {
 
   .version-year {
     font-size: 0.85rem;
-    color: #999;
+    color: var(--text-muted);
     font-family: system-ui, sans-serif;
   }
 
@@ -281,7 +281,7 @@ h1 {
 
   .coming-soon-badge {
     font-size: 0.78rem;
-    color: #999;
+    color: var(--text-muted);
     border: 1px solid #ddd;
     border-radius: 99px;
     padding: 0.2rem 0.75rem;

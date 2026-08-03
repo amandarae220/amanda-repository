@@ -20,6 +20,7 @@ img, svg, video { height: auto; display: block; }
   --accent: #1F2937;
   --accent-hover: #111827;
   --bg: #FAFAF9;
+  --text-muted: #6b6b6b; /* muted body text — AA on white/#FAFAF9 (~5.3:1) */
 
   /* Motion system */
   --motion-fast: 180ms;
@@ -41,21 +42,21 @@ section[id] { scroll-margin-top: var(--nav-h); }
 }
 
 /* Scroll-reveal (appReveal directive): fade + rise (+ subtle scale) on entry */
-.reveal {
-  opacity: 0;
-  transform: translateY(var(--reveal-shift)) scale(0.985);
-  transition:
-    opacity var(--motion-base) var(--ease-out) var(--reveal-delay, 0ms),
-    transform var(--motion-base) var(--ease-out) var(--reveal-delay, 0ms);
+/* Resting state stays fully visible (opacity 1) so static a11y/contrast
+   scanners don't flag pre-reveal elements as zero-contrast text. The entrance
+   plays via keyframes only when the directive adds .is-revealed on scroll-in.
+   All reveal targets live below the 100vh hero, so none animate at load. */
+.reveal.is-revealed {
+  animation: reveal-in var(--motion-base) var(--ease-out) var(--reveal-delay, 0ms) both;
 }
-/* Hint the compositor only while hidden/animating; dropped once revealed
-   so we don't keep a GPU layer per element for the page's lifetime. */
+/* Compositor hint only before reveal; dropped once revealed so we don't keep a
+   GPU layer per element for the page's lifetime. */
 .reveal:not(.is-revealed) {
   will-change: opacity, transform;
 }
-.reveal.is-revealed {
-  opacity: 1;
-  transform: none;
+@keyframes reveal-in {
+  from { opacity: 0; transform: translateY(var(--reveal-shift)) scale(0.985); }
+  to   { opacity: 1; transform: none; }
 }
 
 /* Cross-route view transitions (withViewTransitions in app.config.ts).
