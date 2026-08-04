@@ -19,6 +19,23 @@ const MAX_PAGE_DURATION_SECONDS = 30 * 60;
 // Referrers excluded from all metrics: dev-time noise that pollutes the dashboard.
 const EXCLUDED_REFERRERS = new Set(['localhost', '127.0.0.1']);
 
+// Owner/test visitor IDs excluded from ALL dashboard metrics — the safety net for
+// live-site visits that slipped through (e.g. a browser where you forgot ?owner=1).
+// To find yours: on the live site, run localStorage.getItem('portfolio_visitor_id')
+// in the browser console, then paste the value(s) below.
+export const EXCLUDED_VISITOR_IDS = new Set<string>([
+  // 'your-visitor-id-here',
+]);
+
+/** Drops events from excluded (owner/test) visitors. Pure. */
+export function excludeVisitors(
+  events: PortfolioEvent[],
+  ids: ReadonlySet<string> = EXCLUDED_VISITOR_IDS,
+): PortfolioEvent[] {
+  if (ids.size === 0) return events;
+  return events.filter(e => !ids.has(e.visitor_id));
+}
+
 export function applyFilters(events: PortfolioEvent[], filters: Filters): PortfolioEvent[] {
   let result = events.filter(e => !e.referrer || !EXCLUDED_REFERRERS.has(e.referrer));
   if (filters.timeframe !== 'all') {
