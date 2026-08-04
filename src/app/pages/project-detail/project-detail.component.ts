@@ -4,6 +4,7 @@ import { Title, Meta } from '@angular/platform-browser';
 import { AnalyticsService } from '../../services/analytics.service';
 import { Project, PROJECT_MAP } from './project-data';
 import { SiteFooterComponent } from '../../layout/site-footer/site-footer.component';
+import { RevealDirective } from '../../shared/reveal.directive';
 
 const BASE_TITLE = 'Amanda Lloyd — Frontend Engineer & Data Visualization Specialist';
 const BASE_DESC  = 'Portfolio of Amanda Lloyd — Frontend Engineer and Data Visualization Specialist. Angular, React, D3.js, and a data science background that makes the difference.';
@@ -14,7 +15,7 @@ const META_DESCRIPTION_MAX_CHARS = 155;
 @Component({
   selector: 'app-project-detail',
   standalone: true,
-  imports: [SiteFooterComponent],
+  imports: [SiteFooterComponent, RevealDirective],
   templateUrl: './project-detail.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./project-detail.component.scss']

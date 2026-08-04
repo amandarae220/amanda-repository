@@ -69,10 +69,17 @@
 .view-work-link {
   margin-bottom: 0.5rem;
   color: var(--black);
-  transition: color 0.3s ease;
+  transition: color var(--motion-fast) var(--ease-out);
   white-space: nowrap;
   width: fit-content;
   padding-right: 0px;
+
+  /* In-page scroll link (down-arrow below signals direction) — no directional
+     arrow here; just a clean color shift on hover/focus. */
+  &:hover,
+  &:focus-visible {
+    color: var(--accent);
+  }
 }
 
 .down-arrow {

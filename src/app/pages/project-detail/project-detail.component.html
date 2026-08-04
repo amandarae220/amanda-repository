@@ -11,7 +11,7 @@
 @if (projectData) {
   <main class="project-detail">
     <div class="project-wrapper">
-      <button type="button" (click)="goBack()" class="back-button">&#10094;&nbsp; Back</button>
+      <button type="button" (click)="goBack()" class="back-button">Back</button>
       <div class="image-preview">
         <img [src]="projectData.image" [alt]="projectData.title + ' preview'" />
       </div>
@@ -37,8 +37,8 @@
     </div>
     @if (projectData.versions) {
       <div class="evolution-section">
-        <h2 class="evolution-heading">How It Evolved</h2>
-        <div class="version-row">
+        <h2 class="evolution-heading" appReveal>How It Evolved</h2>
+        <div class="version-row" appReveal [revealStagger]="90">
           @for (v of projectData.versions; track v.version) {
             <div class="version-card">
               <div class="version-top">
@@ -76,11 +76,11 @@
     }
     @if (projectData.lessonsLearned) {
       <div class="lessons-section">
-        <h2 class="lessons-heading">Lessons Learned</h2>
-        <div class="lessons-row">
+        <h2 class="lessons-heading" appReveal>Lessons Learned</h2>
+        <div class="lessons-row" appReveal [revealStagger]="90">
           @for (l of projectData.lessonsLearned; track l.heading) {
             <div class="lesson">
-              <h4 class="lesson-heading">{{ l.heading }}</h4>
+              <h3 class="lesson-heading">{{ l.heading }}</h3>
               <p class="lesson-body">{{ l.body }}</p>
             </div>
           }

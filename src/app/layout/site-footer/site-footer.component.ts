@@ -31,8 +31,8 @@ import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
       transition: color 0.15s, border-color 0.15s;
     }
     .site-footer a:hover {
-      color: var(--brand-purple);
-      border-color: var(--brand-purple);
+      color: var(--accent);
+      border-color: var(--accent);
     }
 
     /* Dark variant for the admin dashboard */

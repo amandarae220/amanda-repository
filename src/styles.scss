@@ -17,15 +17,88 @@ img, svg, video { height: auto; display: block; }
 /* Design tokens */
 :root {
   --nav-h: 56px;
-  --brand-purple: #bb7fab;
-  --brand-purple-dark: #9a628d;
+  --accent: #1F2937;
+  --accent-hover: #111827;
+  --bg: #FAFAF9;
+  --text-muted: #6b6b6b; /* muted body text — AA on white/#FAFAF9 (~5.3:1) */
+
+  /* Motion system */
+  --motion-fast: 180ms;
+  --motion-base: 420ms;
+  --motion-page: 700ms; /* cross-route slide (project ↔ landing) */
+  --ease-out: cubic-bezier(.16, 1, .3, 1);
+  --reveal-shift: 28px;
 }
 section[id] { scroll-margin-top: var(--nav-h); }
 
+/* Respect users who prefer reduced motion — neutralizes all animation/transition globally */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Scroll-reveal (appReveal directive): fade + rise (+ subtle scale) on entry */
+/* Resting state stays fully visible (opacity 1) so static a11y/contrast
+   scanners don't flag pre-reveal elements as zero-contrast text. The entrance
+   plays via keyframes only when the directive adds .is-revealed on scroll-in.
+   All reveal targets live below the 100vh hero, so none animate at load. */
+.reveal.is-revealed {
+  /* `backwards` (not `both`): fills the hidden `from` state during the stagger
+     delay, but does NOT retain the end state afterward — so a filled animation
+     can't lock `transform` and override card :hover lifts once revealed. */
+  animation: reveal-in var(--motion-base) var(--ease-out) var(--reveal-delay, 0ms) backwards;
+}
+/* Compositor hint only before reveal; dropped once revealed so we don't keep a
+   GPU layer per element for the page's lifetime. */
+.reveal:not(.is-revealed) {
+  will-change: opacity, transform;
+}
+@keyframes reveal-in {
+  from { opacity: 0; transform: translateY(var(--reveal-shift)) scale(0.985); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* Cross-route view transitions (withViewTransitions in app.config.ts).
+   Progressive enhancement: unsupported browsers navigate normally.
+   Direction classes on <html> (vt-forward / vt-back) are set per navigation. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: var(--motion-page);
+  animation-timing-function: var(--ease-out);
+  animation-fill-mode: both;
+}
+
+/* Forward: landing → project — project enters from the right (push) */
+html.vt-forward::view-transition-old(root) { animation-name: vt-exit-left; }
+html.vt-forward::view-transition-new(root) { animation-name: vt-enter-from-right; }
+
+/* Back: project → landing — reverse, landing enters from the left (pop) */
+html.vt-back::view-transition-old(root) { animation-name: vt-exit-right; }
+html.vt-back::view-transition-new(root) { animation-name: vt-enter-from-left; }
+
+@keyframes vt-enter-from-left  { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+@keyframes vt-exit-right       { from { transform: translateX(0); }     to { transform: translateX(100%); } }
+@keyframes vt-enter-from-right { from { transform: translateX(100%); }  to { transform: translateX(0); } }
+@keyframes vt-exit-left        { from { transform: translateX(0); }     to { transform: translateX(-100%); } }
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important; /* instant swap, no motion */
+  }
+}
+
 html, body {
     margin: 0;
-    scroll-behavior: smooth;
+    /* No global smooth-scroll: it makes the router's scroll-to-top on navigation
+       animate (page appears to scroll up from the bottom). Intentional in-page
+       scrolls pass behavior:'smooth' explicitly in MainLayout.scrollTo(). */
     font-family: 'Inter', sans-serif;
+    background-color: var(--bg);
   }
   
   .scroll-container {
@@ -99,7 +172,7 @@ html, body {
     color: var(--white);
     letter-spacing: 0.05em;
     text-transform: uppercase;
-    background-color: var(--brand-purple);
+    background-color: var(--accent);
     border-radius: 10px;
     margin-top: 30px;
     margin-left: 0%;
@@ -111,7 +184,7 @@ html, body {
     position: relative;
   
     &:hover {
-      background-color: var(--brand-purple-dark);
+      background-color: var(--accent-hover);
     }
   }
 
@@ -164,8 +237,8 @@ html, body {
     transition: color 200ms ease;
     color: var(--black);
 
-    &:hover { color: var(--brand-purple-dark); }
-    &.active { color: var(--brand-purple); }
+    &:hover { color: var(--accent-hover); }
+    &.active { color: var(--accent); }
   }
 }
 
