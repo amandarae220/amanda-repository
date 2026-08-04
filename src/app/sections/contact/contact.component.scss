@@ -8,6 +8,14 @@
     box-sizing: border-box;
   }
   
+  #contact {
+    min-height: calc(100vh - var(--nav-h));   /* fallback */
+    min-height: calc(100dvh - var(--nav-h));  /* modern mobile fix */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
   .contact-wrapper {
     max-width: 600px;
     margin: 0 auto;
