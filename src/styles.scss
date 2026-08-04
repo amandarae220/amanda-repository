@@ -47,7 +47,10 @@ section[id] { scroll-margin-top: var(--nav-h); }
    plays via keyframes only when the directive adds .is-revealed on scroll-in.
    All reveal targets live below the 100vh hero, so none animate at load. */
 .reveal.is-revealed {
-  animation: reveal-in var(--motion-base) var(--ease-out) var(--reveal-delay, 0ms) both;
+  /* `backwards` (not `both`): fills the hidden `from` state during the stagger
+     delay, but does NOT retain the end state afterward — so a filled animation
+     can't lock `transform` and override card :hover lifts once revealed. */
+  animation: reveal-in var(--motion-base) var(--ease-out) var(--reveal-delay, 0ms) backwards;
 }
 /* Compositor hint only before reveal; dropped once revealed so we don't keep a
    GPU layer per element for the page's lifetime. */

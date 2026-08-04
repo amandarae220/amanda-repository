@@ -52,6 +52,7 @@ main.project-detail {
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
       object-fit: contain;
       margin-left: auto;
+      transition: transform var(--motion-base) var(--ease-out);
 
       @media (max-width: 600px) {
         margin-top: 3rem;
@@ -61,6 +62,8 @@ main.project-detail {
         margin-right: auto;
       }
     }
+
+    &:hover img { transform: scale(1.02); }
   }
 
   .project-content {
@@ -99,6 +102,23 @@ button.back-button {
   padding: 0;
   font: inherit;
   cursor: pointer;
+  transition: color var(--motion-fast) var(--ease-out);
+
+  &::before {
+    content: "\276E"; /* ‹ */
+    display: inline-block;
+    transition: transform var(--motion-fast) var(--ease-out);
+  }
+
+  &:hover,
+  &:focus-visible {
+    color: var(--accent);
+  }
+
+  &:hover::before,
+  &:focus-visible::before {
+    transform: translateX(-4px);
+  }
 }
 
 p.subtitle { margin-top: 0; }
@@ -162,8 +182,23 @@ h1 {
   gap: 0.75rem;
   background: #fff;
   border-radius: 8px;
+  border: 1px solid transparent;
   padding: 1.5rem;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+  transition:
+    transform var(--motion-fast) var(--ease-out),
+    box-shadow var(--motion-fast) var(--ease-out),
+    border-color var(--motion-fast) var(--ease-out);
+
+  &:hover,
+  &:focus-within {
+    transform: translateY(-6px);
+    border-color: var(--accent);
+    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.12);
+
+    .version-label { color: var(--accent); }
+    .version-thumb img { transform: scale(1.06); }
+  }
 
   .version-top {
     display: flex;
@@ -202,6 +237,7 @@ h1 {
       object-fit: cover;
       object-position: top center;
       display: block;
+      transition: transform var(--motion-base) var(--ease-out);
     }
   }
 
@@ -226,6 +262,7 @@ h1 {
     letter-spacing: -.02em;
     margin: 0.25rem 0 0;
     color: #000;
+    transition: color var(--motion-fast) var(--ease-out);
   }
 
   .version-highlights {
@@ -319,6 +356,15 @@ h1 {
 }
 
 .lesson {
+  border-left: 2px solid transparent;
+  padding-left: 0.9rem;
+  transition: border-color var(--motion-fast) var(--ease-out);
+
+  &:hover {
+    border-left-color: var(--accent);
+    .lesson-heading { color: var(--accent); }
+  }
+
   .lesson-heading {
     font-family: Merriweather, serif;
     font-size: 1rem;
@@ -326,6 +372,7 @@ h1 {
     margin: 0 0 0.5rem;
     color: #000;
     letter-spacing: -.01em;
+    transition: color var(--motion-fast) var(--ease-out);
   }
 
   .lesson-body {
