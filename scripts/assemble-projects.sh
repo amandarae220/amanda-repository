@@ -79,10 +79,15 @@ assemble_one() {
   log "  📦 sync" "$out/ -> public/$name/"
   run "rm -rf '$dest'"
   run "mkdir -p '$dest'"
-  # Exclude source-control / tooling cruft so it never ships as a static asset.
+  # Exclude source-control + repo/dev files so they never ship as static assets.
+  # Matters most for no-build apps (rsynced from the repo root): keeps docs/
+  # (incl. DB schema SQL), README, LICENSE, package manifests, CLAUDE.md out of
+  # the deployed output. (Build apps rsync from dist/, where these don't exist.)
   run "rsync -a --delete \
         --exclude '.git' --exclude '.github' --exclude '.gitignore' \
         --exclude '.editorconfig' --exclude 'node_modules' \
+        --exclude 'docs' --exclude 'README.md' --exclude 'LICENSE' \
+        --exclude 'CLAUDE.md' --exclude 'package.json' --exclude 'package-lock.json' \
         '$out'/ '$dest'/"
 
   if [[ -n "$overlay" ]]; then
