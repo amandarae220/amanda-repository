@@ -4,7 +4,8 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
+    "assemble": "bash scripts/assemble-projects.sh",
+    "build": "npm run assemble && ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "serve:ssr:amanda-portfolio": "node dist/amanda-portfolio/server/server.mjs"
