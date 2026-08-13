@@ -24,6 +24,7 @@ export class AnalyticsService {
   private client: SupabaseClient | null = null;
 
   constructor() {
+    this.visitor.syncOwnerOptOut(); // capture ?owner=1 / ?owner=0 on load
     const { supabaseAnonKey } = environment;
     const supabaseUrl = environment.supabaseUrl.replace(/\/rest\/v1\/?$/, '');
     if (supabaseUrl && !supabaseUrl.startsWith('PLACEHOLDER') && supabaseAnonKey && !supabaseAnonKey.startsWith('PLACEHOLDER')) {
@@ -94,7 +95,7 @@ export class AnalyticsService {
 
   private async insert(event: PortfolioEvent): Promise<void> {
     if (!this.client) return;
-    if (this.visitor.isLocalhost) return;
+    if (this.visitor.isLocalhost || this.visitor.isOwner) return;
     await this.client.from('portfolio_events').insert(event);
   }
 }

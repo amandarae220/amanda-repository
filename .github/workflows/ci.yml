@@ -1,0 +1,31 @@
+name: CI
+
+# Build-check only. Deployment is handled by Vercel's native git integration —
+# this workflow does NOT deploy. It proves the assemble step + Angular build
+# succeed on every PR into main.
+# See docs/decisions/2026-08-12-assembly-pipeline-over-vendored-snapshots.md
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive   # sub-app sources under projects/* (Phase 0)
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      # `build` runs `assemble` (builds sub-apps into public/<app>/) then `ng build`.
+      - run: npm run build
+
+      - run: npm test

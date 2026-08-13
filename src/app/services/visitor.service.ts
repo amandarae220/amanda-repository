@@ -5,6 +5,7 @@ const VISITOR_ID_KEY = 'portfolio_visitor_id';
 const VISITOR_ID_ISSUED_AT_KEY = 'portfolio_visitor_id_issued_at';
 const VISITOR_ID_TTL_DAYS = 30;
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
+const OWNER_OPTOUT_KEY = 'portfolio_owner_optout';
 
 @Injectable({ providedIn: 'root' })
 export class VisitorService {
@@ -18,6 +19,25 @@ export class VisitorService {
     if (!this.isBrowser) return false;
     const host = window.location.hostname;
     return host === 'localhost' || host === '127.0.0.1' || host === '::1';
+  }
+
+  /**
+   * Persists an owner opt-out flag when the URL carries `?owner=1` (and clears
+   * it on `?owner=0`). Visit the LIVE site with `?owner=1` once per browser you
+   * use to view it, and your own visits stop being recorded — same effect as the
+   * localhost drop, but for the hosted site.
+   */
+  syncOwnerOptOut(): void {
+    if (!this.isBrowser) return;
+    const owner = new URLSearchParams(window.location.search).get('owner');
+    if (owner === '1') localStorage.setItem(OWNER_OPTOUT_KEY, 'true');
+    else if (owner === '0') localStorage.removeItem(OWNER_OPTOUT_KEY);
+  }
+
+  /** True when this browser has opted out of analytics via `?owner=1`. */
+  get isOwner(): boolean {
+    if (!this.isBrowser) return false;
+    return localStorage.getItem(OWNER_OPTOUT_KEY) === 'true';
   }
 
   getVisitorId(): string {

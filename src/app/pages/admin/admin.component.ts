@@ -5,7 +5,7 @@ import { Meta } from '@angular/platform-browser';
 import { AnalyticsService, PortfolioEvent } from '../../services/analytics.service';
 import {
   Filters,
-  applyFilters, uniqueVisitors, totalPageViews, totalLinkClicks,
+  applyFilters, excludeVisitors, uniqueVisitors, totalPageViews, totalLinkClicks,
   projectViews, topLinkClicks, trafficSources,
   breakdown, computeVisitMetrics,
   dailySeries, dailySeriesPoints, dailySeriesPrior, periodDeltaPercent,
@@ -196,7 +196,7 @@ export class AdminComponent implements OnInit {
     this.loading.set(true);
     this.loadError.set(null);
     const { events, error } = await this.analytics.fetchEvents();
-    this.allEvents.set(events);
+    this.allEvents.set(excludeVisitors(events)); // drop owner/test visitors from every metric
     this.loadError.set(error);
     this.loading.set(false);
     this.lastUpdated.set(new Date());
