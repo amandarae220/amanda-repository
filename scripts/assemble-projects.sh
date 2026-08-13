@@ -41,9 +41,11 @@ run()  { if [[ $DRY_RUN -eq 1 ]]; then echo "    DRY: $*"; else eval "$@"; fi; }
 #   dist_subdir: path under the submodule holding servable output ('.' = repo root)
 #   overlay    : script under scripts/overlays/ (empty = none)
 # NOTE: refs/branches are pinned by the submodule itself (git), not here.
+# calculator-v1 is intentionally NOT listed — it is a frozen, single-file legacy
+# page (2023) that never rebuilds. It stays committed in public/calculator-v1/ as
+# the one deliberate exception to "no committed artifacts" (see migration plan §4).
 read -r -d '' MANIFEST <<'EOF' || true
 calculator-v2 | Calculator2.0        |                                        | .                        | calculator-v2.sh
-calculator-v1 | Calculator2.0-v1     |                                        | .                        | calculator-v1.sh
 resume        | visualized-resume    | npm ci && ng build --base-href=/resume/ | dist/visualized-resume  |
 sudoku        | sudoku               | npm ci && npx vite build --base=/sudoku/ | dist                   |
 dnd           | DungeonsAndDragons   |                                        | .                        |
