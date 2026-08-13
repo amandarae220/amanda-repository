@@ -6,7 +6,7 @@
 
 ## Context
 
-While designing the assembly pipeline we considered rewriting the framework apps (Angular resume, React/Vite sudoku) into "no-build" single-file apps — like the calculator ([single-file ADR](../../public/calculator-v2/docs/decisions/2026-06-14-single-file-no-build-architecture.md)) — so a git submodule could serve them directly without a build step.
+While designing the assembly pipeline we considered rewriting the framework apps (Angular resume, React/Vite sudoku) into "no-build" single-file apps — like the calculator (see its "single-file, no-build architecture" ADR in the `Calculator2.0` repo) — so a git submodule could serve them directly without a build step.
 
 ## Options Considered
 
