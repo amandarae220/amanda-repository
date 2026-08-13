@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en" class="no-js">
 
 <head>
@@ -195,7 +196,7 @@
             font-weight: 500;
             line-height: 1.2;
             letter-spacing: 0.01em;
-            color: rgba(255,255,255,0.92);
+            color: #fff;
         }
 
         .backToPortfolio {
@@ -204,7 +205,7 @@
             font-weight: 400;
             letter-spacing: 0.12em;
             text-transform: uppercase;
-            color: rgba(255,255,255,0.65);
+            color: #fff;
             text-decoration: none;
             display: inline-flex;
             align-items: center;
@@ -230,7 +231,7 @@
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.12em;
-            color: rgba(255,255,255,0.7);
+            color: #fff;
         }
 
         #result {
@@ -250,7 +251,7 @@
             margin: 0;
             font-size: 14px;
             line-height: 1.45;
-            color: rgba(255,255,255,0.88);
+            color: #fff;
             max-width: 44ch;
         }
 
@@ -286,7 +287,7 @@
             font-size: 11px;
             text-transform: uppercase;
             letter-spacing: 0.06em;
-            color: rgba(255,255,255,0.55);
+            color: #fff;
             margin-bottom: 6px;
         }
 
@@ -313,11 +314,18 @@
             border-color: rgba(255,255,255,0.45);
         }
 
+        /* Keyboard focus gets a real ring (the border tweak above is too low
+           contrast to satisfy 2.4.7). White clears 3:1 on the purple panel. */
+        .inputGroup input:focus-visible {
+            outline: 2px solid #fff;
+            outline-offset: 2px;
+        }
+
         .inputGroup input::placeholder { color: rgba(255,255,255,0.6); }
 
         /* ── Required field marker ── */
         .reqMark {
-            color: rgba(255,255,255,0.85);
+            color: #fff;
             font-size: 11px;
             vertical-align: middle;
         }
@@ -365,6 +373,7 @@
 
         #scenarioName::placeholder { color: rgba(255,255,255,0.6); }
         #scenarioName:focus { outline: none; background: rgba(255,255,255,0.16); border-color: rgba(255,255,255,0.45); }
+        #scenarioName:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
         #scenarioName.error { border-color: var(--color-error); }
 
         #saveBtn {
@@ -962,6 +971,11 @@
             outline: none;
         }
 
+        #mobileSheetContent .inputGroup input:focus-visible {
+            outline: 2px solid var(--brand-primary);
+            outline-offset: 2px;
+        }
+
         #mobileSheetContent .panelDivider { border-top-color: #ebebeb; }
 
         #mobileSheetContent #scenarioName {
@@ -977,6 +991,11 @@
             background: #fff;
             border-color: var(--brand-primary);
             outline: none;
+        }
+
+        #mobileSheetContent #scenarioName:focus-visible {
+            outline: 2px solid var(--brand-primary);
+            outline-offset: 2px;
         }
 
         #mobileSheetContent #saveBtn {
@@ -1165,7 +1184,7 @@
 
         <section id="hero" aria-label="Total savings summary" aria-live="polite" aria-atomic="true">
             <p id="heroYears" class="heroEyebrow"></p>
-            <div id="result" role="status"></div>
+            <div id="result"></div>
             <p id="heroBreakdown" class="heroBreakdown"></p>
         </section>
 
@@ -1220,6 +1239,9 @@
         <div id="chartWrapper">
             <div id="chart"></div>
         </div>
+        <!-- Text alternative for the SVG: same series the bars visualize,
+             kept in sync by renderChartTable() on every chart update. -->
+        <div id="chartTable" class="sr-only"></div>
 
         <section id="insightsSection" aria-labelledby="insightsHeading">
             <h2 id="insightsHeading" class="insightsSectionTitle">Key Insights</h2>
@@ -1227,7 +1249,7 @@
                 <button type="button" id="insightPrevBtn" class="insightNavBtn insightNavBtn--prev" aria-label="Scroll insights left" aria-controls="insightCards" hidden>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><polyline points="15 18 9 12 15 6"/></svg>
                 </button>
-                <div id="insightCards" role="list" aria-label="Key insights about your retirement projection" aria-live="polite"></div>
+                <div id="insightCards" role="list" aria-label="Key insights about your retirement projection"></div>
                 <button type="button" id="insightNextBtn" class="insightNavBtn insightNavBtn--next" aria-label="Scroll insights right" aria-controls="insightCards" hidden>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><polyline points="9 18 15 12 9 6"/></svg>
                 </button>
@@ -1261,7 +1283,7 @@
 <div id="mobileOverlay"></div>
 
 <!-- Mobile bottom sheet -->
-<div id="mobileSheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitleText">
+<div id="mobileSheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitleText" inert>
     <div class="sheetHandle" aria-hidden="true"></div>
     <div class="sheetHeader">
         <span class="sheetTitle" id="sheetTitleText">Configure</span>
@@ -1368,18 +1390,23 @@
 
     function openSheet() {
         sheetOpener = document.activeElement;
-        document.getElementById("mobileOverlay").classList.add("visible");
-        document.getElementById("mobileSheet").classList.add("open");
-        // Move focus to first focusable element in the sheet
         var sheet = document.getElementById("mobileSheet");
+        // Un-inert before focusing — while closed the sheet is inert so its
+        // off-screen inputs stay out of the tab order and the AT tree.
+        sheet.inert = false;
+        document.getElementById("mobileOverlay").classList.add("visible");
+        sheet.classList.add("open");
+        // Move focus to first focusable element in the sheet
         var focusable = sheet.querySelectorAll('input, button, [tabindex]:not([tabindex="-1"])');
         if (focusable.length) setTimeout(function() { focusable[0].focus(); }, 50);
         if (window.CalcAnalytics) window.CalcAnalytics.mobileSheetOpened();
     }
 
     function closeSheet() {
+        var sheet = document.getElementById("mobileSheet");
         document.getElementById("mobileOverlay").classList.remove("visible");
-        document.getElementById("mobileSheet").classList.remove("open");
+        sheet.classList.remove("open");
+        sheet.inert = true;
         // Return focus to the element that opened the sheet
         if (sheetOpener) { sheetOpener.focus(); sheetOpener = null; }
     }
@@ -2251,6 +2278,28 @@
         });
     }
 
+    // Visually-hidden data table mirroring the chart, so screen-reader and
+    // keyboard users get the underlying series the SVG only shows visually.
+    // Every value is numeric (fmtDollar / integer year) — no user-supplied
+    // strings — so innerHTML carries no injection surface here.
+    function renderChartTable(rows) {
+        var host = document.getElementById("chartTable");
+        if (!host) return;
+        var html = '<table><caption>Projected retirement savings by year, ' +
+            'broken down by self contributions, employer contributions, and interest earned.</caption>' +
+            '<thead><tr><th scope="col">Year</th><th scope="col">Self contributions</th>' +
+            '<th scope="col">Employer contributions</th><th scope="col">Interest</th>' +
+            '<th scope="col">Total</th></tr></thead><tbody>';
+        rows.forEach(function(d) {
+            html += '<tr><th scope="row">' + d.time + '</th>' +
+                '<td>' + fmtDollar(d["Self Contributions"]) + '</td>' +
+                '<td>' + fmtDollar(d["Work Contributions"]) + '</td>' +
+                '<td>' + fmtDollar(d.Interest) + '</td>' +
+                '<td>' + fmtDollar(d.amount) + '</td></tr>';
+        });
+        host.innerHTML = html + '</tbody></table>';
+    }
+
     function lineChartUpdate(isInitial) {
         updateChartDims();
         d3.select(SECTION_ID).select("svg").attr("viewBox", "0 0 " + width + " " + height);
@@ -2278,6 +2327,7 @@
         // Bars use current-scenario data sampled at displayTimes checkpoints
         var barTimes    = displayTimes.filter(function(t) { return t <= inp.t; });
         var displayData = barTimes.map(function(t) { return totalArray[t]; });
+        renderChartTable(displayData);
 
         var series = d3.stack().keys(KEYS)(displayData);
 
